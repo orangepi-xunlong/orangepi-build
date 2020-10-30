@@ -1,0 +1,23 @@
+# Orange Pi ramlog service
+# Stores logs in (compressed) memory
+# This service may block the boot process for up to 30 sec
+
+[Unit]
+Description=Orange Pi memory supported logging
+DefaultDependencies=no
+Before=rsyslog.service sysinit.target syslog.target
+After=orangepi-zram-config.service
+Conflicts=shutdown.target
+RequiresMountsFor=/var/log /var/log.hdd
+IgnoreOnIsolate=yes
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/orangepi/orangepi-ramlog start
+ExecStop=/usr/lib/orangepi/orangepi-ramlog stop
+ExecReload=/usr/lib/orangepi/orangepi-ramlog write
+RemainAfterExit=yes
+TimeoutStartSec=30sec
+
+[Install]
+WantedBy=sysinit.target

@@ -1,0 +1,34 @@
+## set this to NFS root path (ip:path)
+## or else provide dhcp option 17 (root-path)
+
+setenv nfs_ip NFS_LOCAL_IP
+setenv nfs_root NFS_ROOTFS
+setenv branch BRANCH
+
+# for DHCP
+setenv net_setup "ip=dhcp"
+
+# for static configuration see documentation
+# https://github.com/torvalds/linux/blob/master/Documentation/filesystems/nfs/nfsroot.txt
+# setenv net_setup "ip=<client-ip>:<server-ip>:<gw-ip>:<netmask>:<hostname>:<device>:<autoconf>:<dns0-ip>:<dns1-ip>"
+
+# you may need to add extra kernel arguments specific to your device
+setenv bootargs "console=tty1 console=ttyS0,115200 root=/dev/nfs nfsroot=${nfs_ip}:${nfs_root} ${net_setup} rw rootflags=noatime,nodiratime disp.screen0_output_mode=1920x1080p60 panic=10 consoleblank=0 enforcing=0 loglevel=6"
+
+if test ${branch} != legacy; then
+	ext4load mmc 0 ${fdt_addr_r} /dtb/${fdtfile} || fatload mmc 0 ${fdt_addr_r} /dtb/${fdtfile}
+	ext4load mmc 0 ${kernel_addr_r} zImage || fatload mmc 0 ${kernel_addr_r} zImage
+	setenv ramdisk_addr_r "-"
+	# uncomment to enable initrd
+	#ext4load mmc 0 ${ramdisk_addr_r} uInitrd || fatload mmc 0 ${ramdisk_addr_r} uInitrd || setenv ramdisk_addr_r "-"
+	setenv fdt_high ffffffff
+	bootz ${kernel_addr_r} ${ramdisk_addr_r} ${fdt_addr_r}
+else
+	ext4load mmc 0 ${fdt_addr_r} script.bin || fatload mmc 0 ${fdt_addr_r} script.bin
+	ext4load mmc 0 ${kernel_addr_r} zImage || fatload mmc 0 ${kernel_addr_r} zImage
+	ext4load mmc 0 ${ramdisk_addr_r} uInitrd || fatload mmc 0 ${ramdisk_addr_r} uInitrd || setenv ramdisk_addr_r "-"
+	bootz ${kernel_addr_r} ${ramdisk_addr_r}
+fi
+
+# Recompile with:
+# mkimage -C none -A arm -T script -d boot.cmd boot.scr

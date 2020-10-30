@@ -1,0 +1,17 @@
+# Orange Pi firstrun service
+# Regenerates the SSH keys and performs additional first run tweaks
+# This service will run in parallel with other services
+
+[Unit]
+Description=Orange Pi first run tasks
+Before=getty.target system-getty.slice
+
+[Service]
+Type=simple
+RemainAfterExit=yes
+ExecStart=/usr/lib/orangepi/orangepi-firstrun start
+TimeoutStartSec=2min
+
+[Install]
+WantedBy=multi-user.target
+

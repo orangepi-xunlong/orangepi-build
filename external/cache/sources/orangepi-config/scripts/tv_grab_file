@@ -1,0 +1,55 @@
+#!/bin/bash
+dflag=
+vflag=
+cflag=
+if (( $# < 1 ))
+then
+	### URL of your XML file
+	wget -qO - "http://xml.tv.data"
+	exit 0
+fi
+
+for arg
+do
+	delim=""
+	case "$arg" in
+		#translate --gnu-long-options to -g (short options)
+		--description) args="${args}-d ";;
+		--version) args="${args}-v ";;
+		--capabilities) args="${args}-c ";;
+		#pass through anything else
+		*) [[ "${arg:0:1}" == "-" ]] || delim="\""
+		args="${args}${delim}${arg}${delim} ";;
+    esac
+done
+
+#Reset the positional parameters to the short options
+eval set -- $args
+
+while getopts "dvc" option
+do
+	case $option in
+		d)  dflag=1;;
+		v)  vflag=1;;
+		c)  cflag=1;;
+		\?) printf "unknown option: -%s\n" $OPTARG
+			printf "Usage: %s: [--description] [--version] [--capabilities] \n" $(basename $0)
+			exit 2
+			;;
+	esac >&2
+done
+
+if [ "$dflag" ]
+then
+	printf "tv_grag_file is a simple grabber that just read the ~/.xmltv/tv_grab_file.xmltv file\n"
+fi
+if [ "$vflag" ]
+then
+	printf "0.1\n"
+fi
+if [ "$cflag" ]
+then
+	printf "baseline\n"
+fi
+
+exit 0

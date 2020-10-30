@@ -1,0 +1,177 @@
+#!/bin/bash
+#
+# Copyright (c) Authors: http://www.armbian.com/authors, info@armbian.com
+#
+# This file is licensed under the terms of the GNU General Public
+# License version 2. This program is licensed "as is" without any
+# warranty of any kind, whether express or implied.
+
+
+
+#
+# check for root privileges
+#
+if [[ $EUID != 0 ]]; then
+	echo "This tool requires root privileges. Try again with \"sudo \" please ..." >&2
+	sleep 2
+	exit 1
+fi
+
+
+
+
+#
+# check for internet connection to install dependencies
+#
+wget -q --spider http://github.com
+if [[ $? -ne 0 ]]; then
+	read -n 1 -s -p "Warning: Configuration cannot work properly without a working internet connection. \
+	Press CTRL C to stop or any key to ignore and continue."
+fi
+
+
+
+
+#
+# load functions, local first
+#
+if  [[ -f ${BASH_SOURCE}-jobs ]]; then source ${BASH_SOURCE}-jobs;
+	elif  [[ -f /usr/lib/orangepi-config/jobs.sh ]]; then source /usr/lib/orangepi-config/jobs.sh;
+	else exit 1;
+fi
+
+if  [[ -f ${BASH_SOURCE}-submenu ]]; then source ${BASH_SOURCE}-submenu;
+	elif  [[ -f /usr/lib/orangepi-config/submenu.sh ]]; then source /usr/lib/orangepi-config/submenu.sh;
+	else exit 1;
+fi
+
+if  [[ -f ${BASH_SOURCE}-functions ]]; then source ${BASH_SOURCE}-functions;
+	elif  [[ -f /usr/lib/orangepi-config/functions.sh ]]; then source /usr/lib/orangepi-config/functions.sh;
+	else exit 1;
+fi
+
+if  [[ -f ${BASH_SOURCE}-functions-network ]]; then source ${BASH_SOURCE}-functions-network;
+	elif  [[ -f /usr/lib/orangepi-config/functions-network.sh ]]; then source /usr/lib/orangepi-config/functions-network.sh;
+	else exit 1;
+fi
+
+
+# Script parameters handling
+while [[ $1 == *=* ]]; do
+	parameter=${1%%=*}
+	value=${1##*=}
+	shift
+	echo "Command line: setting $parameter to ${value:-(empty)}"
+	eval "$parameter=\"$value\""
+	scripted=true
+done
+
+# Display help
+if [[ $1 == "--help" ]]; then
+	echo "Orange Pi config options:"
+	echo ""
+	echo "Examples:"
+	echo ""
+	echo "Install headers:					${BASH_SOURCE[0]} main=Sytem selection=Headers"
+	echo "Update, upgrade and reboot:			${BASH_SOURCE[0]} main=System selection=Firmware"
+	echo "Switch to nightly builds:				${BASH_SOURCE[0]} main=System selection=Nightly"
+	echo "Switch to stable builds: 				${BASH_SOURCE[0]} main=System selection=Stable"
+	echo "Install default desktop:                          ${BASH_SOURCE[0]} main=System selection=Default"
+	echo "Change to ZSH:					${BASH_SOURCE[0]} main=System selection=ZSH"
+	echo "Change to BASH: 					${BASH_SOURCE[0]} main=System selection=BASH"
+	echo "Change to stable repository [branch=dev]:		${BASH_SOURCE[0]} main=System selection=Stable"
+	echo "Change to nightly repository [branch=dev]:	${BASH_SOURCE[0]} main=System selection=Nightly"
+	echo "Install headers:					${BASH_SOURCE[0]} main=Software selection=Headers_install"
+	echo "Remove headers:					${BASH_SOURCE[0]} main=Software selection=Headers_remove"
+	echo "Install kernel source:				${BASH_SOURCE[0]} main=Software selection=Source_install"
+	echo "Remove kernel source:				${BASH_SOURCE[0]} main=Software selection=Source_remove"
+	echo "Install Avahi mDNS/DNS-SD daemon:			${BASH_SOURCE[0]} main=Software selection=Avahi"
+	exit
+fi
+
+# collect info
+main "$@"
+
+#
+# Main menu
+#
+while true
+do
+	LIST=()
+
+	LIST+=( "System" "System and security settings" )
+	LIST+=( "Network" "Wired, wireless, Bluetooth, access point" )
+	LIST+=( "Personal" "Timezone, language, hostname" )
+	LIST+=( "Software" "System and 3rd party software install" )
+	LIST+=( "Help" "Documentation, support, sources" )
+
+	# count number of menu items to adjust window size
+	LISTLENGTH="$((11+${#LIST[@]}/2))"
+	BOXLENGTH=${#LIST[@]}
+	MENUTITLE="Configure \Z1$DISTRO $DISTROID\Z0"
+
+	# read cpu speed
+	POLICY="policy0"
+	[[ $(grep -c '^processor' /proc/cpuinfo) -gt 4 ]] && POLICY="policy4"
+	[[ ! -d /sys/devices/system/cpu/cpufreq/policy4 ]] && POLICY="policy0"
+	num=$(cat /sys/devices/system/cpu/cpufreq/$POLICY/scaling_min_freq 2> /dev/null)
+	if [[ -f /etc/default/cpufrequtils && ! -z "${num##*[!0-9]*}" ]]; then
+		LISTLENGTH=$((LISTLENGTH + 2))
+		MIN_CPU=$(($(cat /sys/devices/system/cpu/cpufreq/$POLICY/scaling_min_freq) / 1000))
+		MAX_CPU=$(($(cat /sys/devices/system/cpu/cpufreq/$POLICY/scaling_max_freq) / 1000))
+		GOVERNOR_CPU=$(cat /sys/devices/system/cpu/cpufreq/$POLICY/scaling_governor)
+		FREQENCIES="\nSoC runs between \Z1${MIN_CPU}\Z0 and \Z1${MAX_CPU} MHz\Z0 using \Z1${GOVERNOR_CPU}\Z0 governor.\n"
+	fi
+
+	[[ -n "${BOARD_NAME/ /}" ]] && MENUTITLE=$MENUTITLE" based \Z1OrangePi\Z0 for the \Z1${BOARD_NAME}\Z0 "
+
+	# main dialog routine
+	DIALOG_CANCEL=1
+	DIALOG_ESC=255
+	TITLELENGTH=${#MENUTITLE}
+
+	[[ "$TITLELENGTH" -lt 60 ]] && TITLELENGTH="60"
+
+if [[ -z $main ]]; then
+	exec 3>&1
+	main=$(dialog --colors --backtitle "$BACKTITLE" --title " orangepi-config " --clear \
+	--cancel-label "Exit" --menu "\n$MENUTITLE \n$FREQENCIES\nSupport: \Z1http://www.orangepi.org\Z0\n " \
+	$LISTLENGTH ${TITLELENGTH} $BOXLENGTH "${LIST[@]}" 2>&1 1>&3)
+	exit_status=$?
+	exec 3>&-
+
+	[[ $exit_status == $DIALOG_CANCEL || $exit_status == $DIALOG_ESC ]] && clear && exit
+
+	dialog --backtitle "$BACKTITLE" --title "Please wait" --infobox \
+	"\nLoading ${main,,} submodule ... " 5 $((26+${#main}))
+fi
+	case $main in
+
+		"System" )
+			submenu_settings
+		;;
+
+		"Network" )
+			submenu_networking
+		;;
+
+		"Personal" )
+			submenu_personal
+		;;
+
+		"Software" )
+			submenu_software
+		;;
+
+		"Help" )
+			unset main
+			t="This tool provides a straightforward way of configuring."
+			t=$t"\n \nAlthough it can be run at any time, some of the"
+			t=$t" options may have difficulties if you alter system settings manually.\n"
+                        t=$t"\n\Z1Documentation:\Z0    http://www.orangepi.org"
+			t=$t"\n\n\Z1Support:\Z0    http://www.orangepi.org\n"
+                        t=$t"\n\Z1Sources:\Z0    https://github.com/orangepi-xunlong"
+			show_box "Info" "$t" "18"
+		;;
+	esac
+done

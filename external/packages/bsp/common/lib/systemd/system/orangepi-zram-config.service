@@ -1,0 +1,20 @@
+# Orange Pi ZRAM configuration service
+# Create 1 + number of cores compressed block devices
+# This service may block the boot process for up to 30 sec
+
+[Unit]
+Description=Orange Pi ZRAM config
+DefaultDependencies=no
+After=local-fs.target
+Before=orangepi-ramlog.target
+Conflicts=shutdown.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/orangepi/orangepi-zram-config start
+ExecStop=/usr/lib/orangepi/orangepi-zram-config stop
+RemainAfterExit=yes
+TimeoutStartSec=30sec
+
+[Install]
+WantedBy=sysinit.target

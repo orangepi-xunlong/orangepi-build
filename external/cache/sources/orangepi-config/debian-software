@@ -1,0 +1,1827 @@
+#!/bin/bash
+#
+# Copyright (c) 2017 Igor Pečovnik, igor.pecovnik@gma**.com
+#
+# This file is licensed under the terms of the GNU General Public
+# License version 2. This program is licensed "as is" without any
+# warranty of any kind, whether express or implied.
+
+# Functions:
+# check_status
+# choose_webserver
+# server_conf
+# install_packet
+# alive_port
+# alive_process
+# install_basic
+# create_ispconfig_configuration
+# check_if_installed
+# install_cups
+# install_samba
+# install_ncp
+# install_omv
+# install_tvheadend
+# install_docker
+# install_urbackup
+# install_transmission
+# install_transmission_seed_orangepi_torrents
+# install_hassio
+# install_openhab
+# install_syncthing
+# install_plex_media_server
+# install_emby_server
+# install_radarr
+# install_sonarr
+# install_vpn_server
+# install_vpn_client
+# install_DashNTP
+# install_MySQL
+# install_MySQLDovecot
+# install_Virus
+# install_hhvm
+# install_phpmyadmin
+# install_apache
+# install_nginx
+# install_PureFTPD
+# install_Bind
+# install_Stats
+# install_Jailkit
+# install_Fail2BanDovecot
+# install_Fail2BanRulesDovecot
+# install_ISPConfig
+
+
+
+
+#
+# load functions, local first
+#
+if  [[ -f debian-config-jobs ]]; then source debian-config-jobs;
+	elif  [[ -f /usr/lib/orangepi-config/jobs.sh ]]; then \
+	source /usr/lib/orangepi-config/jobs.sh;
+	else exit 1;
+fi
+
+if  [[ -f debian-config-submenu ]]; then source debian-config-submenu;
+	elif  [[ -f /usr/lib/orangepi-config/submenu.sh ]]; then \
+	source /usr/lib/orangepi-config/submenu.sh;
+	else exit 1;
+fi
+
+if  [[ -f debian-config-functions ]]; then source debian-config-functions;
+	elif  [[ -f /usr/lib/orangepi-config/functions.sh ]]; then \
+	source /usr/lib/orangepi-config/functions.sh;
+	else exit 1;
+fi
+
+if  [[ -f debian-config-functions-network ]]; then source debian-config-functions-network;
+	elif  [[ -f /usr/lib/orangepi-config/functions-network.sh ]]; then \
+	source /usr/lib/orangepi-config/functions-network.sh;
+	else exit 1;
+fi
+
+
+
+
+function check_status
+{
+#
+# Check if service is already installed and show it's status
+#
+
+	dialog --backtitle "$BACKTITLE" --title "Please wait" --infobox "\nLoading install info ... " 5 28
+	LIST=()
+	LIST_CONST=26
+
+	# Samba
+	SAMBA_STATUS="$(check_if_installed samba && echo "on" || echo "off" )"
+	alive_port "Windows compatible file sharing" "445" "boolean"
+	LIST+=( "Samba" "$DESCRIPTION" "$SAMBA_STATUS" )
+
+	# CUPS
+	CUPS_STATUS="$(check_if_installed cups && echo "on" || echo "off" )"
+	alive_port "Common UNIX Printing System (CUPS)" "631" "boolean"
+	LIST+=( "CUPS" "$DESCRIPTION" "$CUPS_STATUS" )
+
+	# TV headend
+	TVHEADEND_STATUS="$(check_if_installed tvheadend && echo "on" || echo "off" )"
+	alive_port "TV streaming server" "9981"
+	LIST+=( "TV headend" "$DESCRIPTION" "$TVHEADEND_STATUS" )
+
+	# Synthing
+	SYNCTHING_STATUS="$([[ -f /usr/bin/syncthing ]] && echo "on" || echo "off" )"
+	alive_port "Personal cloud @syncthing.net" "8384"
+	LIST+=( "Syncthing" "$DESCRIPTION" "$SYNCTHING_STATUS" )
+
+	# Hass.io
+	HASS_STATUS="$([[ -f /etc/hassio.json ]] && echo "on" || echo "off" )"
+	alive_port "Home assistant smarthome suite" "8123"
+	#LIST+=( "Hassio" "$DESCRIPTION" "$HASS_STATUS" )
+
+	# OpenHab
+	OPENHAB_STATUS="$([[ -f /usr/bin/openhab-cli ]] && echo "on" || echo "off" )"
+	alive_port "Openhab2 smarthome suite" "8080"
+	LIST+=( "OpenHAB" "$DESCRIPTION" "$OPENHAB_STATUS" )
+
+	# VPN
+	if [[ "$(dpkg --print-architecture)" == "armhf" || "$(dpkg --print-architecture)" == "amd64" ]]; then
+		# vpn server
+		VPN_SERVER_STATUS="$([[ -d /usr/local/vpnserver ]] && echo "on" || echo "off" )"
+		LIST+=( "VPN server" "Softether VPN server" "$VPN_SERVER_STATUS" )
+		# vpn client
+		VPN_CLIENT_STATUS="$([[ -d /usr/local/vpnclient ]] && echo "on" || echo "off" )"
+		LIST+=( "VPN client" "Softether VPN client" "$VPN_CLIENT_STATUS" )
+		LIST_CONST=$((LIST_CONST + 1))
+	fi
+
+	# NCP
+	NCP_STATUS="$( [[ -d /var/www/nextcloud ]] && echo "on" || echo "off" )"
+	alive_port "Nextcloud personal cloud" "443"
+	[[ "$family" != "Ubuntu" ]] && LIST+=( "NCP" "$DESCRIPTION" "$NCP_STATUS" ) \
+	&& LIST_CONST=$((LIST_CONST + 1))
+
+	# OMV
+	OMV_STATUS="$(check_if_installed openmediavault && echo "on" || echo "off" )"
+	[[ "$family" != "Ubuntu" ]] && LIST+=( "OMV" "OpenMediaVault NAS solution" "$OMV_STATUS" ) \
+	&& LIST_CONST=$((LIST_CONST + 1))
+
+	# Plex media server
+	PLEX_STATUS="$((check_if_installed plexmediaserver || check_if_installed plexmediaserver-installer) \
+	&& echo "on" || echo "off" )"
+	alive_port "Plex media server" "32400"
+	LIST+=( "Plex" "$DESCRIPTION" "$PLEX_STATUS" )
+
+	# Emby server
+	AMBY_STATUS="$((check_if_installed emby-server) \
+	&& echo "on" || echo "off" )"
+	alive_port "Emby server" "8096"
+	LIST+=( "Emby" "$DESCRIPTION" "$AMBY_STATUS" )
+
+	# Radarr
+	RADARR_STATUS="$([[ -d /opt/Radarr ]] && echo "on" || echo "off" )"
+	alive_port "Movies downloading server" "7878"
+	LIST+=( "Radarr" "$DESCRIPTION" "$RADARR_STATUS" )
+
+	# Sonarr
+	SONARR_STATUS="$([[ -d /opt/NzbDrone ]] && echo "on" || echo "off" )"
+	alive_port "TV shows downloading server" "8989"
+	LIST+=( "Sonarr" "$DESCRIPTION" "$SONARR_STATUS" )
+
+	# MINIdlna
+	MINIDLNA_STATUS="$(check_if_installed minidlna && echo "on" || echo "off" )"
+	alive_port "Lightweight DLNA/UPnP-AV server" "8200" "boolean"
+	LIST+=( "Minidlna" "$DESCRIPTION" "$MINIDLNA_STATUS" )
+
+	# Pi hole
+	PI_HOLE_STATUS="$([[ -d /etc/pihole ]] && echo "on" || echo "off" )"
+	alive_process "Ad blocker" "pihole-FTL"
+	LIST+=( "Pi hole" "$DESCRIPTION" "$PI_HOLE_STATUS" )
+
+	# Transmission
+	TRANSMISSION_STATUS="$(check_if_installed transmission-daemon && echo "on" || echo "off" )"
+	alive_port "Torrent download server" "9091"
+	#LIST+=( "Transmission" "$DESCRIPTION" "$TRANSMISSION_STATUS" )
+
+	# UrBackup
+	URBACKUP_STATUS="$((check_if_installed urbackup-server || check_if_installed urbackup-server-dbg) \
+	&& echo "on" || echo "off" )"
+	alive_port "Client/server backup system" "55414"
+	LIST+=( "UrBackup" "$DESCRIPTION" "$URBACKUP_STATUS" )
+
+	# Docker
+	DOCKER_STATUS="$((check_if_installed docker-ce) && echo "on" || echo "off" )"
+	LIST+=( "Docker" "Run applications by using containers" "$DOCKER_STATUS")
+
+	# Mayan EDMS docker install
+	if [[ "$DOCKER_STATUS" == "on" ]]; then
+		curl --output /dev/null --silent --head --fail http://localhost/authentication/login/?next=
+		MAYAN_STATUS=$([[ $? -eq 0 ]] && echo "on" || echo "off")
+	else
+		MAYAN_STATUS="off"
+	fi
+
+	#LIST+=( "Mayan EDMS" "Electronic vault for your documents" "$MAYAN_STATUS")
+
+	# ISPconfig
+	alive_port "SMTP mail, IMAP, POP3 & LAMP/LEMP web server" "8080" "ssl"
+	ISPCONFIG_STATUS="$([[ -d /usr/local/ispconfig ]] && echo "on" || echo "off" )"
+	LIST+=( "ISPConfig" "$DESCRIPTION" "$ISPCONFIG_STATUS" )
+
+	# PHPmyadmin
+#   TODO: fix phpmyadmin installer before uncommenting this section
+#	if [[ $ISPCONFIG_STATUS == on ]]; then
+#	LIST_CONST=$((LIST_CONST + 1))
+#	alive_port "MYSQL administration" "8081" "" "/phpmyadmin"
+#	PHPMYADMIN_STATUS="on"
+#	LIST+=( "PHPmyadmin" "$DESCRIPTION" "$PHPMYADMIN_STATUS" )
+#	fi
+}
+
+
+
+
+function choose_webserver
+{
+#
+# Target web server selection
+#
+check_if_installed openmediavault
+case $? in
+	0)
+		# OMV installed, prevent switching from nginx to apache which would trash OMV installation
+		server="nginx"
+		;;
+	*)
+		dialog --title "Choose a webserver" --backtitle "$BACKTITLE" --yes-label "Apache" --no-label "Nginx" \
+		--yesno "\nChoose a web server which you are familiar with. They both work almost the same." 8 70
+		response=$?
+		case $response in
+			0) server="apache";;
+			1) server="nginx";;
+			255) exit;;
+		esac
+		;;
+esac
+}
+
+
+
+
+function server_conf
+{
+#
+# Add some required date for installation
+#
+if [[ "$(curl -s ipinfo.io/ip)" != "$serverIP" ]]; then
+table="\Z2Application     Protocol      Port\n
+\Z0----------------------------------\n
+FTP                  TCP        20\n
+FTP                  TCP        21\n
+SSH/SFTP             TCP        22\n
+Mail (SMTP)          TCP        25\n
+DNS                  TCP        53\n
+Web (HTTP)           TCP        80\n
+Mail (POP3)          TCP       110\n
+Mail (IMAP)          TCP       143\n
+Web (HTTPS)          TCP       443\n
+Mail (SMTPS)         TCP       465\n
+Mail (SMTP)          TCP       587\n
+Mail (IMAPS)         TCP       993\n
+Mail (POP3S)         TCP       995\n
+Database             TCP      3306\n
+Chat (XMPP)          TCP      5222\n
+ISPConfig            TCP      8080\n
+ISPConfig            TCP      8081\n
+ISPConfig            TCP     10000\n
+DNS                  UDP        53\n
+Database             UDP      3306\n
+";
+dialog --colors --title "Warning" --msgbox "\nYour internal and external IP addresses are different which seems that you are behind a router. \n\nMake sure \Z1$serverIP\Z0 is a static IP address. Then forward external ports to those services which you plan to use.\n\n\n$table" 38 38
+fi
+#
+HOSTNAMEFQDN=$(\
+  dialog --title "Server configuration" \
+		 --ok-label "Install" \
+		 --backtitle "$BACKTITLE" \
+         --inputbox "\nSet FQDN for $serverIP:" 10 50 \
+		 "$(hostname).example.com" \
+  3>&1 1>&2 2>&3 3>&- \
+)
+# create random password for mysql
+MYSQL_PASS=$(< /dev/urandom tr -dc A-Z-a-z-0-9 | head -c16)
+}
+
+
+
+
+install_packet ()
+{
+#
+# Install missing packets
+#
+i=0
+j=1
+IFS=" "
+declare -a PACKETS=($1)
+#skupaj=$(apt-get -s -y -qq install $1 | wc -l)
+skupaj=${#PACKETS[@]}
+while [[ $i -lt $skupaj ]]; do
+	procent=$(echo "scale=2;($j/$skupaj)*100"|bc)
+	x=${PACKETS[$i]}
+	if [ $(dpkg-query -W -f='${Status}' $x 2>/dev/null | grep -c "ok installed") -eq 0 ]; then
+		printf '%.0f\n' $procent | dialog \
+		--backtitle "$BACKTITLE" \
+		--title "Installing" \
+		--gauge "\n$2\n\n$x" 10 70
+		if [ "$(DEBIAN_FRONTEND=noninteractive apt-get -qq -y install $x >${TEMP_DIR}/install.log 2>&1 || echo 'Installation failed' \
+		| grep 'Installation failed')" != "" ]; then
+			echo -e "[\e[0;31m error \x1B[0m] Installation failed"
+			tail ${TEMP_DIR}/install.log
+			exit
+		fi
+	fi
+	i=$[$i+1]
+	j=$[$j+1]
+done
+echo ""
+}
+
+
+
+
+alive_port ()
+{
+#
+# Displays URL to the service $1 on port $2 or just that is active if $3 = boolean $4 = path
+#
+if [[ -n $(netstat -lnt | awk '$6 == "LISTEN" && $4 ~ ".'$2'"') ]]; then
+	if [[ $3 == boolean ]]; then
+		DESCRIPTION="$1 is \Z1active\Z0";
+	elif [[ $3 == ssl ]]; then
+		DESCRIPTION="Active on https://${serverIP}:\Z1$2\Z0$4";
+	else
+		DESCRIPTION="Active on http://${serverIP}:\Z1$2\Z0$4";
+	fi
+else
+	DESCRIPTION="$1";
+fi
+}
+
+
+
+
+alive_process ()
+{
+#
+# check if process name $2 is running. Display it's name $1 or $1 is active if active
+#
+if pgrep -x "$2" > /dev/null 2>&1; then DESCRIPTION="$1 is \Z1active\Z0"; else DESCRIPTION="$1"; fi
+}
+
+
+
+
+install_basic (){
+#
+# Set hostname, FQDN, add to sources list
+#
+IFS=" "
+set ${HOSTNAMEFQDN//./ }
+HOSTNAMESHORT="$1"
+cp /etc/hosts /etc/hosts.backup
+cp /etc/hostname /etc/hostname.backup
+# create new
+echo "127.0.0.1   localhost.localdomain   localhost" > /etc/hosts
+echo "${serverIP} ${HOSTNAMEFQDN} ${HOSTNAMESHORT} #ispconfig " >> /etc/hosts
+echo "$HOSTNAMESHORT" > /etc/hostname
+/etc/init.d/hostname.sh start >/dev/null 2>&1
+hostnamectl set-hostname $HOSTNAMESHORT
+if [[ $family == "Ubuntu" ]]; then
+	# set hostname in Ubuntu
+	hostnamectl set-hostname $HOSTNAMESHORT
+	# disable AppArmor
+	if [[ -n $(service apparmor status  2> /dev/null | grep -w active | grep -w running) ]]; then
+		service apparmor stop
+		update-rc.d -f apparmor remove
+		apt-get -y -qq remove apparmor apparmor-utils
+	fi
+else
+	grep -q "contrib" /etc/apt/sources.list || sed -i 's|main|main contrib|' /etc/apt/sources.list
+	grep -q "non-free" /etc/apt/sources.list || sed -i 's|contrib|contrib non-free|' /etc/apt/sources.list
+	grep -q "deb http://ftp.debian.org/debian jessie-backports main" /etc/apt/sources.list || echo "deb http://ftp.debian.org/debian jessie-backports main" >> /etc/apt/sources.list
+	debconf-apt-progress -- apt-get update
+fi
+}
+
+
+
+
+create_ispconfig_configuration (){
+#
+# ISPConfig autoconfiguration
+#
+cat > ${TEMP_DIR}/isp.conf.php <<EOF
+<?php
+\$autoinstall['language'] = 'en'; // de, en (default)
+\$autoinstall['install_mode'] = 'standard'; // standard (default), expert
+\$autoinstall['hostname'] = '$HOSTNAMEFQDN'; // default
+\$autoinstall['mysql_hostname'] = 'localhost'; // default: localhost
+\$autoinstall['mysql_root_user'] = 'root'; // default: root
+\$autoinstall['mysql_root_password'] = '$MYSQL_PASS';
+\$autoinstall['mysql_database'] = 'dbispconfig'; // default: dbispcongig
+\$autoinstall['mysql_charset'] = 'utf8'; // default: utf8
+\$autoinstall['mysql_port'] = '3306'; // default: 3306
+\$autoinstall['configure_jailkit'] = 'y'; // y (default), n
+\$autoinstall['configure_firewall'] = 'y'; // y (default), n
+\$autoinstall['configure_$server'] = 'y'; // y (default), n
+\$autoinstall['configure_dns'] = 'y'; // y (default), n
+\$autoinstall['http_server'] = '$server'; // y (default), n
+\$autoinstall['ispconfig_port'] = '8080'; // default: 8080
+\$autoinstall['ispconfig_admin_password'] = '1234'; // default: 1234
+\$autoinstall['ispconfig_use_ssl'] = 'y'; // y (default), n
+
+/* SSL Settings */
+\$autoinstall['ssl_cert_country'] = 'AU';
+\$autoinstall['ssl_cert_state'] = 'Some-State';
+\$autoinstall['ssl_cert_locality'] = 'Chicago';
+\$autoinstall['ssl_cert_organisation'] = 'Internet Widgits Pty Ltd';
+\$autoinstall['ssl_cert_organisation_unit'] = 'IT department';
+\$autoinstall['ssl_cert_common_name'] = \$autoinstall['hostname'];
+\$autoinstall['ssl_cert_email'] = 'joe@lamer.com';
+?>
+EOF
+}
+
+
+
+install_cups ()
+{
+#
+# Install printer system
+#
+#debconf-apt-progress -- apt-get update
+#debconf-apt-progress -- apt-get -y install cups lpr cups-filters
+apt-get update >/dev/null 2>&1
+apt-get -y install cups lpr cups-filters >/dev/null 2>&1
+# cups-filters if jessie
+sed -e 's/Listen localhost:631/Listen 631/g' -i /etc/cups/cupsd.conf
+sed -e 's/<Location \/>/<Location \/>\nallow $SUBNET/g' -i /etc/cups/cupsd.conf
+sed -e 's/<Location \/admin>/<Location \/admin>\nallow $SUBNET/g' -i /etc/cups/cupsd.conf
+sed -e 's/<Location \/admin\/conf>/<Location \/admin\/conf>\nallow $SUBNET/g' -i /etc/cups/cupsd.conf
+service cups restart
+service samba restart | service smbd restart >/dev/null 2>&1
+}
+
+
+
+
+install_samba ()
+{
+#
+# install Samba file sharing
+#
+local SECTION="Samba"
+SMBUSER=$(whiptail --inputbox "What is your samba username?" 8 78 $SMBUSER --title "$SECTION" 3>&1 1>&2 2>&3)
+exitstatus=$?; if [ $exitstatus = 1 ]; then exit 1; fi
+SMBPASS=$(whiptail --inputbox "What is your samba password?" 8 78 $SMBPASS --title "$SECTION" 3>&1 1>&2 2>&3)
+exitstatus=$?; if [ $exitstatus = 1 ]; then exit 1; fi
+SMBGROUP=$(whiptail --inputbox "What is your samba group?" 8 78 $SMBGROUP --title "$SECTION" 3>&1 1>&2 2>&3)
+exitstatus=$?; if [ $exitstatus = 1 ]; then exit 1; fi
+#
+debconf-apt-progress -- apt-get update
+debconf-apt-progress -- apt-get -y install samba samba-common-bin samba-vfs-modules
+useradd $SMBUSER
+echo -ne "$SMBPASS\n$SMBPASS\n" | passwd $SMBUSER >/dev/null 2>&1
+echo -ne "$SMBPASS\n$SMBPASS\n" | smbpasswd -a -s $SMBUSER >/dev/null 2>&1
+service samba stop | service smbd stop >/dev/null 2>&1
+cp /etc/samba/smb.conf /etc/samba/smb.conf.stock
+cat > /etc/samba/smb.conf.tmp << EOF
+[global]
+	workgroup = SMBGROUP
+	server string = %h server
+	hosts allow = SUBNET
+	log file = /var/log/samba/log.%m
+	max log size = 1000
+	syslog = 0
+	panic action = /usr/share/samba/panic-action %d
+	load printers = yes
+	printing = cups
+	printcap name = cups
+	min receivefile size = 16384
+	write cache size = 524288
+	getwd cache = yes
+	socket options = TCP_NODELAY IPTOS_LOWDELAY
+
+[printers]
+	comment = All Printers
+	path = /var/spool/samba
+	browseable = no
+	public = yes
+	guest ok = yes
+	writable = no
+	printable = yes
+	printer admin = SMBUSER
+
+[print$]
+	comment = Printer Drivers
+	path = /etc/samba/drivers
+	browseable = yes
+	guest ok = no
+	read only = yes
+	write list = SMBUSER
+
+[ext]
+	comment = Storage
+	path = /ext
+	browseable = yes
+	writable = yes
+	public = no
+	valid users = SMBUSER
+	force create mode = 0644
+EOF
+sed -i "s/SMBGROUP/$SMBGROUP/" /etc/samba/smb.conf.tmp
+sed -i "s/SMBUSER/$SMBUSER/" /etc/samba/smb.conf.tmp
+sed -i "s/SUBNET/$SUBNET/" /etc/samba/smb.conf.tmp
+dialog --backtitle "$BACKTITLE" --title "Review samba configuration" --no-collapse --editbox /etc/samba/smb.conf.tmp 30 0 2> /etc/samba/smb.conf.tmp.out
+if [[ $? = 0 ]]; then
+	mv /etc/samba/smb.conf.tmp.out /etc/samba/smb.conf
+	install -m 755 -g $SMBUSER -o $SMBUSER -d /ext
+	echo -ne "$SMBPASS\n$SMBPASS\n" | smbpasswd -a -s $SMBUSER >/dev/null 2>&1
+	service smbd stop >/dev/null 2>&1
+	sleep 3
+	service smbd start >/dev/null 2>&1
+fi
+}
+
+
+
+install_ncp (){
+	curl -sSL https://raw.githubusercontent.com/nextcloud/nextcloudpi/master/install.sh > ${TEMP_DIR}/install.sh
+	curl -sSL https://raw.githubusercontent.com/nextcloud/nextcloudpi/master/etc/ncp.cfg > ${TEMP_DIR}/ncp.cfg
+	local DEBIAN_RELEASE=$(awk '{if ($1 == "\"release\":" ) {print $2}}' ${TEMP_DIR}/ncp.cfg | sed 's/[", ]//g')
+	sed "s/check_distro etc\/ncp.cfg/[[ \$(lsb_release -cs) == \"${DEBIAN_RELEASE}\" ]] /" -i ${TEMP_DIR}/install.sh
+	bash ${TEMP_DIR}/install.sh
+}
+
+
+
+install_omv (){
+#
+# Install OpenMediaVault on Debian
+#
+if [ -f /etc/orangepi-release ]; then
+	. /etc/orangepi-release
+fi
+
+# Don't allow installation on Ubuntu
+if [[ "$family" == "Ubuntu" ]]; then
+	dialog --backtitle "$BACKTITLE" --title "Dependencies not met" --msgbox "\nOpenMediaVault can only be installed on Debian." 7 52
+	sleep 5
+	exit 1
+fi
+
+# Warning / Notice before install
+case $distribution in
+	wheezy|jessie)
+		dialog --backtitle "$BACKTITLE" --title "OMV3 is End of Life" --msgbox "\nUpgrade to a supported OS : Debian Stretch or Buster." 7 52
+		sleep 5
+		exit 1
+		;;
+esac
+
+# Download OMV install script
+wgeturl="https://github.com/OpenMediaVault-Plugin-Developers/installScript/raw/master/install"
+fancy_wget "$wgeturl" "-O ${TEMP_DIR}/omv_install.sh"
+
+# Remove Crony on Stretch since OMV4 depends on NTP
+if [[ "$distribution" == "stretch" ]]; then
+	apt-get -y -qq remove chrony
+fi
+
+# Execute install script
+echo "Now installing OpenMediaVault. Be patient, it will take several minutes..."
+bash ${TEMP_DIR}/omv_install.sh &>> /var/log/omv_install.log
+
+# Board Specific Tweak
+echo "Now applying board tweak if required..."
+
+# Hardkernel Cloudshell 1 and 2 fixes, read the whole thread for details:
+# https://forum.openmediavault.org/index.php/Thread/17855
+lsusb | grep -q -i "05e3:0735" && sed -i "/exit 0/i echo 20 > /sys/class/block/sda/queue/max_sectors_kb" /etc/rc.local
+
+case ${BOARD} in
+	odroidxu4)
+		HMP_Fix='; taskset -c -p 4-7 $i '
+		apt install -y i2c-tools
+		/usr/sbin/i2cdetect -y 1 | grep -q "60: 60"
+		if [ $? -eq 0 ]; then
+			add-apt-repository -y ppa:kyle1117/ppa
+			sed -i 's/jessie/xenial/' /etc/apt/sources.list.d/kyle1117-ppa-jessie.list
+			apt install -y -q cloudshell-lcd odroid-cloudshell cloudshell2-fan &
+			lsusb -v | awk -F"__" '/RANDOM_/ {print $2}' | head -n1 | while read ; do
+				echo "ATTRS{idVendor}==\"152d\", ATTRS{idProduct}==\"0561\", KERNEL==\"sd*\", ENV{DEVTYPE}==\"disk\", SYMLINK=\"disk/by-id/\$env{ID_BUS}-CloudShell2-${REPLY}-\$env{ID_MODEL}\"" >> /etc/udev/rules.d/99-cloudshell2.rules
+				echo "ATTRS{idVendor}==\"152d\", ATTRS{idProduct}==\"0561\", KERNEL==\"sd*\", ENV{DEVTYPE}==\"partition\", SYMLINK=\"disk/by-id/\$env{ID_BUS}-CloudShell2-${REPLY}-\$env{ID_MODEL}-part%n\"" >> /etc/udev/rules.d/99-cloudshell2.rules
+			done
+		fi
+		;;
+	helios4)
+		# Make mdadm display fault events on Fault LED
+		# NOTE : this is not a permanent approach need to be improved via some OMV core code change
+		if [ -f /usr/sbin/mdadm-fault-led.sh ]; then
+			if [[ "$distribution" == "stretch" ]]; then
+				sed -i -e "/HOMEHOST/a \\\n# Trigger Fault Led script when an event is detected\\nPROGRAM \/usr\/sbin\/mdadm-fault-led.sh" /usr/share/openmediavault/mkconf/mdadm
+				/usr/sbin/omv-mkconf mdadm
+			elif [[ "$distribution" == "buster" ]]; then
+				cat <<EOF > /srv/salt/omv/deploy/mdadm/25faultled.sls
+mdadm_add_program_config:
+  cmd.run:
+    - name: "echo -e '\n# Trigger Fault Led script when an event is detected\nPROGRAM /usr/sbin/mdadm-fault-led.sh' >> /etc/mdadm/mdadm.conf"
+EOF
+				/usr/sbin/omv-salt deploy run mdadm
+			fi
+		fi
+	;;
+esac
+}
+
+install_tvheadend ()
+{
+#
+# TVheadend https://tvheadend.org/ unofficial port https://tvheadend.org/boards/5/topics/21528
+#
+if [[ "$family" == "Ubuntu" ]]; then
+	apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 26F4EF8440618B66 >/dev/null 2>&1
+	add-apt-repository -y ppa:mamarley/tvheadend-git-stable >/dev/null 2>&1
+	debconf-apt-progress -- apt-get update
+	debconf-apt-progress -- apt-get -y install libssl-doc libssl1.0.0 zlib1g-dev tvheadend xmltv-util
+else
+	if [ ! -f /etc/apt/sources.list.d/tvheadend.list ]; then
+		echo "deb https://www.deb-multimedia.org ${distribution} main non-free" >> /etc/apt/sources.list.d/tvheadend.list
+		apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 5C808C2B65558117 >/dev/null 2>&1
+	fi
+	URL="https://security.debian.org/debian-security/pool/updates/main/o/openssl/libssl1.0.0_1.0.1t-1+deb8u9_"$(dpkg --print-architecture)".deb"
+	fancy_wget "$URL" "-O ${TEMP_DIR}/package.deb"
+	dpkg -i ${TEMP_DIR}/package.deb >/dev/null 2>&1
+	debconf-apt-progress -- apt-get update
+	debconf-apt-progress -- apt-get -y install libssl-doc zlib1g-dev tvheadend xmltv-util
+fi
+}
+
+
+
+
+install_docker ()
+{
+
+#echo "deb [arch=$(dpkg --print-architecture)] https://download.docker.com/linux/${family,,} $distribution edge" >\
+# /etc/apt/sources.list.d/docker.list
+#curl -fsSL "https://download.docker.com/linux/${family,,}/gpg" | apt-key add -qq - > /dev/null 2>&1
+
+echo "deb [arch=$(dpkg --print-architecture)] https://mirrors.aliyun.com/docker-ce/linux/${family,,} $distribution edge" >\
+/etc/apt/sources.list.d/docker.list
+
+curl -fsSL "https://mirrors.aliyun.com/docker-ce/linux/${family,,}/gpg" | apt-key add -qq - > /dev/null 2>&1
+
+debconf-apt-progress -- apt-get update
+debconf-apt-progress -- apt-get install -y -qq --no-install-recommends docker-ce
+}
+
+
+
+
+install_urbackup ()
+{
+#
+# Client/server backup system https://www.urbackup.org/
+#
+if [ "$(dpkg --print-architecture | grep arm64)" == "arm64" ]; then local arch=armhf; else local arch=$(dpkg --print-architecture); fi
+PREFIX="https://hndl.urbackup.org/Server/latest/"
+URL="https://hndl.urbackup.org/Server/latest/"$(wget -q $PREFIX -O - | html2text -width 120 | grep deb | awk ' { print $3 }' | grep $arch)
+fancy_wget "$URL" "-O ${TEMP_DIR}/package.deb"
+dpkg -i ${TEMP_DIR}/package.deb >/dev/null 2>&1
+apt-get -yy -f install
+}
+
+
+
+
+install_transmission ()
+{
+#
+# transmission
+#
+install_packet "debconf-utils unzip build-essential html2text apt-transport-https" "Downloading dependencies"
+install_packet "transmission-cli transmission-common transmission-daemon" "Install torrent server"
+service transmission-daemon stop
+local A=(${serverIP//./ })
+local servernetwork="${A[0]}.${A[1]}.*.*"
+sed "s/\"rpc-whitelist\": \"127.0.0.1.*/\"rpc-whitelist\": \"127.0.0.1,$servernetwork\",/" -i /etc/transmission-daemon/settings.json
+service transmission-daemon start
+# systemd workaround
+# https://forum.armbian.com/index.php?/topic/4017-programs-does-not-start-automatically-at-boot/
+sed -e 's/exit 0//g' -i /etc/rc.local
+cat >> /etc/rc.local <<"EOF"
+service transmission-daemon restart
+exit 0
+EOF
+}
+
+
+
+install_transmission_seed_orangepi_torrents ()
+{
+#
+# seed our torrents
+#
+# adjust network buffers if necessary
+rmem_recommended=4194304
+wmem_recommended=1048576
+rmem_actual=$(sysctl net.core.rmem_max | awk -F" " '{print $3}')
+if [ ${rmem_actual} -lt ${rmem_recommended} ]; then
+	grep -q net.core.rmem_max /etc/sysctl.conf && \
+		sed -i "s/net.core.rmem_max =.*/net.core.rmem_max = ${rmem_recommended}/" /etc/sysctl.conf || \
+		echo "net.core.rmem_max = ${rmem_recommended}" >> /etc/sysctl.conf
+fi
+wmem_actual=$(sysctl net.core.wmem_max | awk -F" " '{print $3}')
+if [ ${wmem_actual} -lt ${wmem_recommended} ]; then
+	grep -q net.core.wmem_max /etc/sysctl.conf && \
+		sed -i "s/net.core.wmem_max =.*/net.core.wmem_max = ${wmem_recommended}/" /etc/sysctl.conf || \
+		echo "net.core.wmem_max = ${wmem_recommended}" >> /etc/sysctl.conf
+fi
+/sbin/sysctl -p >/dev/null 2>&1
+# create cron job for daily sync with official Armbian torrents
+cat > /etc/cron.daily/seed-armbian-torrent <<"EOF"
+#!/bin/bash
+#
+# armbian torrents auto update
+#
+# download latest torrent pack
+TEMP_DIR=$(mktemp -d || exit 1)
+chmod 700 ${TEMP_DIR}
+trap "rm -rf \"${TEMP_DIR}\" ; exit 0" 0 1 2 3 15
+wget -qO- -O ${TEMP_DIR}/armbian-torrents.zip https://dl.armbian.com/torrent/all-torrents.zip
+# test zip for corruption
+unzip -t ${TEMP_DIR}/armbian-torrents.zip >/dev/null 2>&1
+[[ $? -ne 0 ]] && echo "Error in zip" && exit
+# extract zip
+unzip -o ${TEMP_DIR}/armbian-torrents.zip -d ${TEMP_DIR}/torrent-tmp >/dev/null 2>&1
+# create list of current active torrents
+transmission-remote -n 'transmission:transmission' -l | sed '1d; $d' > ${TEMP_DIR}/torrent-tmp/active.torrents
+# loop and add/update torrent files
+for f in ${TEMP_DIR}/torrent-tmp/*.torrent; do
+        transmission-remote -n 'transmission:transmission' -a $f > /dev/null 2>&1
+        # remove added from the list
+        pattern="${f//.torrent}"; pattern="${pattern##*/}";
+        sed -i "/$pattern/d" ${TEMP_DIR}/torrent-tmp/active.torrents
+done
+# remove old armbian torrents
+while read i; do
+        [[ $i == *Armbian_* || $i == *gcc-linaro-* || $i == *tar.lz4 ]] && transmission-remote -n 'transmission:transmission' -t $(echo "$i" | awk '{print $1}';) --remove-and-delete
+done < ${TEMP_DIR}/torrent-tmp/active.torrents
+# remove temporally files and direcotories
+EOF
+chmod +x /etc/cron.daily/seed-armbian-torrent
+/etc/cron.daily/seed-armbian-torrent &
+}
+
+
+
+
+install_hassio ()
+{
+#
+# Install Home assistant smart home suite hass.io / Docker instance by using official installer
+#
+
+local arch=$(dpkg --print-architecture)
+
+case $arch in
+	armhf)
+		local machine=raspberrypi2
+	;;
+	arm64)
+		local machine=raspberrypi4-64
+	;;
+	amd64)
+		local machine=intel-nuc
+	;;
+	*)
+		exit 1
+	;;
+esac
+
+if [ $? == 0 ]; then
+
+	install_docker
+	debconf-apt-progress -- apt-get update
+	debconf-apt-progress -- apt-get install -y apparmor-utils apt-transport-https avahi-daemon ca-certificates \
+	dbus jq network-manager socat software-properties-common
+	#curl -sL "https://raw.githubusercontent.com/home-assistant/supervised-installer/master/installer.sh" | \
+	#bash -s -- -m  ${machine}
+	curl -sL "https://gitee.com/leeboby/supervised-installer/raw/master/installer.sh" | \
+	bash -s -- -m  ${machine}
+	dialog --backtitle "$BACKTITLE" --title "Please wait" \
+	--msgbox "\nIt can take several minutes before Home Assistant UI becomes available! " 7 75
+
+fi
+}
+
+
+
+
+install_openhab ()
+{
+#
+# Install Openhab2 smart home suite openhab.org
+#
+
+# Install ZuluJDK
+#
+# test below
+#
+# sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0xB1998361219BD9C9
+# sudo apt-add-repository 'deb http://repos.azulsystems.com/ubuntu stable main'
+# apt install zulu-embedded-8
+
+
+local jdkArch=$(dpkg --print-architecture)
+
+case $jdkArch in
+
+	armhf)
+		URL="https://cdn.azul.com/zulu-embedded/bin/zulu8.40.0.178-ca-jdk1.8.0_222-linux_aarch32hf.tar.gz"
+		;;
+	arm64)
+		URL="https://cdn.azul.com/zulu-embedded/bin/zulu8.40.0.178-ca-jdk1.8.0_222-linux_aarch64.tar.gz"
+		;;
+	amd64)
+		URL="https://cdn.azul.com/zulu/bin/zulu8.42.0.21-ca-jdk8.0.232-linux_x64.tar.gz"
+		;;
+	*)
+		URL="https://cdn.azul.com/zulu/bin/zulu8.42.0.21-ca-jdk8.0.232-linux_i686.tar.gz"
+
+esac
+
+fancy_wget "$URL" "-O ${TEMP_DIR}/zulu8.tar.gz"
+mkdir -p /opt/jdk
+tar -xpzf ${TEMP_DIR}/zulu8.tar.gz -C /opt/jdk
+jdkBin=$(find /opt/jdk/*/bin ... -print -quit)
+jdkLib=$(find /opt/jdk/*/lib ... -print -quit)
+update-alternatives --remove-all java >/dev/null 2>&1
+update-alternatives --remove-all javac >/dev/null 2>&1
+update-alternatives --install /usr/bin/java java "$jdkBin"/java 1083000 >/dev/null 2>&1
+update-alternatives --install /usr/bin/javac javac "$jdkBin"/javac 1083000 >/dev/null 2>&1
+echo "$jdkLib"/"$jdkArch" > /etc/ld.so.conf.d/java.conf
+echo "$jdkLib"/"$jdkArch"/jli >> /etc/ld.so.conf.d/java.conf
+ldconfig >/dev/null 2>&1
+wget -qO - 'https://bintray.com/user/downloadSubjectPublicKey?username=openhab' | apt-key add - >/dev/null 2>&1
+echo 'deb https://dl.bintray.com/openhab/apt-repo2 stable main' | tee /etc/apt/sources.list.d/openhab2.list >/dev/null 2>&1
+debconf-apt-progress -- apt-get update
+debconf-apt-progress -- apt-get install -y openhab2
+systemctl daemon-reload >/dev/null 2>&1
+systemctl enable openhab2.service >/dev/null 2>&1
+systemctl start openhab2.service >/dev/null 2>&1
+# addons seems broken
+# apt-get install -y openhab2-addons
+sed -i 's|EXTRA_JAVA_OPTS=""|EXTRA_JAVA_OPTS="-Dgnu.io.rxtx.SerialPorts=/dev/ttyUSB0:/dev/ttyS0:/dev/ttyS2:/dev/ttyACM0:/dev/ttyAMA0"|' /etc/default/openhab2
+service openhab2 restart >/dev/null 2>&1
+dialog --backtitle "$BACKTITLE" --title "Please wait" --msgbox \
+"\nIt can take several minutes before OpenHAB UI becomes available! " 7 68
+}
+
+
+
+
+install_syncthing ()
+{
+#
+# Install Personal cloud https://syncthing.net/
+#
+
+curl -s https://syncthing.net/release-key.txt | apt-key add - >/dev/null 2>&1
+echo "deb https://apt.syncthing.net/ syncthing stable" | tee /etc/apt/sources.list.d/syncthing.list >/dev/null 2>&1
+debconf-apt-progress -- apt-get update
+debconf-apt-progress -- apt-get -y install syncthing
+
+# increase open file limit
+if !(grep -qs "fs.inotify.max_user_watches=204800" "/etc/sysctl.conf");then
+	echo -e "fs.inotify.max_user_watches=204800" | tee -a /etc/sysctl.conf
+fi
+add_choose_user
+mv /lib/systemd/system/syncthing@.service /lib/systemd/system/syncthing@${CHOSEN_USER}.service
+
+# create startup files
+systemctl enable syncthing@${CHOSEN_USER}.service >/dev/null 2>&1
+systemctl start syncthing@${CHOSEN_USER}.service >/dev/null 2>&1
+systemctl stop syncthing@${CHOSEN_USER}.service >/dev/null 2>&1
+systemctl start syncthing@${CHOSEN_USER}.service >/dev/null 2>&1
+# wait until config file is created
+while :
+do
+	if [[ -f /home/${CHOSEN_USER}/.config/syncthing/config.xml ]]; then break; fi
+	sleep 1
+done
+# change to server IP
+sed -i "s/127.0.0.1/${serverIP}/" /home/${CHOSEN_USER}/.config/syncthing/config.xml
+systemctl restart syncthing@${CHOSEN_USER}.service >/dev/null 2>&1
+dialog --backtitle "$BACKTITLE" --title "Please wait" --msgbox "\nIt can take several minutes before Syncthing UI becomes available! " 7 70
+}
+
+
+
+
+install_plex_media_server ()
+{
+#
+# Plex Media server
+#
+	echo -e "deb https://downloads.plex.tv/repo/deb public main" > /etc/apt/sources.list.d/plex.list
+	wget -q -O - https://downloads.plex.tv/plex-keys/PlexSign.key | apt-key add - >/dev/null 2>&1
+	debconf-apt-progress -- apt-get update
+	debconf-apt-progress -- apt-get -y install plexmediaserver
+}
+
+
+
+
+install_emby_server ()
+{
+#
+# Emby server
+#
+	ARCH=$(dpkg --print-architecture)
+	#URL=$(curl -s https://api.github.com/repos/MediaBrowser/Emby.Releases/releases/latest | grep "/emby-server-deb.*${ARCH}.deb" | cut -d : -f 2,3 | tr -d \")
+	#URL=https://gitee.com/leeboby/embyreleases/raw/master/emby-server-deb_4.5.2.0_${ARCH}.deb
+	#fancy_wget "$URL" "-O ${TEMP_DIR}/emby.deb"
+	git clone https://gitee.com/leeboby/embyreleases.git /tmp/emby >/dev/null 2>&1
+	dpkg -i /tmp/emby/emby-server-deb_4.5.2.0_${ARCH}.deb >/dev/null 2>&1
+	apt-get -yy -f install
+	rm -rf /tmp/emby
+}
+
+
+
+
+install_radarr ()
+{
+#
+# Automatically downloading movies
+#
+debconf-apt-progress -- apt-get update
+debconf-apt-progress -- apt-get -y install mono-devel mediainfo libmono-cil-dev
+#wgeturl=$(curl -s "https://api.github.com/repos/Radarr/Radarr/releases" | grep 'linux.tar.gz' | grep 'browser_download_url' | head -1 | cut -d \" -f 4)
+#fancy_wget "$wgeturl" "-O ${TEMP_DIR}/radarr.tgz"
+git clone -b radarr https://gitee.com/leeboby/software.git /tmp/radarr >/dev/null 2>&1
+cp /tmp/radarr/Radarr*linux.tar.gz /tmp/radarr/radarr.tgz
+tar xf /tmp/radarr/radarr.tgz -C /opt
+cat << _EOF_ > /etc/systemd/system/radarr.service
+[Unit]
+Description=Radarr Daemon
+After=network.target
+[Service]
+User=root
+Type=simple
+ExecStart=/usr/bin/mono --debug /opt/Radarr/Radarr.exe -nobrowser
+[Install]
+WantedBy=multi-user.target
+_EOF_
+systemctl enable radarr >/dev/null 2>&1
+systemctl start radarr
+}
+
+
+
+
+install_sonarr ()
+{
+#
+# Automatically downloading TV shows
+#
+if [ "$(dpkg --print-architecture | grep arm64)" == "arm64" ]; then
+	debconf-apt-progress -- apt-get update
+	debconf-apt-progress -- apt-get -y install mono-complete mediainfo
+	fancy_wget "https://update.sonarr.tv/v2/develop/mono/NzbDrone.develop.tar.gz" "-O ${TEMP_DIR}/sonarr.tgz"
+	tar xf ${TEMP_DIR}/sonarr.tgz -C /opt
+else
+	apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 0xA236C58F409091A18ACA53CBEBFF6B99D9B78493 >/dev/null 2>&1
+	echo -e "deb http://apt.sonarr.tv/ master main" | sudo tee /etc/apt/sources.list.d/sonarr.list
+	debconf-apt-progress -- apt-get update
+	debconf-apt-progress -- apt-get -y install nzbdrone
+fi
+cat << _EOF_ > /etc/systemd/system/sonarr.service
+[Unit]
+Description=Sonarr (NzbDrone) Daemon
+After=network.target
+[Service]
+User=root
+Type=simple
+ExecStart=/usr/bin/mono --debug /opt/NzbDrone/NzbDrone.exe -nobrowser
+[Install]
+WantedBy=multi-user.target
+_EOF_
+systemctl enable sonarr >/dev/null 2>&1
+systemctl start sonarr
+}
+
+
+
+
+install_vpn_server ()
+{
+#
+# Script downloads latest stable
+#
+cd ${TEMP_DIR}
+#PREFIX="https://www.softether-download.com/files/softether/"
+install_packet "debconf-utils unzip build-essential html2text apt-transport-https" "Downloading basic packages"
+#URL=$(wget -q $PREFIX -O - | html2text | grep rtm | awk ' { print $(NF) }' | tail -1)
+#SUFIX="${URL/-tree/}"
+#if [ "$(dpkg --print-architecture | grep armhf)" != "" ]; then
+#DLURL=$PREFIX$URL"/Linux/SoftEther_VPN_Server/32bit_-_ARM_EABI/softether-vpnserver-$SUFIX-linux-arm_eabi-32bit.tar.gz"
+#else
+#install_packet "gcc-multilib" "Install libraries"
+#DLURL=$PREFIX$URL"/Linux/SoftEther_VPN_Server/32bit_-_Intel_x86/softether-vpnserver-$SUFIX-linux-x86-32bit.tar.gz"
+#fi
+#wget -q $DLURL -O - | tar -xz
+git clone -b vpnserver --depth=1 https://gitee.com/leeboby/software.git /tmp/vpnserver >/dev/null 2>&1
+cd /tmp/vpnserver
+tar -zxf *.tar.gz
+cd vpnserver
+make i_read_and_agree_the_license_agreement | dialog --backtitle "$BACKTITLE" --title "Compiling SoftEther VPN" --progressbox $TTY_Y $TTY_X
+cd ..
+cp -R vpnserver /usr/local
+cd /usr/local/vpnserver/
+chmod 600 *
+chmod 700 vpncmd
+chmod 700 vpnserver
+if [[ -d /run/systemd/system/ ]]; then
+cat <<EOT >/lib/systemd/system/ethervpn.service
+[Unit]
+Description=VPN service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/vpnserver/vpnserver start
+ExecStop=/usr/local/vpnserver/vpnserver stop
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+EOT
+systemctl enable ethervpn.service
+service ethervpn start
+
+else
+
+cat <<EOT > /etc/init.d/vpnserver
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          vpnserver
+# Required-Start:    \$remote_fs \$syslog
+# Required-Stop:     \$remote_fs \$syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start daemon at boot time
+# Description:       Enable Softether by daemon.
+### END INIT INFO
+DAEMON=/usr/local/vpnserver/vpnserver
+LOCK=/var/lock/vpnserver
+test -x $DAEMON || exit 0
+case "\$1" in
+start)
+\$DAEMON start
+touch \$LOCK
+;;
+stop)
+\$DAEMON stop
+rm \$LOCK
+;;
+restart)
+\$DAEMON stop
+sleep 3
+\$DAEMON start
+;;
+*)
+echo "Usage: \$0 {start|stop|restart}"
+exit 1
+esac
+exit 0
+EOT
+chmod 755 /etc/init.d/vpnserver
+mkdir /var/lock/subsys
+update-rc.d vpnserver defaults >> $logfile
+/etc/init.d/vpnserver start
+fi
+}
+
+
+
+
+install_vpn_client ()
+{
+#
+# Script downloads latest stable
+#
+#cd ${TEMP_DIR}
+#PREFIX="https://www.softether-download.com/files/softether/"
+install_packet "debconf-utils unzip build-essential html2text apt-transport-https" "Downloading basic packages"
+#URL=$(wget -q $PREFIX -O - | html2text | grep rtm | awk ' { print $(NF) }' | tail -1)
+#SUFIX="${URL/-tree/}"
+#if [ "$(dpkg --print-architecture | grep armhf)" != "" ]; then
+#	DLURL=$PREFIX$URL"/Linux/SoftEther_VPN_Client/32bit_-_ARM_EABI/softether-vpnclient-$SUFIX-linux-arm_eabi-32bit.tar.gz"
+#else
+#	install_packet "gcc-multilib" "Install libraries"
+#	DLURL=$PREFIX$URL"/Linux/SoftEther_VPN_Client/32bit_-_Intel_x86/softether-vpnclient-$SUFIX-linux-x86-32bit.tar.gz"
+#fi
+#wget -q $DLURL -O - | tar -xz
+git clone -b vpnclient --depth=1 https://gitee.com/leeboby/software.git /tmp/vpnclient >/dev/null 2>&1
+cd /tmp/vpnclient
+tar -zxf *.tar.gz
+cd vpnclient
+make i_read_and_agree_the_license_agreement | dialog --backtitle "$BACKTITLE" --title "Compiling SoftEther VPN vpnclient" --progressbox $TTY_Y $TTY_X
+cd ..
+cp -R vpnclient /usr/local
+cd /usr/local/vpnclient/
+chmod 600 *
+chmod 700 vpncmd
+chmod 700 vpnclient
+}
+
+
+
+
+install_DashNTP ()
+{
+#
+# Install DASH and NTP service
+#
+echo "dash dash/sh boolean false" | debconf-set-selections
+dpkg-reconfigure -f noninteractive dash > /dev/null 2>&1
+install_packet "ntp ntpdate" "Install DASH and NTP service"
+}
+
+
+
+
+install_MySQL ()
+{
+#
+# Maria SQL
+#
+install_packet "mariadb-client mariadb-server" "SQL client and server"
+#Allow MySQL to listen on all interfaces
+cp /etc/mysql/my.cnf /etc/mysql/my.cnf.backup
+[[ -f /etc/mysql/my.cnf ]] && sed -i 's|bind-address.*|#bind-address           = 127.0.0.1|' /etc/mysql/my.cnf
+[[ -f /etc/mysql/mariadb.conf.d/50-server.cnf ]] && sed -i 's|bind-address.*|#bind-address           = 127.0.0.1|' /etc/mysql/mariadb.conf.d/50-server.cnf
+SECURE_MYSQL=$(expect -c "
+set timeout 3
+spawn mysql_secure_installation
+expect \"Enter current password for root (enter for none):\"
+send \"\r\"
+expect \"root password?\"
+send \"y\r\"
+expect \"New password:\"
+send \"$MYSQL_PASS\r\"
+expect \"Re-enter new password:\"
+send \"$MYSQL_PASS\r\"
+expect \"Remove anonymous users?\"
+send \"y\r\"
+expect \"Disallow root login remotely?\"
+send \"y\r\"
+expect \"Remove test database and access to it?\"
+send \"y\r\"
+expect \"Reload privilege tables now?\"
+send \"y\r\"
+expect eof
+")
+#
+# Execution mysql_secure_installation
+#
+echo "${SECURE_MYSQL}" >> /dev/null
+# ISP config exception
+mkdir -p /etc/mysql/mariadb.conf.d/
+cat > /etc/mysql/mariadb.conf.d/99-ispconfig.cnf<<"EOF"
+[mysqld]
+sql-mode="NO_ENGINE_SUBSTITUTION"
+EOF
+service mysql restart >> /dev/null
+}
+
+
+
+
+install_MySQLDovecot ()
+{
+#
+# Install Postfix, Dovecot, Saslauthd, rkhunter, binutils
+#
+echo "postfix postfix/main_mailer_type select Internet Site" | debconf-set-selections
+echo "postfix postfix/mailname string $HOSTNAMEFQDN" | debconf-set-selections
+install_packet "postfix postfix-mysql postfix-doc openssl getmail4 rkhunter binutils dovecot-imapd dovecot-pop3d dovecot-mysql \
+dovecot-sieve sudo libsasl2-modules dovecot-lmtpd" "postfix, dovecot, saslauthd, rkhunter, binutils"
+#Uncommenting some Postfix configuration files
+cp /etc/postfix/master.cf /etc/postfix/master.cf.backup
+sed -i 's|#submission inet n       -       -       -       -       smtpd|submission inet n       -       -       -       -       smtpd|' /etc/postfix/master.cf
+sed -i 's|#  -o syslog_name=postfix/submission|  -o syslog_name=postfix/submission|' /etc/postfix/master.cf
+sed -i 's|#  -o smtpd_tls_security_level=encrypt|  -o smtpd_tls_security_level=encrypt|' /etc/postfix/master.cf
+sed -i 's|#  -o smtpd_sasl_auth_enable=yes|  -o smtpd_sasl_auth_enable=yes|' /etc/postfix/master.cf
+sed -i 's|#  -o smtpd_client_restrictions=permit_sasl_authenticated,reject|  -o smtpd_client_restrictions=permit_sasl_authenticated,reject|' /etc/postfix/master.cf
+sed -i 's|#  -o smtpd_sasl_auth_enable=yes|  -o smtpd_sasl_auth_enable=yes|' /etc/postfix/master.cf
+sed -i 's|#  -o smtpd_sasl_auth_enable=yes|  -o smtpd_sasl_auth_enable=yes|' /etc/postfix/master.cf
+sed -i 's|#  -o smtpd_sasl_auth_enable=yes|  -o smtpd_sasl_auth_enable=yes|' /etc/postfix/master.cf
+sed -i 's|#smtps     inet  n       -       -       -       -       smtpd|smtps     inet  n       -       -       -       -       smtpd|' /etc/postfix/master.cf
+sed -i 's|#  -o syslog_name=postfix/smtps|  -o syslog_name=postfix/smtps|' /etc/postfix/master.cf
+sed -i 's|#  -o smtpd_tls_wrappermode=yes|  -o smtpd_tls_wrappermode=yes|' /etc/postfix/master.cf
+service postfix restart >> /dev/null
+}
+
+
+
+
+install_Virus ()
+{
+#
+# Install Amavisd-new, SpamAssassin, And ClamAV
+#
+packets="amavisd-new spamassassin clamav clamav-daemon unzip bzip2 arj p7zip unrar-free rpm nomarch lzop \
+cabextract apt-listchanges libnet-ldap-perl libauthen-sasl-perl clamav-docs daemon libio-string-perl libio-socket-ssl-perl \
+libnet-ident-perl zip libnet-dns-perl postgrey"
+if [[ $distribution != "bionic" ]] && [[ $distribution != "buster" ]]; then
+	packets=$packets" zoo"
+fi
+if [[ $distribution != "buster" ]]; then packets=$packets" ripole"; fi
+install_packet "$packets" "amavisd, spamassassin, clamav"
+sed -i "s/^AllowSupplementaryGroups.*/AllowSupplementaryGroups true/" /etc/clamav/clamd.conf
+service spamassassin stop >/dev/null 2>&1
+systemctl disable spamassassin >/dev/null 2>&1
+# amavisd-new program has currently a bug in Ubuntu 18.04
+if [[ $distribution == bionic ]]; then
+	cd ${TEMP_DIR}
+	wget -q https://git.ispconfig.org/ispconfig/ispconfig3/raw/stable-3.1/helper_scripts/ubuntu-amavisd-new-2.11.patch
+	cd /usr/sbin
+	cp -pf amavisd-new amavisd-new_bak
+	patch  --silent < ${TEMP_DIR}/ubuntu-amavisd-new-2.11.patch >> /dev/null 2>&1
+fi
+freshclam  >> /var/log/ispconfig_config.log
+service clamav-daemon start >/dev/null 2>&1
+}
+
+
+
+
+install_hhvm ()
+{
+#
+# Install HipHop Virtual Machine
+#
+apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xB4112585D386EB94 >/dev/null 2>&1
+add-apt-repository https://dl.hhvm.com/"${family,,}" >/dev/null 2>&1
+debconf-apt-progress -- apt-get update
+install_packet "hhvm" "HipHop Virtual Machine"
+}
+
+
+
+
+install_phpmyadmin ()
+{
+#
+# Phpmyadmin unattended installation
+#
+if [[ "$family" != "Ubuntu" ]]; then
+	debconf-apt-progress -- apt-get update
+	DEBIAN_FRONTEND=noninteractive debconf-apt-progress -- apt-get -y install phpmyadmin
+else
+	debconf-set-selections <<< "phpmyadmin phpmyadmin/internal/skip-preseed boolean true"
+	debconf-set-selections <<< "phpmyadmin phpmyadmin/reconfigure-webserver multiselect true"
+	debconf-set-selections <<< "phpmyadmin phpmyadmin/dbconfig-install boolean false"
+	echo "phpmyadmin phpmyadmin/internal/skip-preseed boolean true" | debconf-set-selections
+	echo "phpmyadmin phpmyadmin/reconfigure-webserver multiselect" | debconf-set-selections
+	echo "phpmyadmin phpmyadmin/dbconfig-install boolean false" | debconf-set-selections
+	debconf-apt-progress -- apt-get update
+	debconf-apt-progress -- apt-get install -y phpmyadmin
+fi
+# Apache2 needs additional hack
+WWW_RECONFIG=$(expect -c "
+set timeout 3
+spawn dpkg-reconfigure -f readline phpmyadmin
+expect \"Reinstall database for phpmyadmin?\"
+send \"No\r\"
+expect \"Web server to reconfigure automatically:\"
+send \"1\r\"
+expect eof
+")
+echo "${WWW_RECONFIG}" >> /dev/null
+}
+
+
+
+
+install_apache ()
+{
+#
+# Install Apache2, PHP5, FCGI, suExec, Pear and mcrypt
+#
+
+local pkg="apache2 apache2-doc apache2-utils libapache2-mod-fcgid php-pear mcrypt imagemagick libruby libapache2-mod-python memcached"
+
+local pkg_xenial="libapache2-mod-php php7.0 php7.0-common php7.0-gd php7.0-mysql php7.0-imap php7.0-cli php7.0-cgi \
+apache2-suexec-pristine php-auth php7.0-mcrypt php7.0-curl php7.0-intl php7.0-pspell php7.0-recode php7.0-sqlite3 php7.0-tidy \
+php7.0-xmlrpc php7.0-xsl php-memcache php-imagick php-gettext php7.0-zip php7.0-mbstring php7.0-opcache php-apcu \
+libapache2-mod-fastcgi php7.0-fpm"
+
+local pkg_bionic="apache2 apache2-doc apache2-utils libapache2-mod-php php7.2 php7.2-common php7.2-gd php7.2-mysql php7.2-imap \
+phpmyadmin php7.2-cli php7.2-cgi libapache2-mod-fcgid apache2-suexec-pristine php-pear mcrypt  imagemagick libruby libapache2-mod-python \
+php7.2-curl php7.2-intl php7.2-pspell php7.2-recode php7.2-sqlite3 php7.2-tidy php7.2-xmlrpc php7.2-xsl memcached php-memcache \
+php-imagick php-gettext php7.2-zip php7.2-mbstring php-soap php7.2-soap php7.2-fpm php-apcu certbot"
+
+local pkg_stretch="libapache2-mod-php php7.0 php7.0-common php7.0-gd php7.0-mysql php7.0-imap php7.0-cli php7.0-cgi libapache2-mod-fcgid \
+apache2-suexec-pristine php7.0-mcrypt libapache2-mod-python php7.0-curl php7.0-intl php7.0-pspell php7.0-recode php7.0-sqlite3 \
+php7.0-tidy php7.0-xmlrpc php7.0-xsl php-memcache php-imagick php-gettext php7.0-zip php7.0-mbstring libapache2-mod-passenger \
+php7.0-soap php7.0-fpm php7.0-opcache php-apcu certbot"
+
+local pkg_jessie="apache2.2-common apache2-mpm-prefork libexpat1 ssl-cert libapache2-mod-php5 php5 php5-common php5-gd php5-mysql \
+php5-imap php5-cli php5-cgi libapache2-mod-fcgid apache2-suexec php-pear php-auth php5-mcrypt mcrypt php5-imagick libapache2-mod-python \
+php5-curl php5-intl php5-memcache php5-memcached php5-pspell php5-recode php5-sqlite php5-tidy php5-xmlrpc php5-xsl \
+libapache2-mod-passenger php5-xcache libapache2-mod-fastcgi php5-fpm"
+
+local pkg_buster="apache2 apache2-doc apache2-utils libapache2-mod-php php7.3 php7.3-common php7.3-gd php7.3-mysql php7.3-imap \
+php7.3-cli php7.3-cgi libapache2-mod-fcgid apache2-suexec-pristine php-pear mcrypt  imagemagick libruby libapache2-mod-python \
+php7.3-curl php7.3-intl php7.3-pspell php7.3-recode php7.3-sqlite3 php7.3-tidy php7.3-xmlrpc php7.3-xsl memcached php-memcache \
+php-imagick php-gettext php7.3-zip php7.3-mbstring php-soap php7.3-soap php7.3-fpm php-apcu certbot"
+
+local temp="pkg_${distribution}"
+install_packet "${pkg} ${!temp}" "Apache for $family $distribution"
+# fix HTTPOXY vulnerability
+cat <<EOT > /etc/apache2/conf-available/httpoxy.conf
+<IfModule mod_headers.c>
+    RequestHeader unset Proxy early
+</IfModule>
+
+EOT
+
+a2enmod actions proxy_fcgi setenvif fastcgi alias httpoxy suexec rewrite ssl actions include dav_fs dav auth_digest cgi headers >/dev/null 2>&1
+	case $distribution in
+	jessie)
+		a2enconf php5-fpm >/dev/null 2>&1
+	;;
+	xenial)
+		a2enconf php7.0-fpm >/dev/null 2>&1
+	;;
+	stretch)
+		a2enconf php7.0-fpm >/dev/null 2>&1
+	;;
+	bionic)
+		a2enconf php7.2-fpm >/dev/null 2>&1
+	;;
+	buster)
+		a2enconf php7.3-fpm >/dev/null 2>&1
+	;;
+	esac
+service apache2 restart >> /dev/null
+}
+
+
+
+
+install_nginx ()
+{
+#
+# Install NginX, PHP5, FCGI, suExec, Pear, And mcrypt
+#
+local pkg="nginx php-pear memcached fcgiwrap"
+
+local pkg_xenial="php7.0-fpm php7.0-opcache php7.0-fpm php7.0 php7.0-common php7.0-gd php7.0-mysql php7.0-imap php7.0-cli php7.0-cgi \
+php7.0-mcrypt mcrypt imagemagick libruby php7.0-curl php7.0-intl php7.0-pspell php7.0-recode php7.0-sqlite3 php7.0-tidy \
+php7.0-xmlrpc php7.0-xsl php-memcache php-imagick php-gettext php7.0-zip php7.0-mbstring php-apcu letsencrypt"
+
+local pkg_stretch="php7.0-fpm php7.0-opcache php7.0-fpm php7.0 php7.0-common php7.0-gd php7.0-mysql php7.0-imap php7.0-cli php7.0-cgi \
+php7.0-mcrypt mcrypt imagemagick libruby php7.0-curl php7.0-intl php7.0-pspell php7.0-recode php7.0-sqlite3 php7.0-tidy \
+php7.0-xmlrpc php7.0-xsl php-memcache php-imagick php-gettext php7.0-zip php7.0-mbstring php-apcu letsencrypt"
+
+local pkg_jessie="php5-fpm php5-mysql php5-curl php5-gd php5-intl php5-imagick php5-imap php5-mcrypt php5-memcache \
+php5-memcached php5-pspell php5-recode php5-snmp php5-sqlite php5-tidy php5-xmlrpc php5-xsl php-apc"
+
+local pkg_bionic="php7.2-fpm php7.2-opcache php7.2-fpm php7.2 php7.2-common php7.2-gd php7.2-mysql php7.2-imap php7.2-cli php7.2-cgi \
+imagemagick libruby php7.2-curl php7.2-intl php7.2-pspell php7.2-recode php7.2-sqlite3 php7.2-tidy \
+php7.2-xmlrpc php7.2-xsl php-memcache php-imagick php-gettext php7.2-zip php7.2-mbstring php-apcu letsencrypt"
+
+local pkg_buster="php7.3-fpm php7.3-opcache php7.3-fpm php7.3 php7.3-common php7.3-gd php7.3-mysql php7.3-imap php7.3-cli php7.3-cgi \
+imagemagick libruby php7.3-curl php7.3-intl php7.3-pspell php7.3-recode php7.3-sqlite3 php7.3-tidy \
+php7.3-xmlrpc php7.3-xsl php-memcache php-imagick php-gettext php7.3-zip php7.3-mbstring php-apcu letsencrypt"
+
+local temp="pkg_${distribution}"
+install_packet "${pkg} ${!temp}" "Nginx for $family $distribution"
+
+case $distribution in
+	jessie)
+		phpenmod mcrypt mbstring
+		debconf-apt-progress -- apt-get update
+		debconf-apt-progress -- apt-get install -y python-certbot -t jessie-backports
+		service php5-fpm reload >> /dev/null
+		;;
+	xenial)
+		phpenmod mcrypt mbstring
+		tz=$(cat /etc/timezone | sed 's/\//\\\//g')
+		sed -i "s/^cgi.fix_pathinfo=.*/cgi.fix_pathinfo=0/" /etc/php/7.0/fpm/php.ini
+		sed -i "s/^date.timezone=.*/date.timezone=""$tz""/" /etc/php/7.0/fpm/php.ini
+		service php7.0-fpm reload >> /dev/null
+		;;
+	stretch)
+		tz=$(cat /etc/timezone | sed 's/\//\\\//g')
+		sed -i "s/^cgi.fix_pathinfo=.*/cgi.fix_pathinfo=0/" /etc/php/7.0/fpm/php.ini
+		sed -i "s/^date.timezone=.*/date.timezone=""$tz""/" /etc/php/7.0/fpm/php.ini
+		service php7.0-fpm reload >> /dev/null
+		phpenmod mcrypt mbstring
+		;;
+	bionic)
+		tz=$(cat /etc/timezone | sed 's/\//\\\//g')
+		sed -i "s/^cgi.fix_pathinfo=.*/cgi.fix_pathinfo=0/" /etc/php/7.2/fpm/php.ini
+		sed -i "s/^date.timezone=.*/date.timezone=""$tz""/" /etc/php/7.2/fpm/php.ini
+		service php7.2-fpm reload >> /dev/null
+		phpenmod mbstring
+		;;
+	buster)
+		tz=$(cat /etc/timezone | sed 's/\//\\\//g')
+		sed -i "s/^cgi.fix_pathinfo=.*/cgi.fix_pathinfo=0/" /etc/php/7.3/fpm/php.ini
+		sed -i "s/^date.timezone=.*/date.timezone=""$tz""/" /etc/php/7.3/fpm/php.ini
+		service php7.3-fpm reload >> /dev/null
+		phpenmod mbstring
+		;;
+        esac
+}
+
+
+
+
+install_PureFTPD ()
+{
+#
+# Install PureFTPd and Quota
+#
+install_packet "pure-ftpd-common pure-ftpd-mysql quota quotatool" "pureFTPd and Quota"
+
+sed -i 's/VIRTUALCHROOT=false/VIRTUALCHROOT=true/' /etc/default/pure-ftpd-common
+echo 1 > /etc/pure-ftpd/conf/TLS
+mkdir -p /etc/ssl/private/
+openssl req -x509 -nodes -days 7300 -newkey rsa:2048 -subj "/C=GB/ST=GB/L=GB/O=GB/OU=GB/CN=$(hostname -f)/emailAddress=joe@joe.com" -keyout /etc/ssl/private/pure-ftpd.pem -out /etc/ssl/private/pure-ftpd.pem >/dev/null 2>&1
+chmod 600 /etc/ssl/private/pure-ftpd.pem
+/etc/init.d/pure-ftpd-mysql restart >/dev/null 2>&1
+local temp=$(cat /etc/fstab | grep "/ " | tail -1 | awk '{print $4}')
+sed -i "s/$temp/$temp,usrjquota=quota.user,grpjquota=quota.group,jqfmt=vfsv0/" /etc/fstab
+mount -o remount / >/dev/null 2>&1
+quotacheck -avugm >/dev/null 2>&1
+quotaon -avug >/dev/null 2>&1
+}
+
+
+
+
+install_Bind ()
+{
+#
+# Install BIND DNS Server
+#
+install_packet "bind9 dnsutils haveged" "Install BIND DNS Server"
+systemctl enable haveged >/dev/null 2>&1
+systemctl start haveged >/dev/null 2>&1
+}
+
+
+
+
+install_Stats ()
+{
+#
+# Install Vlogger, Webalizer, And AWstats
+#
+install_packet "vlogger webalizer awstats geoip-database libclass-dbi-mysql-perl" "vlogger, webalizer, awstats"
+sed -i "s/MAILTO=root/#MAILTO=root/" /etc/cron.d/awstats
+sed -i "s/*/10 * * * * www-data/#*/10 * * * * www-data/" /etc/cron.d/awstats
+sed -i "s/10 03 * * * www-data/#10 03 * * * www-data/" /etc/cron.d/awstats
+}
+
+
+
+
+install_Jailkit()
+{
+#
+debconf-apt-progress -- apt-get update
+debconf-apt-progress -- apt-get install -y build-essential autoconf automake libtool flex bison debhelper binutils
+cd ${TEMP_DIR}
+wget -q https://olivier.sessink.nl/jailkit/jailkit-2.19.tar.gz -O - | tar -xz && cd jailkit-2.19
+echo 5 > debian/compat
+./debian/rules binary > /dev/null 2>&1
+dpkg -i ../jailkit_2.19-1_*.deb > /dev/null 2>&1
+}
+
+
+
+
+install_Fail2BanDovecot()
+{
+#
+# Install fail2ban
+#
+install_packet "fail2ban ufw" "Install fail2ban and UFW Firewall"
+if [[ $distribution == "stretch" ]]; then
+cat > /etc/fail2ban/jail.local <<"EOF"
+[pure-ftpd]
+enabled = true
+port = ftp
+filter = pure-ftpd
+logpath = /var/log/syslog
+maxretry = 3
+
+[dovecot]
+enabled = true
+filter = dovecot
+logpath = /var/log/mail.log
+maxretry = 5
+
+[postfix-sasl]
+enabled = true
+port = smtp
+filter = postfix-sasl
+logpath = /var/log/mail.log
+maxretry = 3
+EOF
+else
+cat > /etc/fail2ban/jail.local <<"EOF"
+[pureftpd]
+enabled  = true
+port     = ftp
+filter   = pureftpd
+logpath  = /var/log/syslog
+maxretry = 3
+
+[dovecot-pop3imap]
+enabled = true
+filter = dovecot-pop3imap
+action = iptables-multiport[name=dovecot-pop3imap, port="pop3,pop3s,imap,imaps", protocol=tcp]
+logpath = /var/log/mail.log
+maxretry = 5
+
+[sasl]
+enabled  = true
+port     = smtp
+filter   = postfix-sasl
+logpath  = /var/log/mail.log
+maxretry = 3
+EOF
+fi
+}
+
+
+
+
+install_Fail2BanRulesDovecot()
+{
+#
+# Dovecot rules
+#
+cat > /etc/fail2ban/filter.d/pureftpd.conf <<"EOF"
+[Definition]
+failregex = .*pure-ftpd: \(.*@<HOST>\) \[WARNING\] Authentication failed for user.*
+ignoreregex =
+EOF
+
+cat > /etc/fail2ban/filter.d/dovecot-pop3imap.conf <<"EOF"
+[Definition]
+failregex = (?: pop3-login|imap-login): .*(?:Authentication failure|Aborted login \(auth failed|Aborted login \(tried to use disabled|Disconnected \(auth failed|Aborted login \(\d+ authentication attempts).*rip=(?P<host>\S*),.*
+ignoreregex =
+EOF
+# Add the missing ignoreregex line
+echo "ignoreregex =" >> /etc/fail2ban/filter.d/postfix-sasl.conf
+service fail2ban restart >> /dev/null
+}
+
+
+
+
+install_ISPConfig (){
+#
+# Install ISPConfig 3
+#
+cd ${TEMP_DIR}
+wget -q https://www.ispconfig.org/downloads/ISPConfig-3-stable.tar.gz -O - | tar -xz
+cd ${TEMP_DIR}/ispconfig3_install/install/
+php -q install.php --autoinstall=${TEMP_DIR}/isp.conf.php &>> /var/log/ispconfig_config.log
+dialog --colors --backtitle "$BACKTITLE" --no-collapse --title " Auto updating SSL certificate " --clear --yesno "\nDo you want to secure ISPConfig control panel and all services with free Let's Encrypt SSL certificate?" 8 80
+if [[ $? == 0 ]]; then
+	dialog --colors --backtitle "$BACKTITLE" --no-collapse --title " Instructions " --clear --msgbox "\n1. Access admin panel with your browser: \Z1https://$serverIP:8080\Z0\n\nUsername: \Z1admin\Z0\nPassword: \Z11234\Z0 \n\n\n2. Go to Sites > Website > \Z1Add new website\Z0\n\nDomain: \Z1$(hostname -f)\Z0\nAuto-Subdomain: \Z1None\Z0\nSSL: \Z1enable\Z0\nLet's Encrypt SSL: \Z1enable\Z0\n\n\n3. Go to Tools > \Z1Password and language\Z0\n\nChange ISPConfig control panel password.\n\nSave and Logout. \n\n\n4. Wait until SSL is not working here: \Z1https://$(hostname -f)\Z0 \n\nIt can take up to a few minutes.\n\n\n5. Proceed with install (\Z1Press ENTER\Z0):" 33 80
+	curl -sSL https://github.com/ahrasis/LE4ISPC/archive/master.zip > master.zip  2> /dev/null
+	unzip -qq master.zip
+	bash LE4ISPC-master/${server}/le4ispc.sh 2>&1
+fi
+}
+
+
+
+
+
+#
+# Main choices
+#
+
+# check for root
+#
+if [[ $EUID != 0 ]]; then
+	dialog --title "Warning" --infobox "\nThis script requires root privileges.\n\nExiting ..." 7 41
+	sleep 3
+	exit
+fi
+
+# nameserver backup
+if [ -d /etc/resolvconf/resolv.conf.d ]; then
+	echo 'nameserver 8.8.8.8' > /etc/resolvconf/resolv.conf.d/head
+	resolvconf -u &> /dev/null
+fi
+
+# Create a safe temporary directory
+TEMP_DIR=$(mktemp -d || exit 1)
+chmod 700 ${TEMP_DIR}
+trap "rm -rf \"${TEMP_DIR}\" ; exit 0" 0 1 2 3 15
+
+# Install basic stuff, we have to wait for other apt tasks to finish
+# (eg unattended-upgrades)
+i=0
+tput sc
+while fuser /var/lib/dpkg/lock >/dev/null 2>&1 ; do
+	case $(($i % 4)) in
+		0 ) j="-" ;;
+		1 ) j="\\" ;;
+		2 ) j="|" ;;
+		3 ) j="/" ;;
+	esac
+	tput rc
+	echo -en "\r[$j] Waiting for other software managers to finish..."
+	sleep 0.5
+	((i=i+1))
+done
+
+apt-get -qq -y --no-install-recommends install curl debconf-utils html2text apt-transport-https dialog whiptail lsb-release bc expect > /dev/null
+
+# gather some info
+#
+TTY_X=$(($(stty size | awk '{print $2}')-6)) # determine terminal width
+TTY_Y=$(($(stty size | awk '{print $1}')-6)) # determine terminal height
+distribution=$(lsb_release -cs)
+family=$(lsb_release -is)
+DEFAULT_ADAPTER=$(ip -4 route ls | grep default | tail -1 | grep -Po '(?<=dev )(\S+)')
+serverIP=$(ip -4 addr show dev $DEFAULT_ADAPTER | awk '/inet/ {print $2}' | cut -d'/' -f1)
+set ${serverIP//./ }
+SUBNET="$1.$2.$3."
+hostnamefqdn=$(hostname -f)
+mysql_pass=""
+BACKTITLE="Softy - Orange Pi post deployment scripts, http://www.orangepi.org"
+SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+#check_status
+
+# main dialog routine
+#
+DIALOG_CANCEL=1
+DIALOG_ESC=255
+
+while true; do
+
+	# prepare menu items
+	check_status
+	LISTLENGTH="$((${#LIST[@]}/2))"
+	exec 3>&1
+	selection=$(dialog --backtitle "$BACKTITLE" --title "Installing to $family $distribution" --colors --clear --cancel-label \
+	"Cancel" --ok-label "Install" --checklist "\nChoose what you want to install:\n " $LIST_CONST 71 18 "${LIST[@]}" 2>&1 1>&3)
+	exit_status=$?
+	exec 3>&-
+	case $exit_status in
+	$DIALOG_ESC | $DIALOG_CANCEL)
+		clear
+		exit 1
+		;;
+	esac
+
+	# cycle through all install options
+	i=0
+if ! is_package_manager_running; then
+	while [ "$i" -lt "$LISTLENGTH" ]; do
+
+		if [[ "$selection" == *Samba* && "$SAMBA_STATUS" != "on" ]]; then
+			install_samba
+			selection=${selection//Samba/}
+		fi
+
+		if [[ "$selection" == *CUPS* && "$CUPS_STATUS" != "on" ]]; then
+			install_cups
+			selection=${selection//CUPS/}
+		fi
+
+		if [[ "$selection" == *headend* && "$TVHEADEND_STATUS" != "on" ]]; then
+			install_tvheadend
+			selection=${selection//\"TV headend\"/}
+		fi
+
+		if [[ "$selection" == *Minidlna* && "$MINIDLNA_STATUS" != "on" ]]; then
+			install_packet "minidlna" "Install lightweight DLNA/UPnP-AV server"
+			selection=${selection//Minidlna/}
+		fi
+
+		if [[ "$selection" == *ISPConfig* && "$ISPCONFIG_STATUS" != "on" ]]; then
+			debconf-apt-progress -- apt-get update
+			server_conf
+			if [[ "$MYSQL_PASS" == "" ]]; then
+				dialog --msgbox "Mysql password can't be blank. Exiting..." 7 70
+				exit
+			fi
+			if [[ "$(echo $HOSTNAMEFQDN | grep -P '(?=^.{1,254}$)(^(?>(?!\d+\.)[a-zA-Z0-9_\-]{1,63}\.?)+(?:[a-zA-Z]{2,})$)')" == "" ]]; then
+				dialog --msgbox "Invalid FQDN. Exiting..." 7 70
+				exit
+			fi
+			choose_webserver; install_basic; install_DashNTP; install_MySQL; install_MySQLDovecot; install_Virus; install_$server;
+			install_phpmyadmin
+			[[ -z "$(dpkg --print-architecture | grep arm)" ]] && install_hhvm
+			create_ispconfig_configuration;install_PureFTPD;install_Stats;install_Bind;
+			install_Jailkit; install_Fail2BanDovecot; install_Fail2BanRulesDovecot;
+			install_ISPConfig
+			selection=${selection//ISPConfig/}
+		fi
+
+		if [[ "$selection" == *Syncthing* && "$SYNCTHING_STATUS" != "on" ]]; then
+			install_syncthing
+			selection=${selection//Syncthing/}
+		fi
+
+		if [[ "$selection" == *Hassio* && "$HASS_STATUS" != "on" ]]; then
+			install_hassio
+			selection=${selection//Hassio/}
+		fi
+
+		if [[ "$selection" == *OpenHAB* && "$OPENHAB_STATUS" != "on" ]]; then
+			install_openhab
+			selection=${selection//OpenHAB/}
+		fi
+
+		if [[ "$selection" == *server* && "$VPN_SERVER_STATUS" != "on" ]]; then
+			install_vpn_server
+			selection=${selection//\"VPN server\"/}
+		fi
+
+		if [[ "$selection" == *client* && "$VPN_CLIENT_STATUS" != "on" ]]; then
+			install_vpn_client
+			selection=${selection//\"VPN client\"/}
+		fi
+		if [[ "$selection" == *NCP* && "$NCP_STATUS" != "on" ]]; then
+			install_ncp
+			selection=${selection//NCP/}
+		fi
+
+		if [[ "$selection" == *OMV* && "$OMV_STATUS" != "on" ]]; then
+			install_omv
+			selection=${selection//OMV/}
+		fi
+
+		if [[ "$selection" == *Plex* && "$PLEX_STATUS" != "on" ]]; then
+			install_plex_media_server
+			selection=${selection//Plex/}
+		fi
+
+		if [[ "$selection" == *Emby* && "$EMBY_STATUS" != "on" ]]; then
+			install_emby_server
+			selection=${selection//Emby/}
+		fi
+
+		if [[ "$selection" == *Radarr* && "$RADARR_STATUS" != "on" ]]; then
+			install_radarr
+			selection=${selection//Radarr/}
+		fi
+
+		if [[ "$selection" == *Sonarr* && "$SONARR_STATUS" != "on" ]]; then
+			install_sonarr
+			selection=${selection//Sonarr/}
+		fi
+
+		if [[ "$selection" == *hole* && "$PI_HOLE_STATUS" != "on" ]]; then
+			#curl -L "https://install.pi-hole.net" | bash
+			export PIHOLE_SKIP_OS_CHECK=true
+			curl -L "https://gitee.com/leeboby/pi-hole/raw/master/automated%20install/basic-install.sh" | bash
+			selection=${selection//\"Pi hole\"/}
+		fi
+
+		if [[ "$selection" == *Docker* && "$DOCKER_STATUS" != "on" ]]; then
+			install_docker
+			selection=${selection//Docker/}
+		fi
+
+		if [[ "$selection" == *Transmission* && "$TRANSMISSION_STATUS" != "on" ]]; then
+			install_transmission
+			selection=${selection//Transmission/}
+			dialog --title "Seed Armbian torrents" --backtitle "$BACKTITLE" --yes-label "Yes" --no-label "No" --yesno "\
+			\nDo you want to help the community and seed armbian torrent files? It will ensure faster downloads for everyone.\
+			\n\nApproximately 400GB disk space is required." 11 44
+				if [[ $? = 0 ]]; then
+					install_transmission_seed_orangepi_torrents
+				fi
+		fi
+
+		if [[ "$selection" == *UrBackup* && "$URBACKUP_STATUS" != "on" ]]; then
+			install_urbackup
+			selection=${selection//UrBackup/}
+		fi
+
+		if [[ "$selection" == *Mayan* && "$MAYAN_STATUS" != "on" ]]; then
+			if [[ "$DOCKER_STATUS" == "off" ]]; then
+			install_docker
+			fi
+			curl -fsSL https://get.mayan-edms.com | bash
+			selection=${selection//Mayan/}
+		fi
+
+		i=$[$i+1]
+	done
+
+fi
+
+	# reread statuses
+	check_status
+done

@@ -20,11 +20,11 @@ install_common()
 	# install rootfs encryption related packages separate to not break packages cache
 	if [[ $CRYPTROOT_ENABLE == yes ]]; then
 		display_alert "Installing rootfs encryption related packages" "cryptsetup" "info"
-		chroot "${SDCARD}" /bin/bash -c "apt -y -qq --no-install-recommends install cryptsetup" \
+		chroot "${SDCARD}" /bin/bash -c "apt-get -y -qq --no-install-recommends install cryptsetup" \
 		>> "${DEST}"/debug/install.log 2>&1
 		if [[ $CRYPTROOT_SSH_UNLOCK == yes ]]; then
 			display_alert "Installing rootfs encryption related packages" "dropbear-initramfs" "info"
-			chroot "${SDCARD}" /bin/bash -c "apt -y -qq --no-install-recommends install dropbear-initramfs cryptsetup-initramfs" \
+			chroot "${SDCARD}" /bin/bash -c "apt-get -y -qq --no-install-recommends install dropbear-initramfs cryptsetup-initramfs" \
 			>> "${DEST}"/debug/install.log 2>&1
 		fi
 
@@ -215,24 +215,27 @@ install_common()
 	ff02::2     ip6-allrouters
 	EOF
 
+	display_alert "Updating" "package lists"
+	chroot "${SDCARD}" /bin/bash -c "apt-get update" >> "${DEST}"/debug/install.log 2>&1
+
 	# install family packages
 	if [[ -n ${PACKAGE_LIST_FAMILY} ]]; then
-		chroot "${SDCARD}" /bin/bash -c "DEBIAN_FRONTEND=noninteractive  apt -yqq --no-install-recommends install $PACKAGE_LIST_FAMILY" >> "${DEST}"/debug/install.log 2>&1
+		chroot "${SDCARD}" /bin/bash -c "DEBIAN_FRONTEND=noninteractive  apt-get -yqq --no-install-recommends install $PACKAGE_LIST_FAMILY" >> "${DEST}"/debug/install.log 2>&1
 	fi
 
 	# install family packages
 	if [[ -n ${PACKAGE_LIST_BOARD} ]]; then
-		chroot "${SDCARD}" /bin/bash -c "DEBIAN_FRONTEND=noninteractive  apt -yqq --no-install-recommends install $PACKAGE_LIST_BOARD" >> "${DEST}"/debug/install.log 2>&1
+		chroot "${SDCARD}" /bin/bash -c "DEBIAN_FRONTEND=noninteractive  apt-get -yqq --no-install-recommends install $PACKAGE_LIST_BOARD" >> "${DEST}"/debug/install.log 2>&1
 	fi
 
         # remove family packages
         if [[ -n ${PACKAGE_LIST_FAMILY_REMOVE} ]]; then
-                chroot "${SDCARD}" /bin/bash -c "DEBIAN_FRONTEND=noninteractive  apt -yqq remove --auto-remove $PACKAGE_LIST_FAMILY_REMOVE" >> "${DEST}"/debug/install.log 2>&1
+                chroot "${SDCARD}" /bin/bash -c "DEBIAN_FRONTEND=noninteractive  apt-get -yqq remove --auto-remove $PACKAGE_LIST_FAMILY_REMOVE" >> "${DEST}"/debug/install.log 2>&1
         fi
  
         # remove board packages
         if [[ -n ${PACKAGE_LIST_BOARD_REMOVE} ]]; then
-                chroot "${SDCARD}" /bin/bash -c "DEBIAN_FRONTEND=noninteractive  apt -yqq remove --auto-remove $PACKAGE_LIST_BOARD_REMOVE" >> "${DEST}"/debug/install.log 2>&1
+                chroot "${SDCARD}" /bin/bash -c "DEBIAN_FRONTEND=noninteractive  apt-get -yqq remove --auto-remove $PACKAGE_LIST_BOARD_REMOVE" >> "${DEST}"/debug/install.log 2>&1
         fi
 
 	# install u-boot
@@ -323,7 +326,7 @@ install_common()
 
 	# install wireguard tools
 	if [[ $WIREGUARD == yes ]]; then
-		chroot "${SDCARD}" /bin/bash -c "apt -y -qq install wireguard-tools --no-install-recommends" >> "${DEST}"/debug/install.log 2>&1
+		chroot "${SDCARD}" /bin/bash -c "apt-get -y -qq install wireguard-tools --no-install-recommends" >> "${DEST}"/debug/install.log 2>&1
 	fi
 
 	# freeze orangepi packages

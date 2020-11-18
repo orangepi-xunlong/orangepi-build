@@ -236,7 +236,7 @@ if [[ ${BUILD_OPT} == image || ${BUILD_OPT} == rootfs ]]; then
 		
 			if [[ $LINUXFAMILY == sun50iw9 || $LINUXFAMILY == sun50iw6 ]]; then
 		
-	       	 		RELEASE_TARGET="stretch xenial buster bionic focal"
+				RELEASE_TARGET="buster bionic focal"
 			else
 	       	 		RELEASE_TARGET="xenial"
 			fi

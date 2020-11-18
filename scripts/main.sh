@@ -244,7 +244,7 @@ if [[ ${BUILD_OPT} == image || ${BUILD_OPT} == rootfs ]]; then
 		elif [[ $BRANCH == current || $BRANCH == dev ]]; then
 
 	        	RELEASE_TARGET="buster bionic focal"
-
+			[[ $LINUXFAMILY == sun50iw6 ]] && RELEASE_TARGET="buster focal"
 		else
 
 			[[ -z $BRANCH ]] && exit_with_error "No kernel branch selected"

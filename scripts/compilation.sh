@@ -137,14 +137,13 @@ compile_uboot()
 		[[ -z $toolchain2 ]] && exit_with_error "Could not find required toolchain" "${toolchain2_type}gcc $toolchain2_ver"
 	fi
 
-
 	display_alert "Compiler version" "${UBOOT_COMPILER}gcc $(eval env PATH="${toolchain}:${toolchain2}:${PATH}" "${UBOOT_COMPILER}gcc" -dumpversion)" "info"
 	[[ -n $toolchain2 ]] && display_alert "Additional compiler version" "${toolchain2_type}gcc $(eval env PATH="${toolchain}:${toolchain2}:${PATH}" "${toolchain2_type}gcc" -dumpversion)" "info"
 
 	# create directory structure for the .deb package
 	local uboot_name=${CHOSEN_UBOOT}_${REVISION}_${ARCH}
-	rm -rf $SRC/.tmp/$uboot_name
-	mkdir -p $SRC/.tmp/$uboot_name/usr/lib/{u-boot,$uboot_name} $SRC/.tmp/$uboot_name/DEBIAN
+	rm -rf $SRC/.tmp/{$uboot_name,packout}
+	mkdir -p $SRC/.tmp/$uboot_name/usr/lib/{u-boot,$uboot_name} $SRC/.tmp/$uboot_name/DEBIAN $SRC/.tmp/packout
 
 	# process compilation for one or multiple targets
 	while read -r target; do
@@ -231,7 +230,11 @@ compile_uboot()
 				f_dst=$(basename "${f_src}")
 			fi
 			[[ ! -f $f_src ]] && exit_with_error "U-boot file not found" "$(basename "${f_src}")"
-			cp "${f_src}" "${SRC}/.tmp/${uboot_name}/usr/lib/${uboot_name}/${f_dst}"
+			if [[ "${version}" == 2014.07 || "${version}" == 2011.09 ]]; then
+				cp "${f_src}" "${SRC}/.tmp/packout/${f_dst}"
+			else
+				cp "${f_src}" "${SRC}/.tmp/${uboot_name}/usr/lib/${uboot_name}/${f_dst}"
+			fi
 		done
 	done <<< "$UBOOT_TARGET_MAP"
 

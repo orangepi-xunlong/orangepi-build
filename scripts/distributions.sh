@@ -191,10 +191,10 @@ install_common()
 		fi
 	fi
 
-	[[ -n $OVERLAY_PREFIX && -f $SDCARD/boot/orangepiEnv.txt ]] && \
+	[[ -n $OVERLAY_PREFIX && -f $SDCARD/boot/orangepiEnv.txt && $BRANCH == current ]] && \
 		echo "overlay_prefix=$OVERLAY_PREFIX" >> "${SDCARD}"/boot/orangepiEnv.txt
 
-	[[ -n $DEFAULT_OVERLAYS && -f $SDCARD/boot/orangepiEnv.txt ]] && \
+	[[ -n $DEFAULT_OVERLAYS && -f $SDCARD/boot/orangepiEnv.txt && $BRANCH == current ]] && \
 		echo "overlays=${DEFAULT_OVERLAYS//,/ }" >> "${SDCARD}"/boot/orangepiEnv.txt
 
 	[[ -n $BOOT_FDT_FILE && -f $SDCARD/boot/orangepiEnv.txt ]] && \

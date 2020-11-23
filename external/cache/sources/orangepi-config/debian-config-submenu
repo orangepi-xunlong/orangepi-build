@@ -187,11 +187,11 @@ while true; do
 	if [[ -n "$HOSTAPDSTATUS" ]]; then
 			HOSTAPDINFO=$(hostapd_cli get_config 2> /dev/null | grep ^ssid | sed 's/ssid=//g')
 			HOSTAPDCLIENTS=$(hostapd_cli all_sta 2> /dev/null | grep connected_time | wc -l)
-			#LIST+=( "Hotspot" "Manage active wireless access point" )
+			LIST+=( "Hotspot" "Manage active wireless access point" )
 		else
 			:
-			#[[ -n $(LC_ALL=C nmcli device status 2> /dev/null | grep wifi | grep -w disconnected) ]] && \
-			#LIST+=( "Hotspot" "Create WiFi access point" )
+			[[ -n $(LC_ALL=C nmcli device status 2> /dev/null | grep wifi | grep -w disconnected) ]] && \
+			LIST+=( "Hotspot" "Create WiFi access point" )
 
 	fi
 

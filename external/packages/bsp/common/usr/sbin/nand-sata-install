@@ -52,7 +52,7 @@ spicheck=$(grep 'mtd' /proc/partitions | awk '{print $NF}')
 # define makefs and mount options
 declare -A mkopts mountopts
 # for ARMv7 remove 64bit feature from default mke2fs format features
-if [[ $LINUXFAMILY == mvebu ]]; then
+if [[ $LINUXFAMILY =~ sun50iw6|sun50iw2|sun50iw1 && $BRANCH == legacy ]]; then
 	mkopts[ext2]='-O ^64bit -qF'
 	mkopts[ext3]='-O ^64bit -qF'
 	mkopts[ext4]='-O ^64bit -qF'

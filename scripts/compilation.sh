@@ -241,7 +241,7 @@ compile_uboot()
 	if [[ $PACK_UBOOT == "yes" ]];then
 		pack_uboot
 		cp ${SRC}/.tmp/packout/{boot0_sdcard.fex,boot_package.fex} "${SRC}/.tmp/${uboot_name}/usr/lib/${uboot_name}/"
-		cp ${SRC}/.tmp/packout/${BOARD}-u-boot.dts "${SRC}/.tmp/${uboot_name}/usr/lib/u-boot/"
+		cp ${SRC}/.tmp/packout/dts/${BOARD}-u-boot.dts "${SRC}/.tmp/${uboot_name}/usr/lib/u-boot/"
 		cd "${ubootdir}" || exit
 	fi
 

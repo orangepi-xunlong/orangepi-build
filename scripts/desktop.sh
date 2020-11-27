@@ -136,7 +136,7 @@ desktop_postinstall ()
 	fi
 
 	# Compile Turbo Frame buffer for sunxi
-	if [[ $LINUXFAMILY == sun* && $BRANCH == legacy && $BOARD != orangepizero2 ]]; then
+	if [[ $LINUXFAMILY == sun8i && $BRANCH == legacy ]]; then
 		sed 's/name="use_compositing" type="bool" value="true"/name="use_compositing" type="bool" value="false"/' -i "${SDCARD}"/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml
 
 		# enable memory reservations

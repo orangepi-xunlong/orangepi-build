@@ -36,6 +36,8 @@ setenv bootargs "root=${rootdev} rootwait rootfstype=${rootfstype} ${consoleargs
 
 if test "${docker_optimizations}" = "on"; then setenv bootargs "${bootargs} cgroup_enable=memory swapaccount=1"; fi
 
+fdt get value emmc_status /soc/sdmmc@04022000 status
+
 load ${devtype} ${devnum} ${fdt_addr_r} ${prefix}dtb/${fdtfile}
 fdt addr ${fdt_addr_r}
 fdt resize 65536
@@ -46,6 +48,9 @@ fdt set /soc/disp@01000000 boot_disp1 <${boot_disp1}>
 fdt set /soc/disp@01000000 boot_disp2 <${boot_disp2}>
 fdt set /soc/disp@01000000 fb0_width <${fb0_width}>
 fdt set /soc/disp@01000000 fb0_height <${fb0_height}>
+
+# Orange Pi 3 without eMMC needs to turn off sdc2
+fdt set /soc/sdmmc@04022000 status ${emmc_status}
 
 fdt addr -c ${fdt_addr_r}
 

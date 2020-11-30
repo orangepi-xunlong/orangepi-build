@@ -1155,7 +1155,7 @@ standby_led_light = 1
 ;--------------------------------
 [usbc0]
 usbc0_used          = 1
-usb_port_type       = 0
+usb_port_type       = 1
 usb_detect_type     = 1
 usb_detect_mode     = 0
 usb_id_gpio         =

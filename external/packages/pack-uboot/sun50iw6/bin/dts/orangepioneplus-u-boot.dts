@@ -2553,7 +2553,7 @@
 		usbc0@0 {
 			device_type = "usbc0";
 			compatible = "allwinner,sunxi-otg-manager";
-			usb_port_type = <0x0>;
+			usb_port_type = <0x1>;
 			usb_detect_type = <0x1>;
 			usb_host_init_state = <0x1>;
 			usb_regulator_io = "nocare";

@@ -118,8 +118,8 @@ recovery_key = port:PL02<0><default><default><default>
 ;----------------------------------------------------------------------------------
 [boot_init_gpio]
 boot_init_gpio_used	 = 1
-gpio0 =  port:PL04<1><default><default><1>
-gpio1 =  port:PL07<1><default><default><0>
+gpio0 =  port:PL04<1><default><default><0>
+gpio1 =  port:PL07<1><default><default><1>
 gpio2 =  port:PH02<1><default><default><1>
 
 
@@ -1128,8 +1128,8 @@ smc_sda             =
 compatible		= "allwinner,sunxi-init-gpio"
 gpio_used		= 1
 gpio_num		= 3
-gpio_pin_1		=  port:PL07<1><default><default><1>
-gpio_pin_2		=  port:PL04<1><default><default><0>
+gpio_pin_1		=  port:PL07<1><default><default><0>
+gpio_pin_2		=  port:PL04<1><default><default><1>
 gpio_pin_3		=  port:PD06<1><default><3><1>
 
 normal_led		= "gpio_pin_2"

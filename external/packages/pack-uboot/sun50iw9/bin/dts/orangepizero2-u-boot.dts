@@ -4327,13 +4327,24 @@
 			device_type = "gpio_para";
 			status = "okay";
 			compatible = "allwinner,sunxi-init-gpio";
-			gpio_num = <0x2>;
-			gpio_pin_1 = <0x53 0x2 0xc 0x1 0xffffffff 0xffffffff 0x0>;
-			gpio_pin_2 = <0x53 0x2 0xd 0x1 0xffffffff 0xffffffff 0x1>;
-			normal_led = "gpio_pin_2";
-			easy_light_used = <0x1>;
-			normal_led_light = <0x1>;
+			gpio_num = <0x0>;
 		};
+
+                leds {
+                        compatible = "gpio-leds";
+
+                        power {
+                                label = "orangepi:red:power";
+				gpios = <0x53 0x2 0xc 0x1 0xffffffff 0xffffffff 0x0>; /* PC12 */
+                                default-state = "off";
+                        };
+
+                        status {
+                                label = "orangepi:green:status";
+				gpios = <0x53 0x2 0xd 0x1 0xffffffff 0xffffffff 0x0>; /* PC13 */
+                                default-state = "on";
+                        };
+                };
 
 		product {
 			device_type = "product";

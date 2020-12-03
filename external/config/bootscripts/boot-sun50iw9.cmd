@@ -50,6 +50,13 @@ fdt set disp tv_vdid <${tv_vdid}>
 fdt set disp fb0_width <${fb0_width}>
 fdt set disp fb0_height <${fb0_height}>
 
+for overlay_file in ${user_overlays}; do
+        if load ${devtype} ${devnum} ${load_addr} ${prefix}overlay-user/${overlay_file}.dtbo; then
+                echo "Applying user provided DT overlay ${overlay_file}.dtbo"
+                fdt apply ${load_addr} || setenv overlay_error "true"
+        fi
+done
+
 load ${devtype} ${devnum} ${ramdisk_addr_r} ${prefix}uInitrd
 load ${devtype} ${devnum} ${kernel_addr_r} ${prefix}uImage
 

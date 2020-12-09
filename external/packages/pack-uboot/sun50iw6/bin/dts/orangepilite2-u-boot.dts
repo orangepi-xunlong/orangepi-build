@@ -2540,9 +2540,9 @@
 			rndis_wceis = <0x1>;
 			status = "okay";
 			usb_detect_mode = <0x0>;
-			usb_id_gpio;
+			usb_id_gpio =  <0x87 0x2 0x6 0x0 0xffffffff 0xffffffff 0x0>;
 			usb_det_vbus_gpio;
-			usb_drv_vbus_gpio = <0xd6 0xb 0x5 0x1 0x0 0xffffffff 0x1>;
+			usb_drv_vbus_gpio;
 		};
 
 		udc-controller@0x05100000 {
@@ -2854,7 +2854,7 @@
 			compatible = "allwinner,sunxi-daudio0-machine";
 			sunxi,daudio-controller = <0x61>;
 			sunxi,cpudai-controller = <0x62>;
-			status = "okay";
+			status = "disabled";
 			device_type = "snddaudio0";
 		};
 

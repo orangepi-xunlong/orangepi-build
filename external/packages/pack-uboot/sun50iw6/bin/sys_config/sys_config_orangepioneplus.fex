@@ -1158,9 +1158,9 @@ usbc0_used          = 1
 usb_port_type       = 1
 usb_detect_type     = 1
 usb_detect_mode     = 0
-usb_id_gpio         =
+usb_id_gpio         = port:PC06<0><0><default><default>
 usb_det_vbus_gpio   =
-usb_drv_vbus_gpio   = port:PL05<1><0><default><1>
+usb_drv_vbus_gpio   =
 usb_host_init_state = 1
 usb_regulator_io    = "nocare"
 usb_wakeup_suspend  = 0
@@ -1175,7 +1175,7 @@ rndis_wceis         = 1
 ;--------------------------------
 [usbc1]
 usbc1_used          = 1
-usb_drv_vbus_gpio   = port:PL05<1><0><default><1>
+usb_drv_vbus_gpio   =
 usb_host_init_state = 1
 usb_regulator_io    = "nocare"
 usb_wakeup_suspend  = 0
@@ -1497,7 +1497,7 @@ ahub_daudio3_used 		= 1
 ;	daudio0_used = 0x1, if register the sound card DAUDIO0.
 ;--------------------------------------------------------------------------------
 [snddaudio0]
-snddaudio0_used 	= 1
+snddaudio0_used 	= 0
 ;-----------------------------------------------------------------------------
 [daudio0]
 pcm_lrck_period 	= 0x20
@@ -1508,7 +1508,7 @@ signal_inversion 	= 0x01
 frametype 		= 0x00
 tdm_config 		= 0x01
 mclk_div 		= 0x00
-daudio0_used 		= 1
+daudio0_used 		= 0
 
 ;--------------------------------------------------------------------------------
 ;		NOTE :Make sure snddaudio2_used = 0x1,

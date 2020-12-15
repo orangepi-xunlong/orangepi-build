@@ -27,6 +27,7 @@ external/cache/hash
 external/cache/rootfs
 external/cache/sources/extra
 external/cache/sources/sunxi-tools
+external/cache/sources/rkbin-tools
 external/cache/sources/orangepi-firmware
 external/cache/sources/orangepi-firmware-git
 external/cache/sources/arm-trusted-firmware-sunxi-mainline

@@ -153,6 +153,7 @@ if [[ -z $BOARD ]]; then
 	options+=("orangepilite2"		"Allwinner H6 quad core 1GB RAM WiFi/BT USB3")
 	options+=("orangepioneplus"		"Allwinner H6 quad core 1GB RAM GBE")
 	options+=("orangepizero2"		"Allwinner H616 quad core 512MB/1GB RAM WiFi/BT GBE SPI")
+	options+=("orangepir1plus"              "Rockchip RK3328 quad core 1GB RAM 2xGBE USB2 SPI")
 
 	menustr="Please choose a Board."
 	BOARD=$(whiptail --title "${titlestr}" --backtitle "${backtitle}" \
@@ -378,11 +379,11 @@ display_alert "Downloading sources" "" "info"
 	fi
 	
 	fetch_from_repo "https://github.com/linux-sunxi/sunxi-tools" "${EXTER}/cache/sources/sunxi-tools" "branch:master"
-	#fetch_from_repo "https://github.com/armbian/rkbin" "${EXTER}/cache/sources/rkbin-tools" "branch:master"
+	fetch_from_repo "https://github.com/armbian/rkbin" "${EXTER}/cache/sources/rkbin-tools" "branch:master"
 fi
 
 compile_sunxi_tools
-#install_rkbin_tools
+install_rkbin_tools
 
 for option in $(tr ',' ' ' <<< "$CLEAN_LEVEL"); do
 	[[ $option != sources ]] && cleaning "$option"

@@ -1,6 +1,6 @@
 ARCH=arm64
 KERNEL_IMAGE_TYPE=Image
-OFFSET=16
+OFFSET=30
 BOOTSCRIPT='boot-rockchip64.cmd:boot.cmd'
 BOOTENV_FILE='rockchip.txt'
 UBOOT_TARGET_MAP=";;idbloader.bin uboot.img trust.bin"
@@ -8,46 +8,34 @@ BOOTDELAY=0
 OVERLAY_PREFIX='rockchip'
 SERIALCON=${SERIALCON:=$([ $BRANCH == "legacy" ] && echo "ttyFIQ0:1500000" || echo "ttyS2:1500000")}
 GOVERNOR="ondemand"
-CPUMAX="2016000"
-CPUMIN="408000"
-BOOTBRANCH="tag:v2020.07"
+BOOTBRANCH="tag:v2020.07-rockchip64"
+PACKAGE_LIST_FAMILY="ethtool"
 
-RKBIN_DIR="$SRC/cache/sources/rkbin-tools"
+RKBIN_DIR="$EXTER/cache/sources/rkbin-tools"
 
-if [[ $BOARD == nanopi-r2s || $BOARD == rockpi-e || $BOARD == nanopineo3 ]]; then
+if [[ $BOOTCONFIG == *3399* ]]; then
+
+	CPUMIN=${CPUMIN:="408000"}
+	CPUMAX=${CPUMAX:="2016000"}
+
+else # rk3328
+
+	CPUMIN=${CPUMIN:="408000"}
+	CPUMAX=${CPUMAX:="1296000"}
+
+fi
+
+if [[ $BOARD == orangepir1plus ]]; then
 
 	BOOT_USE_BLOBS=yes
 	BOOT_SOC=rk3328
 	DDR_BLOB='rk33/rk3328_ddr_333MHz_v1.16.bin'
 	MINILOADER_BLOB='rk33/rk322xh_miniloader_v2.50.bin'
-	BL31_BLOB='rk33/rk322xh_bl31_v1.42.elf'
+	BL31_BLOB='rk33/rk322xh_bl31_v1.44.elf'
 
 elif [[ $BOOTCONFIG == *3328* ]]; then
 
 	BOOT_RK3328_USE_AYUFAN_ATF=yes
-	CPUMAX="1390000"
-
-elif [[ $BOARD == rockpi-4* ]]; then
-
-	BOOT_USE_BLOBS=yes
-	BOOT_SOC=rk3399
-	DDR_BLOB='rk33/rk3399_ddr_933MHz_v1.20.bin' # 1GB model does not boot with later versions
-	MINILOADER_BLOB='rk33/rk3399_miniloader_v1.19.bin'
-	BL31_BLOB='rk33/rk3399_bl31_v1.30.elf'
-
-elif [[ $BOARD == rockpro64 ]] || [[ $BOARD == pinebook-pro ]]; then
-
-	BOOT_RK3399_LEGACY_HYBRID=yes
-	BL31_BLOB='rk33/rk3399_bl31_v1.17.elf'
-
-elif [[ $BOARD == rockpi-s ]]; then
-
-	BOOT_USE_BLOBS=yes
-	BOOT_SOC=rk3308
-	DDR_BLOB='rk33/rk3308_ddr_589MHz_uart0_m0_v1.26.bin'
-	MINILOADER_BLOB='rk33/rk3308_miniloader_sd_nand_v1.13.bin'
-	BL31_BLOB='rk33/rk3308_bl31_v2.10.elf'
-	CPUMAX="1296000"
 
 else
 
@@ -60,25 +48,16 @@ case $BRANCH in
 	current)
 
 		KERNELPATCHDIR='rockchip64-'$BRANCH
-		KERNELBRANCH="branch:linux-5.7.y"
+		KERNELBRANCH="branch:orange-pi-5.8-rockchip64"
 		LINUXFAMILY=rockchip64
 		LINUXCONFIG='linux-rockchip64-'$BRANCH
 
 	;;
-
-	dev)
-
-		KERNELPATCHDIR='rockchip64-'$BRANCH
-		KERNELBRANCH="branch:linux-5.7.y"
-		LINUXFAMILY=rockchip64
-		LINUXCONFIG='linux-rockchip64-'$BRANCH
-
-	;;
-
 esac
 
 prepare_boot_configuration()
 {
+
 	if [[ $BOOT_USE_MAINLINE_ATF == yes ]]; then
 
 		UBOOT_TARGET_MAP="BL31=bl31.bin idbloader.img u-boot.itb;;idbloader.img u-boot.itb"
@@ -87,7 +66,7 @@ prepare_boot_configuration()
 		ATFDIR='arm-trusted-firmware'
 		ATFBRANCH='tag:v2.2'
 		ATF_USE_GCC='> 6.3'
-		ATF_TARGET_MAP='M0_CROSS_COMPILE=arm-linux-gnueabi- PLAT=rk3399 bl31;;build/rk3399/release/bl31/bl31.elf:bl31.bin'
+		ATF_TARGET_MAP="M0_CROSS_COMPILE=arm-linux-gnueabi- PLAT=$BOOT_SOC bl31;;build/$BOOT_SOC/release/bl31/bl31.elf:bl31.bin"
 		ATF_TOOLCHAIN2="arm-linux-gnueabi-:> 5.0"
 
 	elif [[ $BOOT_USE_TPL_SPL_BLOB == yes ]]; then
@@ -124,10 +103,17 @@ prepare_boot_configuration()
 		legacy_uboot_locations
 
 	fi
+
+	if [[ $BOOT_SUPPORT_SPI == yes ]]; then
+
+		UBOOT_TARGET_MAP+=" rkspi_loader.img"
+
+	fi
 }
 
 legacy_uboot_locations()
 {
+
 	BOOTSOURCE='https://github.com/ayufan-rock64/linux-u-boot'
 	BOOTDIR='u-boot-rockchip64'
 	BOOTBRANCH='branch:rockchip-master'
@@ -143,9 +129,15 @@ legacy_uboot_locations()
 
 uboot_custom_postprocess()
 {
+
 	if [[ $BOOT_USE_MAINLINE_ATF == yes || $BOOT_USE_TPL_SPL_BLOB == yes ]]; then
 
-		:
+		if [[ $BOOT_SUPPORT_SPI == yes ]]; then
+			tools/mkimage -n rk3399 -T rkspi -d tpl/u-boot-tpl.bin:spl/u-boot-spl.bin rkspi_tpl_spl.img
+			dd if=/dev/zero of=rkspi_loader.img count=8128 status=none
+			dd if=rkspi_tpl_spl.img of=rkspi_loader.img conv=notrunc status=none
+			dd if=u-boot.itb of=rkspi_loader.img seek=768 conv=notrunc status=none
+		fi
 
 	elif [[ $BOOT_USE_BLOBS == yes ]]; then
 
@@ -184,6 +176,7 @@ uboot_custom_postprocess()
 
 write_uboot_platform()
 {
+
 	if [[ -f $1/rksd_loader.img ]]; then # legacy rk3399 loader
 
 		dd if=$1/rksd_loader.img of=$2 seek=64 conv=notrunc status=none >/dev/null 2>&1
@@ -206,6 +199,20 @@ write_uboot_platform()
 	fi
 }
 
+write_uboot_platform_mtd()
+{
+
+	if [[ -f $1/rkspi_loader.img ]]; then
+
+		dd if=$1/rkspi_loader.img of=$2 conv=notrunc status=none >/dev/null 2>&1
+
+	else
+
+		echo "SPI u-boot image not found!"
+		exit 1
+
+	fi
+}
 
 setup_write_uboot_platform()
 {
@@ -220,7 +227,6 @@ setup_write_uboot_platform()
 		[[ -n $dev ]] && DEVICE="/dev/$dev"
 
 	fi
-
 }
 
 
@@ -231,18 +237,13 @@ atf_custom_postprocess()
 	rm -f build/rk322xh/debug/bl31.bin
 	# ATF
 	trust_merger trust.ini
-
 }
 
 
 family_tweaks()
 {
 
-	if [[ $BOARD == z28pro ]]; then
-
-		chroot $SDCARD /bin/bash -c "systemctl --no-reload enable z28pro-bluetooth.service >/dev/null 2>&1"
-
-	elif [[ $BOARD == nanopi-r2s ]]; then
+	if [[ $BOARD == orangepir1plus ]]; then
 
 		# rename USB based network to lan0
 		mkdir -p $SDCARD/etc/udev/rules.d/
@@ -261,40 +262,20 @@ family_tweaks()
 		chroot $SDCARD /bin/bash -c "systemctl --no-reload enable rk3399-bluetooth.service >/dev/null 2>&1"
 
 	fi
-
 }
 
 
 family_tweaks_bsp()
 {
 
-	if [[ $BOARD == z28pro ]]; then
-
-		mkdir -p $destination/usr/local/bin
-
-		# Bluetooth for Z28 PRO
-		install -m 755 $SRC/packages/bsp/rk3328/z28pro/8822b_hciattach $destination/usr/bin
-		install -m 755 $SRC/packages/bsp/rk3328/z28pro/start_bt.sh $destination/usr/local/bin
-		cp $SRC/packages/bsp/rk3328/z28pro/z28pro-bluetooth.service $destination/lib/systemd/system/
-
-	elif [[ $BOARD == rockpi-4b || $BOARD == nanop* || $BOARD == orangepi* || $BOARD == firefly* || $BOARD == roc-rk3399-pc ]]; then
-
-		# Bluetooth for most of others
-		install -m 755 $SRC/packages/bsp/rk3399/brcm_patchram_plus_rk3399 $destination/usr/bin
-		cp $SRC/packages/bsp/rk3399/rk3399-bluetooth.service $destination/lib/systemd/system/
-
+	if [[ $BOOTCONFIG == *3328* ]] && [[ $BRANCH != legacy ]]; then	
+		mkdir -p "$destination"/etc/X11/xorg.conf.d
+		cat <<-EOF > "$destination"/etc/X11/xorg.conf.d/02-driver.conf
+		# set fbdev as default driver.
+		Section "Device"
+	         Identifier "NOGPU"
+	         Driver "fbdev"
+		EndSection
+		EOF
 	fi
-
-	if [[ $BOARD == pinebook-pro ]]; then
-
-		cp $SRC/packages/bsp/pinebook-pro/xorg.conf $destination/etc/X11/
-	fi
-
-	# Graphics and media
-	mkdir -p $destination/etc/udev/rules.d
-	cp $SRC/packages/bsp/rk3399/50-mali.rules $destination/etc/udev/rules.d/
-	cp $SRC/packages/bsp/rk3399/50-rk3399-vpu.rules $destination/etc/udev/rules.d/
-	mkdir -p $destination/etc/sysfs.d
-	cp $SRC/packages/bsp/rk3399/20-gpu-governor.conf $destination/etc/sysfs.d/
-
 }

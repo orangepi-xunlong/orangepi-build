@@ -11,6 +11,7 @@
 #
 
 *.bak
+*.swp
 *.tar.gz
 
 .tmp
@@ -20,6 +21,8 @@ u-boot
 toolchains
 userpatches
 
+!external/patch/u-boot
+!external/patch/kernel
 !external/config/kernel
 
 external/cache/.gpg

@@ -7,7 +7,7 @@ LINUXFAMILY=""
 
 case "$1" in
 	install)
-		if [ -z "$BRANCH" ] || [ "$BRANCH" != "default" ]; then
+		if [ -z "$BRANCH" ] || [ "$BRANCH" != "legacy" ]; then
 			echo "Mali binary driver can be used only with legacy kernel" 1>&2
 			exit 1
 		fi

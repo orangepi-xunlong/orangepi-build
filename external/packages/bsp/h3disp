@@ -72,7 +72,7 @@ Main() {
 
 	# check for supported boards
 	/bin/bash -n /etc/orangepi-release && . /etc/orangepi-release
-	if [ "X${LINUXFAMILY}" = "Xsun8i" -a "X${BRANCH}" = "Xdefault" -a "X${BOARD}" != "Xorangepizero" ]; then
+	if [ "X${LINUXFAMILY}" = "Xsun8i" -a "X${BRANCH}" = "Xlegacy" -a "X${BOARD}" != "Xorangepir1" -a "X${BOARD}" != "Xorangepizero" ]; then
 		# Supported board/kernel combination so proceed
 		:
 	else
@@ -329,11 +329,11 @@ DisplayUsage() {
 	echo -e " please use the ${LGREEN}-d${NC} switch.\n\n The resolution can be set using the ${LGREEN}-m${NC} switch.\c"
 	echo -e " The following resolutions\n are currently supported:\n"
 	ShowVideoModes
-	echo -e " You can also specify the colour-range for your HDMI-display with the ${LGREEN}-c${NC} switch."
-	echo -e "\n The following values for ${LGREEN}-c${NC} are currently supported:\n"
-	echo -e "    ${BOLD}0${NC} -- RGB range 16-255 (Default, use \"${LGREEN}-c 0${NC}\")"
-	echo -e "    ${BOLD}1${NC} -- RGB range 0-255 (Full range, use \"${LGREEN}-c 1${NC}\")"
-	echo -e "    ${BOLD}2${NC} -- RGB range 16-235 (Limited video, \"${LGREEN}-c 2${NC}\")\n"
+	#echo -e " You can also specify the colour-range for your HDMI-display with the ${LGREEN}-c${NC} switch."
+	#echo -e "\n The following values for ${LGREEN}-c${NC} are currently supported:\n"
+	#echo -e "    ${BOLD}0${NC} -- RGB range 16-255 (Default, use \"${LGREEN}-c 0${NC}\")"
+	#echo -e "    ${BOLD}1${NC} -- RGB range 0-255 (Full range, use \"${LGREEN}-c 1${NC}\")"
+	#echo -e "    ${BOLD}2${NC} -- RGB range 16-235 (Limited video, \"${LGREEN}-c 2${NC}\")\n"
 	echo -e "To change frame buffer config use ${LGREEN}-f${NC} option and data in format ${BOLD}fb_mode:fb_width:fb_height${NC} where:"
 	echo -e "    ${BOLD}fb_mode${NC} :"
 	echo -e "     ${LGREEN}0${NC} -- DEFAULT,  ${LGREEN}4${NC} -- RGB655, ${LGREEN}5${NC} -- RGB565,    ${LGREEN}6${NC} -- RGB556, ${LGREEN}7${NC} -- ARGB1555"
@@ -370,7 +370,7 @@ ShowVideoModes() {
 	IFS=${OIFS}
 	if [ ! $clean ]; then
 		echo -e "\n Two examples:\n\n    '${BOLD}${0##*/}${NC} ${LGREEN}-m 1080p60 -d${NC}' (1920x1080@60Hz DVI)"
-		echo -e "    '${BOLD}${0##*/}${NC} ${LGREEN}-m 720i${NC}' (1280x720@30Hz HDMI)\n"
+		echo -e "    '${BOLD}${0##*/}${NC} ${LGREEN}-m 720p60${NC}' (1280x720@60Hz HDMI)\n"
 	fi
 } # ShowVideoModes
 

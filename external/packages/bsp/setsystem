@@ -1,0 +1,55 @@
+#!/bin/bash
+
+source /etc/orangepi-release
+
+if [[ $LINUXFAMILY != sun8i || $BRANCH != legacy ]]; then
+	echo -e "Unsupported Linux Image: [$LINUXFAMILY|$BRANCH]" ; exit 1
+fi
+
+
+function csi_configure()
+{
+	local csi_mode=$1
+
+	echo "Set the csi camera used by the ${BOARD} as: ${csi_mode}"
+	cd /boot/bin
+	cp ${BOARD}.bin ${BOARD}_${csi_mode}.bin
+	bin2fex ${BOARD}_${csi_mode}.bin ${BOARD}_${csi_mode}.fex > /dev/null 2>&1
+	sed -i "s/ov5640/${csi_mode}/g" ${BOARD}_${csi_mode}.fex
+	sed -i "s/gc2035/${csi_mode}/g" ${BOARD}_${csi_mode}.fex
+	fex2bin ${BOARD}_${csi_mode}.fex ${BOARD}_${csi_mode}.bin > /dev/null 2>&1
+
+	rm -f /boot/script.bin /boot/bin/${BOARD}_${csi_mode}.fex
+	cd /boot && ln -sv bin/${BOARD}_${csi_mode}.bin script.bin > /dev/null 2>&1
+
+	sed -i '/gc2035/d' /etc/modules
+	sed -i '/ov5640/d' /etc/modules
+	sed -i '/vfe_v4l2/d' /etc/modules
+	echo ${csi_mode} >> /etc/modules
+	echo "vfe_v4l2" >> /etc/modules
+
+	sync
+}
+
+
+function install_sunxi-tools()
+{
+	if [[ -z "$(which bin2fex)" ]]; then
+	        sudo apt-get update
+	        apt-get -f -qq -y install libusb-1.0-0-dev || (echo -e "Aborted\nNot possible to install a sunxi-tools requirement" ; exit 1)
+	        cd /tmp
+	        git clone https://github.com/linux-sunxi/sunxi-tools
+	        cd sunxi-tools
+	        make
+	        make install
+		cd -
+	fi
+}
+
+if [[ $# != 1 ]]; then
+	echo "Usage: $0 gc2035|ov5640"
+	exit
+fi
+
+install_sunxi-tools
+csi_configure $1

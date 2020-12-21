@@ -222,7 +222,7 @@ create_board_package()
 	[ ! -f "/etc/network/interfaces" ] && cp /etc/network/interfaces.default /etc/network/interfaces
 	ln -sf /var/run/motd /etc/motd
 	rm -f /etc/update-motd.d/00-header /etc/update-motd.d/10-help-text
-
+	if [ -f "/boot/bin/$BOARD.bin" ] && [ ! -f "/boot/script.bin" ]; then ln -sf bin/$BOARD.bin /boot/script.bin >/dev/null 2>&1 || cp /boot/bin/$BOARD.bin /boot/script.bin; fi
 	if [ ! -f "/etc/default/orangepi-motd" ]; then
 		mv /etc/default/orangepi-motd.dpkg-dist /etc/default/orangepi-motd
 	fi
@@ -279,6 +279,13 @@ create_board_package()
 	# this is required for NFS boot to prevent deconfiguring the network on shutdown
 	sed -i 's/#no-auto-down/no-auto-down/g' "${destination}"/etc/network/interfaces.default
 
+	if [[ ( $LINUXFAMILY == sun8i ) && $BRANCH == legacy ]]; then
+		# add mpv config for vdpau_sunxi
+		mkdir -p "${destination}"/etc/mpv/
+		cp "${EXTER}"/packages/bsp/mpv/mpv_sunxi.conf "${destination}"/etc/mpv/mpv.conf
+		echo "export VDPAU_OSD=1" > "${destination}"/etc/profile.d/90-vdpau.sh
+		chmod 755 "${destination}"/etc/profile.d/90-vdpau.sh
+	fi
 	if [[ $LINUXFAMILY == sunxi* ]]; then
 		# add mpv config for x11 output - slow, but it works compared to no config at all
 		# TODO: Test which output driver is better with DRM
@@ -286,6 +293,16 @@ create_board_package()
 		cp "${EXTER}"/packages/bsp/mpv/mpv_mainline.conf "${destination}"/etc/mpv/mpv.conf
 	fi
 
+	case $RELEASE in
+	xenial)
+		if [[ $BRANCH == legacy && $LINUXFAMILY == sun8i ]]; then
+			# this is required only for old kernels
+			# not needed for Stretch since there will be no Stretch images with kernels < 4.4
+			mkdir -p "${destination}"/lib/systemd/system/haveged.service.d/
+			cp "${EXTER}"/packages/bsp/10-no-new-privileges.conf "${destination}"/lib/systemd/system/haveged.service.d/
+		fi
+	;;
+	esac
 	# execute $LINUXFAMILY-specific tweaks
 	[[ $(type -t family_tweaks_bsp) == function ]] && family_tweaks_bsp
 

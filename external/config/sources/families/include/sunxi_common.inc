@@ -13,26 +13,20 @@ PACKAGE_LIST_DESKTOP_FAMILY="fcitx fonts-wqy-zenhei"
 case $BRANCH in
 	legacy)
 
-		KERNELBRANCH="branch:orange-pi-3.4"
-		KERNELPATCHDIR='sunxi-'$BRANCH
-
-        	BOOTENV_FILE='sun8i-default.txt'
-        	KERNEL_USE_GCC='> 5.0'
-        	ASOUND_STATE='asound.state.sun8i-default'
-		
+		LINUXFAMILY=sun8i
+		KERNELBRANCH="branch:orange-pi-3.4-sun8i"
+		KERNELPATCHDIR='sun8i-'$BRANCH
+		BOOTENV_FILE='sun8i-legacy.txt'
+		KERNEL_COMPILER="arm-linux-gnueabihf-"
+		KERNEL_USE_GCC='> 5.0'
+		ASOUND_STATE='asound.state.sun8i-legacy'
+		BOOTPATCHDIR='u-boot-sun8i-legacy'
+		BOOTBRANCH='branch:v2018.05-sun8i-linux3.4'
 	;;
 
 	current)
 
 		KERNELBRANCH="branch:orange-pi-5.4"
-		KERNELPATCHDIR='sunxi-'$BRANCH
-
-	;;
-
-	dev)
-
-		KERNELSOURCE="https://github.com/megous/linux"
-		KERNELBRANCH="branch:orange-pi-5.7"
 		KERNELPATCHDIR='sunxi-'$BRANCH
 
 	;;
@@ -43,7 +37,7 @@ family_tweaks()
 	# execute specific tweaks function if present
 	[[ $(type -t family_tweaks_s) == function ]] && family_tweaks_s
 
-	#cp $SRC/packages/blobs/splash/orangepi-u-boot-24.bmp $SDCARD/boot/boot.bmp
+	#cp $EXTER/packages/blobs/splash/orangepi-u-boot-24.bmp $SDCARD/boot/boot.bmp
 }
 
 family_tweaks_bsp()

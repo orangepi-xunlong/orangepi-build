@@ -14,7 +14,6 @@ Homepage: https://github.com/linux-sunxi/sunxi-mali/
 Package: libmali-sunxi-r3p0
 Architecture: any
 Pre-Depends:
- orangepi-bsp,
  ${misc:Pre-Depends}
 Depends:
  ${shlibs:Depends},

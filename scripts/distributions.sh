@@ -424,7 +424,7 @@ install_common()
 		chroot "${SDCARD}" /bin/bash -c "systemctl daemon-reload" >> "${DEST}"/debug/install.log 2>&1
 		chroot "${SDCARD}" /bin/bash -c "systemctl --no-reload enable serial-getty@${array[0]}.service" \
 		>> "${DEST}"/debug/install.log 2>&1
-		if [[ "${array[0]}" == "ttyGS0" && $LINUXFAMILY == sun8i && $BRANCH == default ]]; then
+		if [[ "${array[0]}" == "ttyGS0" && $LINUXFAMILY == sun8i && $BRANCH == legacy ]]; then
 			mkdir -p "${SDCARD}"/etc/systemd/system/serial-getty@ttyGS0.service.d
 			cat <<-EOF > "${SDCARD}"/etc/systemd/system/serial-getty@ttyGS0.service.d/10-switch-role.conf
 			[Service]

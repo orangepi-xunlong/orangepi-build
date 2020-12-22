@@ -250,10 +250,10 @@ family_tweaks()
 		echo 'SUBSYSTEM=="net", ACTION=="add", DRIVERS=="r8152", KERNEL=="eth1", NAME="lan0"' > $SDCARD/etc/udev/rules.d/70-rename-lan.rules
 
 		# workaround - create old school initial network config since network manager have issues
-		echo "auto eth0" >> $SDCARD/etc/network/interfaces
-		echo "	iface eth0 inet dhcp" >> $SDCARD/etc/network/interfaces
-		echo "auto lan0" >> $SDCARD/etc/network/interfaces
-		echo "	iface lan0 inet dhcp" >> $SDCARD/etc/network/interfaces
+		#echo "auto eth0" >> $SDCARD/etc/network/interfaces
+		#echo "	iface eth0 inet dhcp" >> $SDCARD/etc/network/interfaces
+		#echo "auto lan0" >> $SDCARD/etc/network/interfaces
+		#echo "	iface lan0 inet dhcp" >> $SDCARD/etc/network/interfaces
 
 	elif [[ -f $SDCARD/lib/systemd/system/rk3399-bluetooth.service ]]; then
 

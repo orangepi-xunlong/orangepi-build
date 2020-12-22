@@ -245,6 +245,9 @@ family_tweaks()
 
 	if [[ $BOARD == orangepir1plus ]]; then
 
+		# execute specific tweaks function if present
+		[[ $(type -t family_tweaks_s) == function ]] && family_tweaks_s
+
 		# rename USB based network to lan0
 		mkdir -p $SDCARD/etc/udev/rules.d/
 		echo 'SUBSYSTEM=="net", ACTION=="add", DRIVERS=="r8152", KERNEL=="eth1", NAME="lan0"' > $SDCARD/etc/udev/rules.d/70-rename-lan.rules

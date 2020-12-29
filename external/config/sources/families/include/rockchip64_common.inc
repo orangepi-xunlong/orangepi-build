@@ -8,7 +8,7 @@ BOOTDELAY=0
 OVERLAY_PREFIX='rockchip'
 SERIALCON=${SERIALCON:=$([ $BRANCH == "legacy" ] && echo "ttyFIQ0:1500000" || echo "ttyS2:1500000")}
 GOVERNOR="ondemand"
-BOOTBRANCH="tag:v2020.07-rockchip64"
+BOOTBRANCH="branch:v2020.07-rockchip64"
 PACKAGE_LIST_FAMILY="ethtool"
 
 RKBIN_DIR="$EXTER/cache/sources/rkbin-tools"

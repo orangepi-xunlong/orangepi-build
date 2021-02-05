@@ -10,6 +10,7 @@ SERIALCON=${SERIALCON:=$([ $BRANCH == "legacy" ] && echo "ttyFIQ0:1500000" || ec
 GOVERNOR="ondemand"
 BOOTBRANCH="branch:v2020.07-rockchip64"
 PACKAGE_LIST_FAMILY="ethtool"
+PACKAGE_LIST_DESKTOP_FAMILY="fcitx fonts-wqy-zenhei"
 
 RKBIN_DIR="$EXTER/cache/sources/rkbin-tools"
 
@@ -150,22 +151,22 @@ uboot_custom_postprocess()
 	elif [[ $BOOT_RK3399_LEGACY_HYBRID == yes ]]; then
 
 		# 3399
-		tools/mkimage -n rk3399 -T rksd -d $SRC/cache/sources/rkbin-tools/rk33/rk3399_ddr_933MHz_v1.13.bin rksd_loader.img
+		tools/mkimage -n rk3399 -T rksd -d $EXTER/cache/sources/rkbin-tools/rk33/rk3399_ddr_933MHz_v1.13.bin rksd_loader.img
 		cat spl/u-boot-spl.bin >> rksd_loader.img
 		dd if=u-boot.itb of=rksd_loader.img seek=448 conv=notrunc
-		cp rksd_loader.img $SRC/.tmp/$uboot_name/usr/lib/$uboot_name/$f_dst
-		tools/mkimage -n rk3399 -T rksd -d $SRC/cache/sources/rkbin-tools/rk33/rk3399_ddr_933MHz_v1.13.bin rkspi_loader.img
+		cp rksd_loader.img $EXTER/.tmp/$uboot_name/usr/lib/$uboot_name/$f_dst
+		tools/mkimage -n rk3399 -T rksd -d $EXTER/cache/sources/rkbin-tools/rk33/rk3399_ddr_933MHz_v1.13.bin rkspi_loader.img
 		cat spl/u-boot-spl.bin >> rkspi_loader.img
 		for i in `seq 1 128`; do dd count=4 status=none; dd if=/dev/zero count=4 status=none; done < rkspi_loader.img > rkspi_loader.tmp
 		mv rkspi_loader.tmp rkspi_loader.img
 		dd if=u-boot.itb of=rkspi_loader.img seek=1024 conv=notrunc
-		cp rkspi_loader.img $SRC/.tmp/$uboot_name/usr/lib/$uboot_name/$f_dst
+		cp rkspi_loader.img $EXTER/.tmp/$uboot_name/usr/lib/$uboot_name/$f_dst
 
 	elif [[ $BOOT_RK3328_USE_AYUFAN_ATF == yes ]]; then
 
 		# 3328
-		tools/mkimage -n rk3328 -T rksd -d $SRC/cache/sources/rkbin-tools/rk33/rk3328_ddr_786MHz_v1.13.bin idbloader.bin
-		cat $SRC/cache/sources/rkbin-tools/rk33/rk3328_miniloader_v2.46.bin >> idbloader.bin
+		tools/mkimage -n rk3328 -T rksd -d $EXTER/cache/sources/rkbin-tools/rk33/rk3328_ddr_786MHz_v1.13.bin idbloader.bin
+		cat $EXTER/cache/sources/rkbin-tools/rk33/rk3328_miniloader_v2.46.bin >> idbloader.bin
 		loaderimage --pack --uboot ./u-boot-dtb.bin uboot.img 0x200000
 
 	else
@@ -229,7 +230,6 @@ setup_write_uboot_platform()
 	fi
 }
 
-
 atf_custom_postprocess()
 {
 
@@ -243,10 +243,49 @@ atf_custom_postprocess()
 family_tweaks()
 {
 
+	# execute specific tweaks function if present
+	[[ $(type -t family_tweaks_s) == function ]] && family_tweaks_s
+
+	if [[ $BOARD == orangepi4 && $BRANCH == legacy ]]; then
+
+		# Gstreamer library
+		GST_DIR="$EXTER/cache/sources/rk3399_gst_xserver_libs/gstreamer"
+		[[ ! -d "${SDCARD}"/usr/libexec ]] && mkdir -p "${SDCARD}"/usr/libexec
+
+		cp ${GST_DIR}/${RELEASE}_build/etc/iqfiles             ${SDCARD}/etc/ -rfa
+		cp ${GST_DIR}/${RELEASE}_build/usr/bin/*               ${SDCARD}/usr/bin/ -rfa
+		cp ${GST_DIR}/${RELEASE}_build/usr/include/*           ${SDCARD}/usr/include/ -rfa
+		cp ${GST_DIR}/${RELEASE}_build/usr/lib/*               ${SDCARD}/usr/lib/ -rfa
+		cp ${GST_DIR}/${RELEASE}_build/usr/share/*             ${SDCARD}/usr/share/ -rfa
+		cp ${GST_DIR}/overlay/etc/udev/rules.d/*               ${SDCARD}/etc/udev/rules.d/ -rfa
+		cp ${GST_DIR}/overlay/usr/local/bin/*                  ${SDCARD}/usr/local/bin/ -rfa
+		cp ${GST_DIR}/others/gstreamer/usr/bin/*               ${SDCARD}/usr/bin/ -rfa
+		cp ${GST_DIR}/others/gstreamer/usr/include/*           ${SDCARD}/usr/include/ -rfa
+		cp ${GST_DIR}/others/gstreamer/usr/lib/*               ${SDCARD}/usr/lib/ -rfa
+		cp ${GST_DIR}/others/gstreamer/usr/libexec/*           ${SDCARD}/usr/libexec/ -rfa
+		cp ${GST_DIR}/others/gstreamer/usr/local/*             ${SDCARD}/usr/local/ -rfa
+		cp ${GST_DIR}/others/gstreamer/usr/share/*             ${SDCARD}/usr/share/ -rfa
+
+		# Mail GPU library
+		sed 's/^#\(deb-src\)/\1/' -i ${SDCARD}/etc/apt/sources.list
+		chroot $SDCARD /bin/bash -c "apt-get -q update >/dev/null 2>&1"
+		chroot $SDCARD /bin/bash -c "apt-get -y build-dep xserver-xorg-core >/dev/null 2>&1"
+		chroot $SDCARD /bin/bash -c "apt-get remove -y --purge libegl1-mesa-dev:arm64 libgbm-dev:arm64 >/dev/null 2>&1"
+		chroot $SDCARD /bin/bash -c "apt-get install -q -y --no-install-recommends libxcb-xkb-dev libxfont-dev wayland-protocols >/dev/null 2>&1"
+		install_deb_chroot "$EXTER/cache/debs/rk3399/libmali-rk-dev_1.6-2_arm64.deb"
+		install_deb_chroot "$EXTER/cache/debs/rk3399/libmali-rk-midgard-t86x-r14p0_1.6-2_arm64.deb"
+		rm -rf ${SDCARD}/usr/lib/aarch64-linux-gnu/mesa-egl
+
+		XSERVER_DIR="$EXTER/cache/sources/rk3399_gst_xserver_libs/xserver"
+		cp ${XSERVER_DIR}/xserver_for_${RELEASE}/usr/bin/*               ${SDCARD}/usr/bin/ -rfa
+		cp ${XSERVER_DIR}/xserver_for_${RELEASE}/usr/include/*           ${SDCARD}/usr/include/ -rfa
+		cp ${XSERVER_DIR}/xserver_for_${RELEASE}/usr/lib/*               ${SDCARD}/usr/lib/ -rfa
+		cp ${XSERVER_DIR}/xserver_for_${RELEASE}/usr/share/*             ${SDCARD}/usr/share/ -rfa
+		cp ${XSERVER_DIR}/xserver_for_${RELEASE}/usr/libexec/*           ${SDCARD}/usr/libexec/ -rfa
+	fi
+
 	if [[ $BOARD == orangepir1plus ]]; then
 
-		# execute specific tweaks function if present
-		[[ $(type -t family_tweaks_s) == function ]] && family_tweaks_s
 
 		# rename USB based network to lan0
 		mkdir -p $SDCARD/etc/udev/rules.d/
@@ -257,13 +296,13 @@ family_tweaks()
 		#echo "	iface eth0 inet dhcp" >> $SDCARD/etc/network/interfaces
 		#echo "auto lan0" >> $SDCARD/etc/network/interfaces
 		#echo "	iface lan0 inet dhcp" >> $SDCARD/etc/network/interfaces
+	fi
 
-	elif [[ -f $SDCARD/lib/systemd/system/rk3399-bluetooth.service ]]; then
+	if [[ -f $SDCARD/lib/systemd/system/rk3399-bluetooth.service ]]; then
 
 		# install and enable Bluetooth
-		chroot $SDCARD /bin/bash -c "apt-get -y -qq install rfkill bluetooth bluez bluez-tools"
+		chroot $SDCARD /bin/bash -c "apt-get -y -qq install rfkill bluetooth bluez bluez-tools >/dev/null 2>&1"
 		chroot $SDCARD /bin/bash -c "systemctl --no-reload enable rk3399-bluetooth.service >/dev/null 2>&1"
-
 	fi
 }
 
@@ -281,4 +320,18 @@ family_tweaks_bsp()
 		EndSection
 		EOF
 	fi
+
+	if [[ ${BOARD} == orangepi4 ]]; then
+
+		# Bluetooth for most of others (custom patchram is needed only in legacy)
+		install -m 755 $EXTER/packages/bsp/rk3399/brcm_patchram_plus_rk3399 $destination/usr/bin
+		cp $EXTER/packages/bsp/rk3399/rk3399-bluetooth.service $destination/lib/systemd/system/
+	fi
+
+	# Graphics and media
+	mkdir -p $destination/etc/udev/rules.d
+	cp $EXTER/packages/bsp/rk3399/50-mali.rules $destination/etc/udev/rules.d/
+	cp $EXTER/packages/bsp/rk3399/50-rk3399-vpu.rules $destination/etc/udev/rules.d/
+	mkdir -p $destination/etc/sysfs.d
+	cp $EXTER/packages/bsp/rk3399/20-gpu-governor.conf $destination/etc/sysfs.d/
 }

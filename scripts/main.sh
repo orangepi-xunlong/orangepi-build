@@ -153,7 +153,8 @@ if [[ -z $BOARD ]]; then
 	options+=("orangepilite2"		"Allwinner H6 quad core 1GB RAM WiFi/BT USB3")
 	options+=("orangepioneplus"		"Allwinner H6 quad core 1GB RAM GBE")
 	options+=("orangepizero2"		"Allwinner H616 quad core 512MB/1GB RAM WiFi/BT GBE SPI")
-	options+=("orangepir1plus"              "Rockchip RK3328 quad core 1GB RAM 2xGBE USB2 SPI")
+	options+=("orangepi4"                   "Rockchip  RK3399 hexa core 4GB RAM GBE eMMc USB3 USB-C WiFi/BT")
+	options+=("orangepir1plus"              "Rockchip  RK3328 quad core 1GB RAM 2xGBE USB2 SPI")
 
 	menustr="Please choose a Board."
 	BOARD=$(whiptail --title "${titlestr}" --backtitle "${backtitle}" \
@@ -238,11 +239,14 @@ if [[ ${BUILD_OPT} == image || ${BUILD_OPT} == rootfs ]]; then
 			if [[ $LINUXFAMILY == sun50iw9 || $LINUXFAMILY == sun50iw6 ]]; then
 		
 				RELEASE_TARGET="buster bionic focal"
+			elif [[ $LINUXFAMILY == rk3399 ]]; then
+
+				RELEASE_TARGET="xenial"
 			else
 	       	 		RELEASE_TARGET="xenial"
 			fi
 
-		elif [[ $BRANCH == current || $BRANCH == dev ]]; then
+		elif [[ $BRANCH == current ]]; then
 
 	        	RELEASE_TARGET="buster bionic focal"
 			[[ $LINUXFAMILY == sun50iw6 ]] && RELEASE_TARGET="buster focal"
@@ -380,6 +384,10 @@ display_alert "Downloading sources" "" "info"
 	
 	fetch_from_repo "https://github.com/linux-sunxi/sunxi-tools" "${EXTER}/cache/sources/sunxi-tools" "branch:master"
 	fetch_from_repo "https://github.com/armbian/rkbin" "${EXTER}/cache/sources/rkbin-tools" "branch:master"
+
+	if [[ $BOARD == orangepi4 ]]; then
+		fetch_from_repo "https://github.com/orangepi-xunlong/rk3399_gst_xserver_libs.git" "${EXTER}/cache/sources/rk3399_gst_xserver_libs" "branch:main"
+	fi
 fi
 
 compile_sunxi_tools

@@ -35,4 +35,5 @@ external/cache/sources/sunxi-tools
 external/cache/sources/rkbin-tools
 external/cache/sources/orangepi-firmware
 external/cache/sources/orangepi-firmware-git
+external/cache/sources/rk3399_gst_xserver_libs
 external/cache/sources/arm-trusted-firmware-sunxi-mainline

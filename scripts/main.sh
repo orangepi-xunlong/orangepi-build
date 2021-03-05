@@ -241,7 +241,7 @@ if [[ ${BUILD_OPT} == image || ${BUILD_OPT} == rootfs ]]; then
 				RELEASE_TARGET="buster bionic focal"
 			elif [[ $LINUXFAMILY == rk3399 ]]; then
 
-				RELEASE_TARGET="xenial"
+				RELEASE_TARGET="xenial bionic buster"
 			else
 	       	 		RELEASE_TARGET="xenial"
 			fi

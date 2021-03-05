@@ -252,36 +252,86 @@ family_tweaks()
 		GST_DIR="$EXTER/cache/sources/rk3399_gst_xserver_libs/gstreamer"
 		[[ ! -d "${SDCARD}"/usr/libexec ]] && mkdir -p "${SDCARD}"/usr/libexec
 
-		cp ${GST_DIR}/${RELEASE}_build/etc/iqfiles             ${SDCARD}/etc/ -rfa
-		cp ${GST_DIR}/${RELEASE}_build/usr/bin/*               ${SDCARD}/usr/bin/ -rfa
-		cp ${GST_DIR}/${RELEASE}_build/usr/include/*           ${SDCARD}/usr/include/ -rfa
-		cp ${GST_DIR}/${RELEASE}_build/usr/lib/*               ${SDCARD}/usr/lib/ -rfa
-		cp ${GST_DIR}/${RELEASE}_build/usr/share/*             ${SDCARD}/usr/share/ -rfa
-		cp ${GST_DIR}/overlay/etc/udev/rules.d/*               ${SDCARD}/etc/udev/rules.d/ -rfa
-		cp ${GST_DIR}/overlay/usr/local/bin/*                  ${SDCARD}/usr/local/bin/ -rfa
-		cp ${GST_DIR}/others/gstreamer/usr/bin/*               ${SDCARD}/usr/bin/ -rfa
-		cp ${GST_DIR}/others/gstreamer/usr/include/*           ${SDCARD}/usr/include/ -rfa
-		cp ${GST_DIR}/others/gstreamer/usr/lib/*               ${SDCARD}/usr/lib/ -rfa
-		cp ${GST_DIR}/others/gstreamer/usr/libexec/*           ${SDCARD}/usr/libexec/ -rfa
-		cp ${GST_DIR}/others/gstreamer/usr/local/*             ${SDCARD}/usr/local/ -rfa
-		cp ${GST_DIR}/others/gstreamer/usr/share/*             ${SDCARD}/usr/share/ -rfa
+		if [[ $RELEASE != buster ]]; then
 
-		# Mail GPU library
-		sed 's/^#\(deb-src\)/\1/' -i ${SDCARD}/etc/apt/sources.list
-		chroot $SDCARD /bin/bash -c "apt-get -q update >/dev/null 2>&1"
-		chroot $SDCARD /bin/bash -c "apt-get -y build-dep xserver-xorg-core >/dev/null 2>&1"
-		chroot $SDCARD /bin/bash -c "apt-get remove -y --purge libegl1-mesa-dev:arm64 libgbm-dev:arm64 >/dev/null 2>&1"
-		chroot $SDCARD /bin/bash -c "apt-get install -q -y --no-install-recommends libxcb-xkb-dev libxfont-dev wayland-protocols >/dev/null 2>&1"
-		install_deb_chroot "$EXTER/cache/debs/rk3399/libmali-rk-dev_1.6-2_arm64.deb"
-		install_deb_chroot "$EXTER/cache/debs/rk3399/libmali-rk-midgard-t86x-r14p0_1.6-2_arm64.deb"
-		rm -rf ${SDCARD}/usr/lib/aarch64-linux-gnu/mesa-egl
+			cp ${GST_DIR}/${RELEASE}_build/etc/iqfiles             ${SDCARD}/etc/ -rfa
+			cp ${GST_DIR}/${RELEASE}_build/usr/bin/*               ${SDCARD}/usr/bin/ -rfa
+			cp ${GST_DIR}/${RELEASE}_build/usr/include/*           ${SDCARD}/usr/include/ -rfa
+			cp ${GST_DIR}/${RELEASE}_build/usr/lib/*               ${SDCARD}/usr/lib/ -rfa
+			cp ${GST_DIR}/${RELEASE}_build/usr/share/*             ${SDCARD}/usr/share/ -rfa
+			cp ${GST_DIR}/overlay/etc/udev/rules.d/*               ${SDCARD}/etc/udev/rules.d/ -rfa
+			cp ${GST_DIR}/overlay/usr/local/bin/*                  ${SDCARD}/usr/local/bin/ -rfa
 
-		XSERVER_DIR="$EXTER/cache/sources/rk3399_gst_xserver_libs/xserver"
-		cp ${XSERVER_DIR}/xserver_for_${RELEASE}/usr/bin/*               ${SDCARD}/usr/bin/ -rfa
-		cp ${XSERVER_DIR}/xserver_for_${RELEASE}/usr/include/*           ${SDCARD}/usr/include/ -rfa
-		cp ${XSERVER_DIR}/xserver_for_${RELEASE}/usr/lib/*               ${SDCARD}/usr/lib/ -rfa
-		cp ${XSERVER_DIR}/xserver_for_${RELEASE}/usr/share/*             ${SDCARD}/usr/share/ -rfa
-		cp ${XSERVER_DIR}/xserver_for_${RELEASE}/usr/libexec/*           ${SDCARD}/usr/libexec/ -rfa
+			XSERVER_DIR="$EXTER/cache/sources/rk3399_gst_xserver_libs/xserver"
+			cp ${XSERVER_DIR}/xserver_for_${RELEASE}/usr/bin/*               ${SDCARD}/usr/bin/ -rfa
+			cp ${XSERVER_DIR}/xserver_for_${RELEASE}/usr/include/*           ${SDCARD}/usr/include/ -rfa
+			cp ${XSERVER_DIR}/xserver_for_${RELEASE}/usr/lib/*               ${SDCARD}/usr/lib/ -rfa
+			cp ${XSERVER_DIR}/xserver_for_${RELEASE}/usr/share/*             ${SDCARD}/usr/share/ -rfa
+			cp ${XSERVER_DIR}/xserver_for_${RELEASE}/usr/libexec/*           ${SDCARD}/usr/libexec/ -rfa
+
+		fi
+
+		if [[ $RELEASE == bionic ]]; then
+
+			cp ${GST_DIR}/${RELEASE}_build/usr/lib/gstreamer-1.0/*            ${SDCARD}/usr/lib/aarch64-linux-gnu/gstreamer-1.0/ -rfa
+
+			#Mali GPU library
+			install_deb_chroot "$EXTER/cache/debs/rk3399/libmali-rk-midgard-t86x-r14p0-r0p0_1.6-1-1armbian3_arm64.deb"
+
+		elif [[ $RELEASE == xenial ]]; then
+
+			# Mail GPU library
+			sed 's/^#\(deb-src\)/\1/' -i ${SDCARD}/etc/apt/sources.list
+			chroot $SDCARD /bin/bash -c "apt-get -q update >/dev/null 2>&1"
+			chroot $SDCARD /bin/bash -c "apt-get -y build-dep xserver-xorg-core >/dev/null 2>&1"
+			chroot $SDCARD /bin/bash -c "apt-get remove -y --purge libegl1-mesa-dev:arm64 libgbm-dev:arm64 >/dev/null 2>&1"
+			chroot $SDCARD /bin/bash -c "apt-get install -q -y --no-install-recommends libxcb-xkb-dev libxfont-dev wayland-protocols >/dev/null 2>&1"
+			install_deb_chroot "$EXTER/cache/debs/rk3399/libmali-rk-dev_1.6-2_arm64.deb"
+			install_deb_chroot "$EXTER/cache/debs/rk3399/libmali-rk-midgard-t86x-r14p0_1.6-2_arm64.deb"
+			rm -rf ${SDCARD}/usr/lib/aarch64-linux-gnu/mesa-egl
+
+			# Gstreamer
+			cp ${GST_DIR}/others/gstreamer/usr/bin/*               ${SDCARD}/usr/bin/ -rfa
+			cp ${GST_DIR}/others/gstreamer/usr/include/*           ${SDCARD}/usr/include/ -rfa
+			cp ${GST_DIR}/others/gstreamer/usr/lib/*               ${SDCARD}/usr/lib/ -rfa
+			cp ${GST_DIR}/others/gstreamer/usr/libexec/*           ${SDCARD}/usr/libexec/ -rfa
+			cp ${GST_DIR}/others/gstreamer/usr/local/*             ${SDCARD}/usr/local/ -rfa
+			cp ${GST_DIR}/others/gstreamer/usr/share/*             ${SDCARD}/usr/share/ -rfa
+
+		elif [[ $RELEASE == buster ]]; then
+
+			#Multimedia Framework
+			chroot $SDCARD /bin/bash -c "apt-get -q update >/dev/null 2>&1"
+			chroot $SDCARD /bin/bash -c "apt-get remove -y --purge xserver-xorg-core mpv >/dev/null 2>&1"
+			chroot $SDCARD /bin/bash -c "apt install -q -y --no-install-recommends gstreamer1.0-plugins-ugly gstreamer1.0-plugins-bad \
+				qtgstreamer-plugins-qt5	qtmultimedia5-examples mesa-utils fonts-liberation python-bluez python-lightblue python-pil \
+				python-simplejson libshairplay0 libaacs0 libcec4 libfstrcmp0 libiso9660-11 liblirc-client0 libmariadb3 libmicrohttpd12 \
+				libpcrecpp0v5 libdav1d4 libssh-4 libtag1v5 gstreamer1.0-plugins-good liblua5.2-0 librubberband2 gstreamer1.0-libav \
+				gstreamer1.0-doc gstreamer1.0-tools gstreamer1.0-x gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-qt5 \
+				gstreamer1.0-pulseaudio >/dev/null 2>&1"
+
+			install_deb_chroot "$EXTER/cache/debs/rk3399/buster_media/libmali-rk-midgard-t86x-r14p0-r0p0_1.6-1-1armbian3_arm64.deb"
+			install_deb_chroot "$EXTER/cache/debs/rk3399/buster_media/librga2_2.0.0-1_arm64.deb"
+			install_deb_chroot "$EXTER/cache/debs/rk3399/buster_media/librockchip-mpp1_1.4.0-3armbian3_arm64.deb"
+			install_deb_chroot "$EXTER/cache/debs/rk3399/buster_media/librockchip-vpu0_1.4.0-3armbian3_arm64.deb"
+			install_deb_chroot "$EXTER/cache/debs/rk3399/buster_media/xserver-xorg-core-rockchip_1.20.3-3armbian1_arm64.deb"
+			install_deb_chroot "$EXTER/cache/debs/rk3399/buster_media/gl4es_1.1.5-0armbian1_arm64.deb"
+			install_deb_chroot "$EXTER/cache/debs/rk3399/buster_media/gstreamer1.0-rockchip1_2%3a1.10-0armbian1_arm64.deb"
+			install_deb_chroot "$EXTER/cache/debs/rk3399/buster_media/gstreamer1.0-rockchip1-extra_3%3a20180115-3armbian1_arm64.deb"
+			install_deb_chroot "$EXTER/cache/debs/rk3399/buster_media/kodi-rk-bin_2%3a18.9-final-18.9buster0armbian3_arm64.deb"
+			install_deb_chroot "$EXTER/cache/debs/rk3399/buster_media/kodi-rk_2%3a18.9-final-18.9buster0armbian3_all.deb"
+			install_deb_chroot "$EXTER/cache/debs/rk3399/buster_media/mpv-legacy_2%3a2020.12.08.df805cfc84_arm64.deb"
+			install_deb_chroot "$EXTER/cache/debs/rk3399/buster_media/media-buster-legacy-rk3399_20.11.4_arm64.deb"
+
+			chroot $SDCARD /bin/bash -c "apt install -q -y --no-install-recommends xserver-xorg xserver-xorg-video-fbdev xserver-xorg-input-all \
+					xserver-xorg-input-libinput  >/dev/null 2>&1"
+
+			cp ${GST_DIR}/${RELEASE}_build/etc/iqfiles             ${SDCARD}/etc/ -rfa
+			cp ${GST_DIR}/${RELEASE}_build/usr/lib/*               ${SDCARD}/usr/lib/ -rfa
+			cp ${GST_DIR}/overlay/etc/udev/rules.d/*               ${SDCARD}/etc/udev/rules.d/ -rfa
+			cp ${GST_DIR}/overlay/usr/local/bin/*                  ${SDCARD}/usr/local/bin/ -rfa
+
+		fi
 	fi
 
 	if [[ $BOARD == orangepir1plus ]]; then

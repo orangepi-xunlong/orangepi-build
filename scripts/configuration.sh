@@ -200,7 +200,7 @@ case $RELEASE in
 			x11-xserver-utils xfce4 lxtask xfce4-terminal thunar-volman gtk2-engines gtk2-engines-murrine gtk2-engines-pixbuf \
 			libgtk2.0-bin network-manager-gnome xfce4-notifyd gnome-keyring gcr libgck-1-0 p11-kit pasystray pavucontrol \
 			pulseaudio pavumeter bluez bluez-tools pulseaudio-module-bluetooth blueman libpam-gnome-keyring \
-			libgl1-mesa-dri policykit-1 gnome-orca numix-gtk-theme synaptic apt-xapian-index lightdm lightdm-gtk-greeter"
+			libgl1-mesa-dri policykit-1 gnome-orca numix-gtk-theme synaptic apt-xapian-index lightdm lightdm-gtk-greeter xfce4-power-manager"
 
 		DEBOOTSTRAP_COMPONENTS="main"
 		DEBOOTSTRAP_LIST+=" btrfs-tools"

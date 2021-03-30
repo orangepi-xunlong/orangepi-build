@@ -239,9 +239,17 @@ compile_uboot()
 	done <<< "$UBOOT_TARGET_MAP"
 
 	if [[ $PACK_UBOOT == "yes" ]];then
-		pack_uboot
-		cp ${SRC}/.tmp/packout/{boot0_sdcard.fex,boot_package.fex} "${SRC}/.tmp/${uboot_name}/usr/lib/${uboot_name}/"
-		cp ${SRC}/.tmp/packout/dts/${BOARD}-u-boot.dts "${SRC}/.tmp/${uboot_name}/usr/lib/u-boot/"
+		if [[ $BOARDFAMILY =~ sun50iw1 ]]; then
+			if [[ $(type -t u-boot_tweaks) == function ]]; then
+				u-boot_tweaks ${uboot_name}
+			else
+				exit_with_error "U-boot pack failed"
+			fi
+		else
+			pack_uboot
+			cp ${SRC}/.tmp/packout/{boot0_sdcard.fex,boot_package.fex} "${SRC}/.tmp/${uboot_name}/usr/lib/${uboot_name}/"
+			cp ${SRC}/.tmp/packout/dts/${BOARD}-u-boot.dts "${SRC}/.tmp/${uboot_name}/usr/lib/u-boot/"
+		fi
 		cd "${ubootdir}" || exit
 	fi
 
@@ -328,7 +336,7 @@ compile_kernel()
 	# create linux-source package - with already patched sources
 	local sources_pkg_dir=$SRC/.tmp/${CHOSEN_KSRC}_${REVISION}_all
 	rm -rf "${sources_pkg_dir}"
-	mkdir -p "${sources_pkg_dir}"/usr/src/ "${sources_pkg_dir}/usr/share/doc/linux-source-${version}-${LINUXFAMILY}" "${sources_pkg_dir}"/DEBIAN
+	mkdir -p "${sources_pkg_dir}"/usr/src/ "${sources_pkg_dir}/usr/share/doc/linux-source-${version}-${LINUXFAMILY}" "${sources_pkg_dir}"/DEBIAN $SRC/.tmp/gpu_modules_${LINUXFAMILY}
 
 	if [[ $BUILD_KSRC == yes ]]; then
 		display_alert "Cleaning" "$LINUXSOURCEDIR" "info"
@@ -419,6 +427,10 @@ compile_kernel()
 		local kernel_packing="deb-pkg"
 	fi
 
+	if [[ $BRANCH == legacy && $LINUXFAMILY =~ sun50iw2|sun50iw6|sun50iw9 ]]; then
+		make -C modules/gpu LICHEE_MOD_DIR=${SRC}/.tmp/gpu_modules_${LINUXFAMILY} LICHEE_KDIR=${kerneldir} CROSS_COMPILE=$toolchain/$KERNEL_COMPILER ARCH=$ARCHITECTURE
+	fi
+
 	display_alert "Creating packages"
 
 	# produce deb packages: image, headers, firmware, dtb
@@ -486,10 +498,10 @@ compile_firmware()
         [[ -d "${EXTER}/cache/sources/${plugin_dir}" ]] && rm -rf "${EXTER}/cache/sources/${plugin_dir}"
         mkdir -p "${EXTER}/cache/sources/${plugin_dir}/lib/firmware"
 
-	fetch_from_repo "${GIT_SERVER}/firmware" "${EXTER}/cache/sources/orangepi-firmware-git" "branch:master"
+	[[ $IGNORE_UPDATES != yes ]] && fetch_from_repo "${GIT_SERVER}/firmware" "${EXTER}/cache/sources/orangepi-firmware-git" "branch:master"
 
         if [[ -n $FULL ]]; then
-                fetch_from_repo "$plugin_repo" "${EXTER}/cache/sources/linux-firmware-git" "branch:master"
+                [[ $IGNORE_UPDATES != yes ]] && fetch_from_repo "$plugin_repo" "${EXTER}/cache/sources/linux-firmware-git" "branch:master"
                 # cp : create hardlinks
                 #cp -alf "${EXTER}"/cache/sources/linux-firmware-git/* "${EXTER}/cache/sources/${plugin_dir}/lib/firmware/"
         fi

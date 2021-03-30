@@ -1,0 +1,400 @@
+state.audiocodec {
+	control.1 {
+		iface MIXER
+		name 'digital volume'
+		value 26
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 63'
+			dbmin -7424
+			dbmax -7424
+			dbvalue.0 -7424
+		}
+	}
+	control.2 {
+		iface MIXER
+		name 'Lineout volume'
+		value 31
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 31'
+			dbmin -480
+			dbmax -480
+			dbvalue.0 -480
+		}
+	}
+	control.3 {
+		iface MIXER
+		name 'MIC1_G boost stage output mixer control'
+		value 3
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 7'
+			dbmin -450
+			dbmax 600
+			dbvalue.0 0
+		}
+	}
+	control.4 {
+		iface MIXER
+		name 'MIC2_G boost stage output mixer control'
+		value 0
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 7'
+			dbmin -450
+			dbmax 600
+			dbvalue.0 -450
+		}
+	}
+	control.5 {
+		iface MIXER
+		name 'MIC1 boost AMP gain control'
+		value 3
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 7'
+			dbmin 0
+			dbmax 2100
+			dbvalue.0 900
+		}
+	}
+	control.6 {
+		iface MIXER
+		name 'MIC2 boost AMP gain control'
+		value 0
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 7'
+			dbmin 0
+			dbmax 2100
+			dbvalue.0 0
+		}
+	}
+	control.7 {
+		iface MIXER
+		name 'LINEINL/R to L_R output mixer gain'
+		value 5
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 7'
+			dbmin -450
+			dbmax 600
+			dbvalue.0 300
+		}
+	}
+	control.8 {
+		iface MIXER
+		name 'ADC input gain control'
+		value 7
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 7'
+			dbmin -450
+			dbmax 3750
+			dbvalue.0 3750
+		}
+	}
+	control.9 {
+		iface MIXER
+		name 'codec hub mode'
+		value hub_disable
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 null
+			item.1 hub_disable
+			item.2 hub_enable
+		}
+	}
+	control.10 {
+		iface MIXER
+		name 'RADC input Mixer r_output mixer Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.11 {
+		iface MIXER
+		name 'RADC input Mixer l_output mixer Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.12 {
+		iface MIXER
+		name 'RADC input Mixer LINEINR Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.13 {
+		iface MIXER
+		name 'RADC input Mixer MIC1 boost Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.14 {
+		iface MIXER
+		name 'RADC input Mixer MIC2 boost Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.15 {
+		iface MIXER
+		name 'LADC input Mixer r_output mixer Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.16 {
+		iface MIXER
+		name 'LADC input Mixer l_output mixer Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.17 {
+		iface MIXER
+		name 'LADC input Mixer LINEINL Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.18 {
+		iface MIXER
+		name 'LADC input Mixer MIC1 boost Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.19 {
+		iface MIXER
+		name 'LADC input Mixer MIC2 boost Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.20 {
+		iface MIXER
+		name 'Lineout_L Mux'
+		value 'MIXER_L Switch'
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 'MIXER_L Switch'
+			item.1 'MIXER_R+MIXER_L Switch'
+		}
+	}
+	control.21 {
+		iface MIXER
+		name 'Lineout_R Mux'
+		value 'MIXER_R Switch'
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 'MIXER_R Switch'
+			item.1 'MIXER_L Switch'
+		}
+	}
+	control.22 {
+		iface MIXER
+		name 'Right Output Mixer DACL Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.23 {
+		iface MIXER
+		name 'Right Output Mixer DACR Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.24 {
+		iface MIXER
+		name 'Right Output Mixer LINEINR Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.25 {
+		iface MIXER
+		name 'Right Output Mixer MIC1Booststage Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.26 {
+		iface MIXER
+		name 'Right Output Mixer MIC2Booststage Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.27 {
+		iface MIXER
+		name 'Left Output Mixer DACR Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.28 {
+		iface MIXER
+		name 'Left Output Mixer DACL Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.29 {
+		iface MIXER
+		name 'Left Output Mixer LINEINL Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.30 {
+		iface MIXER
+		name 'Left Output Mixer MIC1Booststage Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.31 {
+		iface MIXER
+		name 'Left Output Mixer MIC2Booststage Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.32 {
+		iface MIXER
+		name 'External Speaker Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+}
+state.sndhdmi {
+	control.1 {
+		iface MIXER
+		name 'hdmi audio format Function'
+		value pcm
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 null
+			item.1 pcm
+			item.2 AC3
+			item.3 MPEG1
+			item.4 MP3
+			item.5 MPEG2
+			item.6 AAC
+			item.7 DTS
+			item.8 ATRAC
+			item.9 ONE_BIT_AUDIO
+			item.10 DOLBY_DIGITAL_PLUS
+			item.11 DTS_HD
+			item.12 MAT
+			item.13 WMAPRO
+		}
+	}
+	control.2 {
+		iface MIXER
+		name 'sunxi daudio audio hub mode'
+		value hub_disable
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 null
+			item.1 hub_disable
+			item.2 hub_enable
+		}
+	}
+}

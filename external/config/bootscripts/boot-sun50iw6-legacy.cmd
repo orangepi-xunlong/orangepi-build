@@ -11,6 +11,7 @@ setenv rootfstype "ext4"
 setenv console "both"
 setenv docker_optimizations "off"
 setenv bootlogo "false"
+setenv emmc_max_frequency "50000000"
 
 # Print boot source
 itest.b *0x10028 == 0x00 && echo "U-boot loaded from SD"
@@ -51,6 +52,7 @@ fdt set /soc/disp@01000000 fb0_height <${fb0_height}>
 
 # Orange Pi 3 without eMMC needs to turn off sdc2
 fdt set /soc/sdmmc@04022000 status ${emmc_status}
+fdt set /soc/sdmmc@04022000 max-frequency <${emmc_max_frequency}>
 
 fdt addr -c ${fdt_addr_r}
 

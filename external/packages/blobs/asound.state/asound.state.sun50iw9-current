@@ -1,0 +1,104 @@
+state.Codec {
+	control.1 {
+		iface MIXER
+		name 'digital volume'
+		value 0
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 63'
+			dbmin -9999999
+			dbmax 4121460
+			dbvalue.0 -9999999
+		}
+	}
+	control.2 {
+		iface MIXER
+		name 'LINEOUT volume'
+		value 30
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 31'
+			dbmin -9999999
+			dbmax 150
+			dbvalue.0 0
+		}
+	}
+	control.3 {
+		iface MIXER
+		name 'LINEOUT Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.4 {
+		iface MIXER
+		name 'Left Output Mixer DACL Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.5 {
+		iface MIXER
+		name 'Left Output Mixer DACR Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.6 {
+		iface MIXER
+		name 'Right Output Mixer DACL Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.7 {
+		iface MIXER
+		name 'Right Output Mixer DACR Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.8 {
+		iface MIXER
+		name 'Left LINEOUT Mux'
+		value LOMixer
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 LOMixer
+			item.1 LROMixer
+		}
+	}
+	control.9 {
+		iface MIXER
+		name 'Right LINEOUT Mux'
+		value ROMixer
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 ROMixer
+			item.1 LROMixer
+		}
+	}
+}

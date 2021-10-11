@@ -32,7 +32,11 @@ write_uboot_platform()
 		dd if=$1/boot0_sdcard.fex of=$2 bs=8k seek=1 conv=fsync > /dev/null 2>&1
 		dd if=$1/boot_package.fex of=$2 bs=8k seek=2050 conv=fsync > /dev/null 2>&1 || true
 	elif [[ -f $1/u-boot-with-dtb.bin ]]; then # legacy a64 loader
+		dd if=/dev/zero of=$2 bs=1k count=1023 seek=1 status=noxfer > /dev/null 2>&1
 		dd if=$1/u-boot-with-dtb.bin of=$2 bs=1k seek=8 conv=fsync > /dev/null 2>&1 || true
+	elif [[ -f $1/u-boot-sunxi-with-spl.bin ]]; then
+		dd if=/dev/zero of=$2 bs=1k count=1023 seek=1 status=noxfer > /dev/null 2>&1
+		dd if=$1/u-boot-sunxi-with-spl.bin of=$2 bs=1k seek=8 conv=fsync > /dev/null 2>&1 || true
 	else
 		[[ -f $1/sunxi-spl.bin ]] && dd if=$1/sunxi-spl.bin of=$2 bs=8k seek=1 conv=fsync > /dev/null 2>&1
 		[[ -f $1/u-boot.itb ]] && dd if=$1/u-boot.itb of=$2 bs=8k seek=5 conv=fsync > /dev/null 2>&1 || true

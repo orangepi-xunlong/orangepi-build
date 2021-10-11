@@ -230,7 +230,7 @@ compile_uboot()
 				f_dst=$(basename "${f_src}")
 			fi
 			[[ ! -f $f_src ]] && exit_with_error "U-boot file not found" "$(basename "${f_src}")"
-			if [[ "${version}" =~ 2014.07|2011.09 || $BOARD == orangepizero2 ]]; then
+			if [[ "${version}" =~ 2014.07|2011.09 ]]; then
 				cp "${f_src}" "${SRC}/.tmp/packout/${f_dst}"
 			else
 				cp "${f_src}" "${SRC}/.tmp/${uboot_name}/usr/lib/${uboot_name}/${f_dst}"

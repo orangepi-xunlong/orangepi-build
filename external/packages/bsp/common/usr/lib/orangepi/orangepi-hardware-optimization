@@ -85,6 +85,14 @@ prepare_board() {
 		done
 	fi
 
+	# IRQ distribution based on $BOARDFAMILY and/or $BOARD_NAME
+	case ${BOARD} in
+		orangepizero2)
+			rfkill unblock all
+			/usr/bin/hciattach_opi -n -s 1500000 /dev/ttyBT0 sprd &
+			;;
+	esac
+
 	case ${BOARDFAMILY} in
 		rk3399)
 			for i in $(awk -F':' '/gpu/{print $1}' </proc/interrupts | sed 's/\ //g'); do

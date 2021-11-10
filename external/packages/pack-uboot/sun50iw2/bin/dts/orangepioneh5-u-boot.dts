@@ -6,7 +6,7 @@
 /memreserve/	0x0000000048104000 0x0000000000001000;
 /memreserve/	0x0000000048105000 0x0000000000001000;
 / {
-	model = "Orange Pi Pc 2";
+	model = "Orange Pi One";
 	compatible = "arm,sun50iw2p1";
 	interrupt-parent = <0x1>;
 	#address-cells = <0x2>;
@@ -377,14 +377,6 @@
 			clock-output-names = "spi0";
 			linux,phandle = <0x4b>;
 			phandle = <0x4b>;
-		};
-
-		spi1 {
-			#clock-cells = <0x0>;
-			compatible = "allwinner,sunxi-periph-clock";
-			clock-output-names = "spi1";
-			linux,phandle = <0x4f>;
-			phandle = <0x4f>;
 		};
 
 		i2s0 {
@@ -1436,10 +1428,10 @@
 			uart3@0 {
 				linux,phandle = <0xb1>;
 				phandle = <0xb1>;
-				allwinner,pins = "PA13", "PA14", "PA15", "PA16";
+				allwinner,pins = "PA13", "PA14";
 				allwinner,function = "uart3";
-				allwinner,pname = "uart3_tx", "uart3_rx", "uart3_rts", "uart3_cts";
-				allwinner,muxsel = <0x2>;
+				allwinner,pname = "uart3_tx", "uart3_rx";
+				allwinner,muxsel = <0x3>;
 				allwinner,pull = <0x1>;
 				allwinner,drive = <0xffffffff>;
 				allwinner,data = <0xffffffff>;
@@ -1448,9 +1440,9 @@
 			uart3@1 {
 				linux,phandle = <0xb2>;
 				phandle = <0xb2>;
-				allwinner,pins = "PA13", "PA14", "PA15", "PA16";
+				allwinner,pins = "PA13", "PA14";
 				allwinner,function = "uart3";
-				allwinner,pname = "uart3_tx", "uart3_rx", "uart3_rts", "uart3_cts";
+				allwinner,pname = "uart3_tx", "uart3_rx";
 				allwinner,muxsel = <0x7>;
 				allwinner,pull = <0x1>;
 				allwinner,drive = <0xffffffff>;
@@ -1511,54 +1503,6 @@
 				allwinner,pins = "PC2", "PC0", "PC1";
 				allwinner,function = "spi0";
 				allwinner,pname = "spi0_sclk", "spi0_mosi", "spi0_miso";
-				allwinner,muxsel = <0x7>;
-				allwinner,pull = <0xffffffff>;
-				allwinner,drive = <0xffffffff>;
-				allwinner,data = <0xffffffff>;
-			};
-
-			spi1@0 {
-				linux,phandle = <0xb8>;
-				phandle = <0xb8>;
-				allwinner,pins = "PA13";
-				allwinner,function = "spi1";
-				allwinner,pname = "spi1_cs0";
-				allwinner,muxsel = <0x2>;
-				allwinner,pull = <0x1>;
-				allwinner,drive = <0xffffffff>;
-				allwinner,data = <0xffffffff>;
-			};
-
-			spi1@1 {
-				linux,phandle = <0xb9>;
-				phandle = <0xb9>;
-				allwinner,pins = "PA14", "PA15", "PA16";
-				allwinner,function = "spi1";
-				allwinner,pname = "spi1_sclk", "spi1_mosi", "spi1_miso";
-				allwinner,muxsel = <0x2>;
-				allwinner,pull = <0xffffffff>;
-				allwinner,drive = <0xffffffff>;
-				allwinner,data = <0xffffffff>;
-			};
-
-			spi1@2 {
-				linux,phandle = <0xba>;
-				phandle = <0xba>;
-				allwinner,pins = "PA13";
-				allwinner,function = "spi1";
-				allwinner,pname = "spi1_cs0";
-				allwinner,muxsel = <0x7>;
-				allwinner,pull = <0x1>;
-				allwinner,drive = <0xffffffff>;
-				allwinner,data = <0xffffffff>;
-			};
-
-			spi1@3 {
-				linux,phandle = <0xbb>;
-				phandle = <0xbb>;
-				allwinner,pins = "PA14", "PA15", "PA16";
-				allwinner,function = "spi1";
-				allwinner,pname = "spi1_sclk", "spi1_mosi", "spi1_miso";
 				allwinner,muxsel = <0x7>;
 				allwinner,pull = <0xffffffff>;
 				allwinner,drive = <0xffffffff>;
@@ -1763,7 +1707,7 @@
 			clocks = <0x6 0x11>;
 			supply = "vcc-pl";
 			supply_vol = <0x325aa0>;
-			status = "okay";
+			status = "disable";
 			device_type = "s_cir0";
 			ir_power_key_code0 = <0x57>;
 			ir_addr_code0 = <0x9f00>;
@@ -1919,8 +1863,8 @@
 			clocks = <0x20>;
 			pinctrl-names = "default", "sleep";
 			uart3_port = <0x3>;
-			uart3_type = <0x4>;
-			status = "disabled";
+			uart3_type = <0x2>;
+			status = "okay";
 			pinctrl-0 = <0xb1>;
 			pinctrl-1 = <0xb2>;
 		};
@@ -2261,30 +2205,6 @@
 			
 		};
 
-		spi@01c69000 {
-			#address-cells = <0x1>;
-			#size-cells = <0x0>;
-			compatible = "allwinner,sun50i-spi";
-			device_type = "spi1";
-			reg = <0x0 0x1c69000 0x0 0x1000>;
-			interrupts = <0x0 0x42 0x4>;
-			clocks = <0x4 0x4f>;
-			clock-frequency = <10000000>;
-			pinctrl-names = "default", "sleep";
-			spi1_cs_number = <0x1>;
-			spi1_cs_bitmap = <0x1>;
-			status = "okay";
-			pinctrl-0 = <0xb8 0xb9>;
-			pinctrl-1 = <0xba 0xbb>;
-
-                        spi_board1 {
-                                device_type = "spi_board1";
-                                compatible = "rohm,dh2228fv";
-                                spi-max-frequency = <10000000>;
-                                reg = <0x0>;
-                        };
-		};
-
 		sdmmc@01C11000 {
 			compatible = "allwinner,sunxi-mmc-v4p5x";
 			device_type = "sdc2";
@@ -2622,7 +2542,7 @@
 				csi0_dev0_avdd;
 				csi0_dev0_dvdd;
 				csi0_dev0_afvdd;
-				csi0_dev0_power_en = <0x3a 0x0 0x11 0x1 0x0 0x1 0x0>;
+				csi0_dev0_power_en = <0x3a 0x0 0x11 0x1 0x0 0x1 0x1>;
 				csi0_dev0_reset = <0x3a 0x4 0xe 0x1 0x0 0x1 0x0>;
 				csi0_dev0_pwdn = <0x3a 0x4 0xf 0x1 0x0 0x1 0x0>;
 				csi0_dev0_flash_en;
@@ -2991,13 +2911,13 @@
 		eth@01c30000 {
 			compatible = "allwinner,sunxi-gmac";
 			reg = <0x0 0x1c30000 0x0 0x4000 0x0 0x1c00030 0x0 0x1>;
-			pinctrl-names = "default";
-			pinctrl-0 = <0x93>;
+			//pinctrl-names = "default";
+			//pinctrl-0 = <0x93>;
 			interrupts = <0x0 0x52 0x4>;
 			interrupt-names = "gmacirq";
 			clocks = <0x94 0x95>;
 			clock-names = "gmac", "ephy";
-			phy-mode = "rgmii";
+			phy-mode = "mii";
 			tx-delay = <0x0>;
 			rx-delay = <0x0>;
 			phy_power_on = <0x3a 0x3 0x6 0x1 0x0 0x0 0x0>;
@@ -3203,29 +3123,18 @@
 			smc_sda;
 		};
 
-                leds {
-                        compatible = "gpio-leds";
-
-                        pwr {
-                                label = "orangepi:green:pwr";
-                                gpios = <0x9e 0xb 0xa 0x1 0xffffffff 0xffffffff 0x0>;
-                                default-state = "on";
-                        };
-
-                        status {
-                                label = "orangepi:red:status";
-                                gpios = <0x3a 0x0 0x14 0x1 0xffffffff 0xffffffff 0x0>;
-                                default-state = "off";
-                        };
-                };
-
 		gpio_para {
 			device_type = "gpio_para";
 			compatible = "allwinner,sunxi-init-gpio";
 			gpio_used = <0x1>;
-			gpio_num = <0x2>;
+			gpio_num = <0x7>;
 			gpio_pin_1 = <0x3a 0x6 0xb 0x1 0xffffffff 0xffffffff 0x1>;
 			gpio_pin_2 = <0x3a 0x6 0xd 0x1 0xffffffff 0xffffffff 0x1>;
+			gpio_pin_3 = <0x3a 0x0 0xf 0x1 0xffffffff 0xffffffff 0x0>;
+                        gpio_pin_4 = <0x9e 0xb 0xa 0x1 0xffffffff 0xffffffff 0x1>;
+			gpio_pin_5 = <0x3a 0x6 0xb 0x1 0xffffffff 0xffffffff 0x1>;
+			gpio_pin_6 = <0x3a 0x6 0xd 0x1 0xffffffff 0xffffffff 0x1>;
+			gpio_pin_7 = <0x3a 0x0 0x11 0x1 0xffffffff 0xffffffff 0x1>;
 		};
 
 		serial_feature {
@@ -3362,7 +3271,6 @@
 		twi1 = "/soc@01c00000/twi@0x01c2b000";
 		twi2 = "/soc@01c00000/twi@0x01c2b400";
 		spi0 = "/soc@01c00000/spi@01c68000";
-		spi1 = "/soc@01c00000/spi@01c69000";
 		scr0 = "/soc@01c00000/smartcard@0x01c2c400";
 		scr1 = "/soc@01c00000/smartcard@0x01c2c800";
 		global_timer0 = "/soc@01c00000/timer@1c20c00";

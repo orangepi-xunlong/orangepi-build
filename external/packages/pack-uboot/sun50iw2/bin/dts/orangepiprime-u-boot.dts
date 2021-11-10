@@ -1397,7 +1397,7 @@
 				allwinner,pins = "PC1";
 				allwinner,function = "spi0";
 				allwinner,pname = "spi0_miso";
-				allwinner,muxsel = <0x4>;
+				allwinner,muxsel = <0x3>;
 				allwinner,pull = <0xffffffff>;
 				allwinner,drive = <0xffffffff>;
 				allwinner,data = <0xffffffff>;

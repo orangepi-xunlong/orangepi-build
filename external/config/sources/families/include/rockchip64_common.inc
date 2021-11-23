@@ -26,7 +26,7 @@ else # rk3328
 
 fi
 
-if [[ $BOARD == orangepir1plus ]]; then
+if [[ $BOARD =~ orangepir1plus|orangepir1plus-lts ]]; then
 
 	BOOT_USE_BLOBS=yes
 	BOOT_SOC=rk3328
@@ -49,7 +49,7 @@ case $BRANCH in
 	current)
 
 		KERNELPATCHDIR='rockchip64-'$BRANCH
-		KERNELBRANCH="branch:orange-pi-5.8-rockchip64"
+		KERNELBRANCH="branch:orange-pi-5.10-rockchip64"
 		LINUXFAMILY=rockchip64
 		LINUXCONFIG='linux-rockchip64-'$BRANCH
 
@@ -334,7 +334,7 @@ family_tweaks()
 		fi
 	fi
 
-	if [[ $BOARD == orangepir1plus ]]; then
+    if [[ $BOARD =~ orangepir1plus|orangepir1plus-lts ]]; then
 
 
 		# rename USB based network to lan0

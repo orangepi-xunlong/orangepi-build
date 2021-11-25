@@ -87,7 +87,7 @@ prepare_board() {
 
 	# IRQ distribution based on $BOARDFAMILY and/or $BOARD_NAME
 	case ${BOARD} in
-		orangepizero2)
+		orangepizero2|orangepi3-lts)
 			rfkill unblock all
 			/usr/bin/hciattach_opi -n -s 1500000 /dev/ttyBT0 sprd &
 			;;

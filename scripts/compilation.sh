@@ -394,6 +394,7 @@ compile_kernel()
 		# store kernel config in easily reachable place
 		display_alert "Exporting new kernel config" "$DEST/config/$LINUXCONFIG.config" "info"
 		cp .config "${DEST}/config/${LINUXCONFIG}.config"
+		cp .config "${EXTER}/config/kernel/${LINUXCONFIG}.config"
 		# export defconfig too if requested
 		if [[ $KERNEL_EXPORT_DEFCONFIG == yes ]]; then
 			eval CCACHE_BASEDIR="$(pwd)" env PATH="${toolchain}:${PATH}" \

@@ -88,6 +88,16 @@ prepare_board() {
 	# IRQ distribution based on $BOARDFAMILY and/or $BOARD_NAME
 	case ${BOARD} in
 		orangepizero2|orangepi3-lts)
+			if [[ $BRANCH == current ]]; then
+				# Initial hdmi audio
+				aplay /usr/share/sounds/alsa/audio.wav -D hw:0,0 > /dev/null 2>&1
+				aplay /usr/share/sounds/alsa/audio.wav -D hw:1,0 > /dev/null 2>&1
+			fi
+
+			if [[ $BRANCH == legacy ]]; then
+				aplay /usr/share/sounds/alsa/audio.wav -D hw:2,0 > /dev/null 2>&1
+			fi
+
 			rfkill unblock all
 			/usr/bin/hciattach_opi -n -s 1500000 /dev/ttyBT0 sprd &
 			;;

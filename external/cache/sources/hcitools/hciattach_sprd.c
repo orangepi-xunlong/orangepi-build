@@ -33,7 +33,8 @@
 #define SPRD_DUMP(buffer, len)                               \
   fprintf(stderr, "%s: ", LOG_STR);                        \
   do {                                                     \
-    for (int i = 0; i < len; i++) {                        \
+    int i = 0;                                             \
+    for (i = 0; i < len; i++) {                        \
       if (i && !(i % 16)) {                                \
         fprintf(stderr, "\n");                             \
         fprintf(stderr, "%s: ", LOG_STR);                  \
@@ -317,12 +318,135 @@ static void parse_number(char *p_conf_name, char *p_conf_value, void *buf, int l
 	} while (--len);
 }
 
+static unsigned char compare_char(unsigned char ch)
+{
+		unsigned char data = 0x0;
+
+		switch(ch)
+		{
+			case 0:
+			case '0':
+				data = 0x0;
+				break;
+			case 1:
+			case '1':
+				data = 0x1;
+				break;
+			case 2:
+			case '2':
+				data = 0x2;
+				break;
+			case 3:
+			case '3':
+				data = 0x3;
+				break;
+			case 4:
+			case '4':
+				data = 0x4;
+				break;
+			case 5:
+			case '5':
+				data = 0x5;
+				break;
+			case 6:
+			case '6':
+				data = 0x6;
+				break;
+			case 7:
+			case '7':
+				data = 0x7;
+				break;
+			case 8:
+			case '8':
+				data = 0x8;
+				break;
+			case 9:
+			case '9':
+				data = 0x9;
+				break;
+			case 10:
+			case 'a':
+			case 'A':
+				data = 0xA;
+				break;
+			case 11:
+			case 'b':
+			case 'B':
+				data = 0xB;
+				break;
+			case 12:
+			case 'c':
+			case 'C':
+				data = 0xC;
+				break;
+			case 13:
+			case 'd':
+			case 'D':
+				data = 0xD;
+				break;
+			case 14:
+			case 'e':
+			case 'E':
+				data = 0xE;
+				break;
+			case 15:
+			case 'f':
+			case 'F':
+				data = 0xF;
+				break;
+		}
+		return data;
+}
+
 static void set_mac_address(uint8_t *addr)
 {
 	int i = 0;
 	SPRD_DBG("%s", __func__);
-	for (i = 0; i < 6; i++)
-		addr[5-i] = (unsigned char)local_bdaddr[i];
+	//for (i = 0; i < 6; i++)
+	//	addr[5-i] = (unsigned char)local_bdaddr[i];
+
+	FILE *fp = fopen("/sys/class/addr_mgt/addr_bt", "r+");
+	unsigned char buff[255];
+	fscanf(fp, "%s", buff);
+	fclose(fp);
+	int k = 0;
+
+	unsigned char tmp[5];
+	sprintf(tmp, "%c%c", buff[0], buff[1]);
+	unsigned char str = compare_char(tmp[0]);
+	unsigned char str2 = compare_char(tmp[1]);
+	local_bdaddr[0] = (str << 4) | str2;
+
+	sprintf(tmp, "%c%c", buff[3], buff[4]);
+	str = compare_char(tmp[0]);
+	str2 = compare_char(tmp[1]);
+	local_bdaddr[1] = (str << 4) | str2;
+
+	sprintf(tmp, "%c%c", buff[6], buff[7]);
+	str = compare_char(tmp[0]);
+	str2 = compare_char(tmp[1]);
+	local_bdaddr[2] = (str << 4) | str2;
+
+	sprintf(tmp, "%c%c", buff[9], buff[10]);
+	str = compare_char(tmp[0]);
+	str2 = compare_char(tmp[1]);
+	local_bdaddr[3] = (str << 4) | str2;
+
+	sprintf(tmp, "%c%c", buff[12], buff[13]);
+	str = compare_char(tmp[0]);
+	str2 = compare_char(tmp[1]);
+	local_bdaddr[4] = (str << 4) | str2;
+
+	sprintf(tmp, "%c%c", buff[15], buff[16]);
+	str = compare_char(tmp[0]);
+	str2 = compare_char(tmp[1]);
+	local_bdaddr[5] = (str << 4) | str2;
+
+	{
+		for (i = 0; i < 6; i++)
+        addr[5-i] = (unsigned char)local_bdaddr[i];
+	}
+
 }
 
 static void vnd_load_configure(const char *p_path, const conf_entry_t *entry)

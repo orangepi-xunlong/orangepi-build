@@ -23,7 +23,7 @@ fi
 #
 # check for internet connection to install dependencies
 #
-wget -q --spider http://github.com
+wget -q --spider www.baidu.com
 if [[ $? -ne 0 ]]; then
 	read -n 1 -s -p "Warning: Configuration cannot work properly without a working internet connection. \
 	Press CTRL C to stop or any key to ignore and continue."

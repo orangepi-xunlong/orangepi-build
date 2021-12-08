@@ -649,6 +649,9 @@ function jobs ()
 						echo 1 > /proc/sys/net/ipv4/ip_forward
 						# Clear iptables
 						iptables-save | awk '/^[*]/ { print $1 } /^:[A-Z]+ [^-]/ { print $1 " ACCEPT" ; } /COMMIT/ { print $0; }' | iptables-restore
+						if [[ ${DISTRIBUTION_CODENAME} == buster ]]; then
+							echo 1 | update-alternatives --config iptables > /dev/null
+						fi
 						# - Apply iptables
 						iptables -t nat -A POSTROUTING -o $DEFAULT_ADAPTER -j MASQUERADE
 						iptables -A FORWARD -i $DEFAULT_ADAPTER -o $WIRELESS_ADAPTER -m state --state RELATED,ESTABLISHED -j ACCEPT

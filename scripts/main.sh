@@ -180,8 +180,8 @@ LINUXFAMILY="${BOARDFAMILY}"
 if [[ -z $BRANCH ]]; then
 
     options=()
-    [[ $KERNEL_TARGET == *current* ]] && options+=("current" "Recommended. Come with best support")
-    [[ $KERNEL_TARGET == *legacy* ]] && options+=("legacy" "Old stable / Legacy")
+    [[ $KERNEL_TARGET == *current* ]] && options+=("current" "Mainline")
+    [[ $KERNEL_TARGET == *legacy* ]] && options+=("legacy" "Old stable")
     [[ $KERNEL_TARGET == *dev* && $EXPERT = yes ]] && options+=("dev" "\Z1Development version (@kernel.org)\Zn")
 
     menustr="Select the target kernel branch\nExact kernel versions depend on selected board"

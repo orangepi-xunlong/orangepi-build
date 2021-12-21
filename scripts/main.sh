@@ -156,6 +156,7 @@ if [[ -z $BOARD ]]; then
 	options+=("orangepilite2"		"Allwinner H6 quad core 1GB RAM WiFi/BT USB3")
 	options+=("orangepioneplus"		"Allwinner H6 quad core 1GB RAM GBE")
 	options+=("orangepizero2"		"Allwinner H616 quad core 512MB/1GB RAM WiFi/BT GBE SPI")
+	options+=("orangepizero2-b"		"Allwinner H616 quad core 1GB RAM WiFi/BT GBE SPI")
 	options+=("orangepizero2-lts"		"Allwinner H616 quad core 1.5GB RAM WiFi/BT GBE SPI")
 	options+=("orangepi4"                   "Rockchip  RK3399 hexa core 4GB RAM GBE eMMc USB3 USB-C WiFi/BT")
 	options+=("orangepir1plus"              "Rockchip  RK3328 quad core 1GB RAM 2xGBE 8211E USB2 SPI")

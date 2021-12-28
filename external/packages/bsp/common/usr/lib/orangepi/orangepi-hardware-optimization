@@ -95,6 +95,9 @@ prepare_board() {
 			rfkill unblock all
 			/usr/bin/hciattach_opi -n -s 1500000 /dev/ttyBT0 sprd &
 			;;
+		orangepir1plus|orangepir1plus-lts)
+			/usr/bin/pwm-fan.sh &
+			;;
 		orangepizero2|orangepizero2-lts|orangepizero2-b)
 			if [[ $BRANCH == current ]]; then
 				# Initial hdmi audio

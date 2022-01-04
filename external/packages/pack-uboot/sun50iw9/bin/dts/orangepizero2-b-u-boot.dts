@@ -532,12 +532,10 @@
 			phandle = <0xf3>;
 		};
 
-		pwm {
+		clk_pwm: pwm {
 			#clock-cells = <0x0>;
 			compatible = "allwinner,periph-clock";
 			clock-output-names = "pwm";
-			linux,phandle = <0x9b>;
-			phandle = <0x9b>;
 		};
 
 		iommu {
@@ -2179,26 +2177,94 @@
 				phandle = <0x9a>;
 			};
 
-			pwm5@0 {
+			pwm1_pin: pwm1-pin {
+				allwinner,pins = "PH3";
+				allwinner,function = "pwm1";
+				allwinner,muxsel = <0x4>;
+				allwinner,drive = <0xffffffff>;
+				allwinner,pull = <0x0>;
+				allwinner,data = <0xffffffff>;
+			};
+
+			pwm1_pin_sleep: pwm1-pin-sleep {
+				allwinner,pins = "PH3";
+				allwinner,function = "io_disabled";
+				allwinner,muxsel = <0x7>;
+				allwinner,drive = <0xffffffff>;
+				allwinner,pull = <0x0>;
+				allwinner,data = <0xffffffff>;
+			};
+
+			pwm2_pin: pwm2-pin {
+				allwinner,pins = "PH2";
+				allwinner,function = "pwm2";
+				allwinner,muxsel = <0x4>;
+				allwinner,drive = <0xffffffff>;
+				allwinner,pull = <0x0>;
+				allwinner,data = <0xffffffff>;
+			};
+
+			pwm2_pin_sleep: pwm2-pin-sleep {
+				allwinner,pins = "PH2";
+				allwinner,function = "io_disabled";
+				allwinner,muxsel = <0x7>;
+				allwinner,drive = <0xffffffff>;
+				allwinner,pull = <0x0>;
+				allwinner,data = <0xffffffff>;
+			};
+
+			pwm3_pin: pwm3-pin {
+				allwinner,pins = "PH0";
+				allwinner,function = "pwm3";
+				allwinner,muxsel = <0x4>;
+				allwinner,drive = <0xffffffff>;
+				allwinner,pull = <0x0>;
+				allwinner,data = <0xffffffff>;
+			};
+
+			pwm3_pin_sleep: pwm3-pin-sleep {
+				allwinner,pins = "PH0";
+				allwinner,function = "io_disabled";
+				allwinner,muxsel = <0x7>;
+				allwinner,drive = <0xffffffff>;
+				allwinner,pull = <0x0>;
+				allwinner,data = <0xffffffff>;
+			};
+
+			pwm4_pin: pwm4-pin {
+				allwinner,pins = "PH1";
+				allwinner,function = "pwm4";
+				allwinner,muxsel = <0x4>;
+				allwinner,drive = <0xffffffff>;
+				allwinner,pull = <0x0>;
+				allwinner,data = <0xffffffff>;
+			};
+
+			pwm4_pin_sleep: pwm4-pin-sleep {
+				allwinner,pins = "PH1";
+				allwinner,function = "io_disabled";
+				allwinner,muxsel = <0x7>;
+				allwinner,drive = <0xffffffff>;
+				allwinner,pull = <0x0>;
+				allwinner,data = <0xffffffff>;
+			};
+
+			pwm5_pin: pwm5-pin {
 				allwinner,pins = "PA12";
 				allwinner,function = "pwm5";
 				allwinner,muxsel = <0x2>;
 				allwinner,drive = <0xffffffff>;
 				allwinner,pull = <0x0>;
 				allwinner,data = <0xffffffff>;
-				linux,phandle = <0xa2>;
-				phandle = <0xa2>;
 			};
 
-			pwm5@1 {
+			pwm5_pin_sleep: pwm5_pin_sleep {
 				allwinner,pins = "PA12";
 				allwinner,function = "io_disabled";
 				allwinner,muxsel = <0x7>;
 				allwinner,drive = <0xffffffff>;
 				allwinner,pull = <0x0>;
 				allwinner,data = <0xffffffff>;
-				linux,phandle = <0xa3>;
-				phandle = <0xa3>;
 			};
 
 			standby@0 {
@@ -3459,7 +3525,7 @@
 		lcd0@01c0c000 {
 			compatible = "allwinner,sunxi-lcd0";
 			pinctrl-names = "active", "sleep";
-			status = "okay";
+			status = "disabled";
 			lcd_used = <0x0>;
 			lcd_driver_name = "default_lcd";
 			lcd_backlight = <0x32>;
@@ -3559,63 +3625,57 @@
 		pwm@0300a000 {
 			compatible = "allwinner,sunxi-pwm";
 			reg = <0x0 0x300a000 0x0 0x3ff>;
-			clocks = <0x9b>;
+			clocks = <&clk_pwm>;
 			pwm-number = <0x6>;
 			pwm-base = <0x0>;
-			pwms = <0x9c 0x9d 0x9e 0x9f 0xa0 0xa1>;
-			linux,phandle = <0x150>;
-			phandle = <0x150>;
+			pwms = <&pwm0>, <&pwm1>,<&pwm2>, <&pwm3>, <&pwm4>, <&pwm5>;
 		};
 
-		pwm0@0300a000 {
+		pwm0: pwm0@0300a000 {
 			compatible = "allwinner,sunxi-pwm0";
 			pinctrl-names = "active", "sleep";
 			reg_base = <0x300a000>;
-			linux,phandle = <0x9c>;
-			phandle = <0x9c>;
 		};
 
-		pwm1@0300a000 {
+		pwm1: pwm1@0300a000 {
 			compatible = "allwinner,sunxi-pwm1";
 			pinctrl-names = "active", "sleep";
+			pinctrl-0 = <&pwm1_pin>;
+			pinctrl-1 = <&pwm1_pin_sleep>;
 			reg_base = <0x300a000>;
-			linux,phandle = <0x9d>;
-			phandle = <0x9d>;
 		};
 
-		pwm2@0300a000 {
+		pwm2: pwm2@0300a000 {
 			compatible = "allwinner,sunxi-pwm2";
 			pinctrl-names = "active", "sleep";
+			pinctrl-0 = <&pwm2_pin>;
+			pinctrl-1 = <&pwm2_pin_sleep>;
 			reg_base = <0x300a000>;
-			linux,phandle = <0x9e>;
-			phandle = <0x9e>;
 		};
 
-		pwm3@0300a000 {
+		pwm3: pwm3@0300a000 {
 			compatible = "allwinner,sunxi-pwm3";
 			pinctrl-names = "active", "sleep";
+			pinctrl-0 = <&pwm3_pin>;
+			pinctrl-1 = <&pwm3_pin_sleep>;
 			reg_base = <0x300a000>;
-			linux,phandle = <0x9f>;
-			phandle = <0x9f>;
 		};
 
-		pwm4@0300a000 {
+		pwm4: pwm4@0300a000 {
 			compatible = "allwinner,sunxi-pwm4";
 			pinctrl-names = "active", "sleep";
+			pinctrl-0 = <&pwm4_pin>;
+			pinctrl-1 = <&pwm4_pin_sleep>;
 			reg_base = <0x300a000>;
-			linux,phandle = <0xa0>;
-			phandle = <0xa0>;
 		};
 
-		pwm5@0300a000 {
+		pwm5: pwm5@0300a000 {
 			compatible = "allwinner,sunxi-pwm5";
 			pinctrl-names = "active", "sleep";
 			reg_base = <0x300a000>;
-			pinctrl-0 = <0xa2>;
-			pinctrl-1 = <0xa3>;
+			pinctrl-0 = <&pwm5_pin>;
+			pinctrl-1 = <&pwm5_pin_sleep>;
 			clk_bypass_output = <0x1>;
-			linux,phandle = <0xa1>;
-			phandle = <0xa1>;
 		};
 
 		ac200 {

@@ -22,7 +22,7 @@ umask 002
 
 # destination
 DEST="${SRC}"/output
-REVISION="2.1.6"
+REVISION="2.1.8"
 
 [[ $DOWNLOAD_MIRROR == "china" ]] && NTP_SERVER="cn.pool.ntp.org"
 

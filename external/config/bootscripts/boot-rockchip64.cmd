@@ -13,6 +13,7 @@ setenv bootlogo "false"
 setenv rootfstype "ext4"
 setenv docker_optimizations "on"
 setenv earlycon "off"
+setenv bitrate "1500000"
 
 echo "Boot script loaded from ${devtype} ${devnum}"
 
@@ -24,7 +25,7 @@ fi
 if test "${logo}" = "disabled"; then setenv logo "logo.nologo"; fi
 
 if test "${console}" = "display" || test "${console}" = "both"; then setenv consoleargs "console=tty1"; fi
-if test "${console}" = "serial" || test "${console}" = "both"; then setenv consoleargs "console=ttyS2,1500000 ${consoleargs}"; fi
+if test "${console}" = "serial" || test "${console}" = "both"; then setenv consoleargs "console=ttyS2,${bitrate} ${consoleargs}"; fi
 if test "${earlycon}" = "on"; then setenv consoleargs "earlycon ${consoleargs}"; fi
 if test "${bootlogo}" = "true"; then setenv consoleargs "bootsplash.bootfile=bootsplash.orangepi ${consoleargs}"; fi
 

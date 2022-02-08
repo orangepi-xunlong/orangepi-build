@@ -4448,6 +4448,7 @@
 			aldo1_vol = <0xf4f24>;
 			bldo1_vol = <0xf4948>;
 			bldo2_vol = <0xf4948>;
+			cldo1_vol = <0xf4948>;
 		};
 
 		card_boot {

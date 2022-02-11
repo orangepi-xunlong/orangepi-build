@@ -11,6 +11,7 @@ setenv rootfstype "ext4"
 setenv console "both"
 setenv docker_optimizations "off"
 setenv bootlogo "false"
+setenv debug_uart "ttyS0"
 
 # Print boot source
 itest.b *0x10028 == 0x00 && echo "U-boot loaded from SD"
@@ -24,8 +25,8 @@ if test -e ${devtype} ${devnum} ${prefix}orangepiEnv.txt; then
 	env import -t ${load_addr} ${filesize}
 fi
 
-if test "${console}" = "display" || test "${console}" = "both"; then setenv consoleargs "console=ttyS0,115200 console=tty1"; fi
-if test "${console}" = "serial"; then setenv consoleargs "console=ttyS0,115200"; fi
+if test "${console}" = "display" || test "${console}" = "both"; then setenv consoleargs "console=${debug_uart},115200 console=tty1"; fi
+if test "${console}" = "serial"; then setenv consoleargs "console=${debug_uart},115200"; fi
 if test "${bootlogo}" = "true"; then setenv consoleargs "bootsplash.bootfile=bootsplash.orangepi ${consoleargs}"; fi
 
 # get PARTUUID of first partition on SD/eMMC it was loaded from
@@ -49,6 +50,11 @@ fdt set disp tv_vdid <${tv_vdid}>
 
 fdt set disp fb0_width <${fb0_width}>
 fdt set disp fb0_height <${fb0_height}>
+
+fdt set mmc0 cap-sd-highspeed
+#fdt set mmc0 sd-uhs-sdr50
+#fdt set mmc0 sd-uhs-ddr50
+#fdt set mmc0 sd-uhs-sdr104
 
 for overlay_file in ${user_overlays}; do
         if load ${devtype} ${devnum} ${load_addr} ${prefix}overlay-user/${overlay_file}.dtbo; then

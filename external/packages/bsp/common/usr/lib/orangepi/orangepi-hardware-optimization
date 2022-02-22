@@ -96,6 +96,10 @@ prepare_board() {
 			/usr/bin/hciattach_opi -n -s 1500000 /dev/ttyBT0 sprd &
 			;;
 		orangepir1plus|orangepir1plus-lts)
+			echo netdev > /sys/class/leds/lan_led/trigger
+			echo lan0 > /sys/class/leds/lan_led/device_name
+			echo 1 > /sys/class/leds/lan_led/link
+
 			/usr/bin/pwm-fan.sh &
 			;;
 		orangepizero2|orangepizero2-lts|orangepizero2-b)

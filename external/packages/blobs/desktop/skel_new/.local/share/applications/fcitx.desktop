@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.1
+Type=Application
+Name=Fcitx
+GenericName=Input Method
+NoDisplay=true
+Comment=Start Input Method
+Icon=fcitx
+Exec=fcitx
+Actions=
+Categories=System;Utility;

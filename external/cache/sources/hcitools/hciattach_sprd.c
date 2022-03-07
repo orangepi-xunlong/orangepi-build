@@ -401,52 +401,27 @@ static unsigned char compare_char(unsigned char ch)
 static void set_mac_address(uint8_t *addr)
 {
 	int i = 0;
-	SPRD_DBG("%s", __func__);
-	//for (i = 0; i < 6; i++)
-	//	addr[5-i] = (unsigned char)local_bdaddr[i];
-
-	FILE *fp = fopen("/sys/class/addr_mgt/addr_bt", "r+");
 	unsigned char buff[255];
+	unsigned char tmp[5];
+	unsigned char str, str2;
+
+	FILE *fp = fopen("/sys/class/addr_mgt/addr_bt", "r");
+
+	SPRD_DBG("%s", __func__);
+
 	fscanf(fp, "%s", buff);
 	fclose(fp);
-	int k = 0;
 
-	unsigned char tmp[5];
-	sprintf(tmp, "%c%c", buff[0], buff[1]);
-	unsigned char str = compare_char(tmp[0]);
-	unsigned char str2 = compare_char(tmp[1]);
-	local_bdaddr[0] = (str << 4) | str2;
-
-	sprintf(tmp, "%c%c", buff[3], buff[4]);
-	str = compare_char(tmp[0]);
-	str2 = compare_char(tmp[1]);
-	local_bdaddr[1] = (str << 4) | str2;
-
-	sprintf(tmp, "%c%c", buff[6], buff[7]);
-	str = compare_char(tmp[0]);
-	str2 = compare_char(tmp[1]);
-	local_bdaddr[2] = (str << 4) | str2;
-
-	sprintf(tmp, "%c%c", buff[9], buff[10]);
-	str = compare_char(tmp[0]);
-	str2 = compare_char(tmp[1]);
-	local_bdaddr[3] = (str << 4) | str2;
-
-	sprintf(tmp, "%c%c", buff[12], buff[13]);
-	str = compare_char(tmp[0]);
-	str2 = compare_char(tmp[1]);
-	local_bdaddr[4] = (str << 4) | str2;
-
-	sprintf(tmp, "%c%c", buff[15], buff[16]);
-	str = compare_char(tmp[0]);
-	str2 = compare_char(tmp[1]);
-	local_bdaddr[5] = (str << 4) | str2;
-
+	for (i=0; i<6; i++)
 	{
-		for (i = 0; i < 6; i++)
-        addr[5-i] = (unsigned char)local_bdaddr[i];
+		sprintf(tmp, "%c%c", buff[3*i], buff[3*i+1]);
+		str = compare_char(tmp[0]);
+		str2 = compare_char(tmp[1]);
+		local_bdaddr[i] = (str << 4) | str2;
 	}
 
+	for (i = 0; i < 6; i++)
+		addr[5-i] = (unsigned char)local_bdaddr[i];
 }
 
 static void vnd_load_configure(const char *p_path, const conf_entry_t *entry)

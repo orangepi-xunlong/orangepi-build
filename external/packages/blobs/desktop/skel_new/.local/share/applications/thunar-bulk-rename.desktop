@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.1
+Type=Application
+Name=Bulk Rename
+GenericName=Bulk Rename
+NoDisplay=true
+Comment=Rename Multiple Files
+Icon=org.xfce.thunar
+Exec=thunar --bulk-rename %F
+Actions=
+Categories=Core;Filesystem;GTK;System;Utility;
+Keywords=bulk;renamer;renaming;thunar;files;folders;directory;directories;
+StartupNotify=true

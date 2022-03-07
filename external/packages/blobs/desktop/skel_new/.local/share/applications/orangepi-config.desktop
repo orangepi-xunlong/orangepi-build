@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=orangepi-config
+Comment=Basic system settings
+Exec=sudo orangepi-config
+Icon=/usr/share/icons/orangepi/opi_config128x128.png
+Path=/usr/share/icons/orangepi/
+Terminal=true
+StartupNotify=false
+Categories=GTK;GNOME;Settings;HardwareSettings;

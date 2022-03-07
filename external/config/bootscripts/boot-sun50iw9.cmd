@@ -11,12 +11,13 @@ setenv rootfstype "ext4"
 setenv console "both"
 setenv docker_optimizations "off"
 setenv bootlogo "false"
+setenv emmc_max_frequency "0x5f5e100"
 setenv debug_uart "ttyS0"
 
 # Print boot source
-itest.b *0x10028 == 0x00 && echo "U-boot loaded from SD"
-itest.b *0x10028 == 0x02 && echo "U-boot loaded from eMMC or secondary SD"
-itest.b *0x10028 == 0x03 && echo "U-boot loaded from SPI"
+#itest.b *0x10028 == 0x00 && echo "U-boot loaded from SD"
+#itest.b *0x10028 == 0x02 && echo "U-boot loaded from eMMC or secondary SD"
+#itest.b *0x10028 == 0x03 && echo "U-boot loaded from SPI"
 
 echo "Boot script loaded from ${devtype}"
 
@@ -55,6 +56,20 @@ fdt set mmc0 cap-sd-highspeed
 #fdt set mmc0 sd-uhs-sdr50
 #fdt set mmc0 sd-uhs-ddr50
 #fdt set mmc0 sd-uhs-sdr104
+
+if test "${mmc_bootdev}" = "2"; then
+
+	if test "${emmc_max_frequency}" = "0x5f5e100"; then
+
+		fdt set /soc/sdmmc@04022000 cap-mmc-highspeed
+		fdt set /soc/sdmmc@04022000 mmc-ddr-1_8v
+		fdt set /soc/sdmmc@04022000 mmc-hs200-1_8v
+		fdt set /soc/sdmmc@04022000 mmc-hs400-1_8v
+	fi
+
+	echo "Set emmc_max_frequency to ${emmc_max_frequency}"
+	fdt set /soc/sdmmc@04022000 max-frequency <${emmc_max_frequency}>
+fi
 
 for overlay_file in ${user_overlays}; do
         if load ${devtype} ${devnum} ${load_addr} ${prefix}overlay-user/${overlay_file}.dtbo; then

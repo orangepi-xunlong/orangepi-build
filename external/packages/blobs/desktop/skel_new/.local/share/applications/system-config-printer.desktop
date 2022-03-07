@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.1
+Type=Application
+Name=Print Settings
+GenericName=Print Settings
+Comment=Configure printers
+Icon=printer
+Exec=system-config-printer
+Actions=
+Categories=GTK;HardwareSettings;Printing;Settings;
+StartupNotify=true

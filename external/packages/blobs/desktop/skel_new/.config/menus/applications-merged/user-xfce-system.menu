@@ -1,0 +1,15 @@
+<!DOCTYPE Menu PUBLIC "-//freedesktop//DTD Menu 1.0//EN"
+    "http://www.freedesktop.org/standards/menu-spec/menu-1.0.dtd">
+<!-- Do not edit manually - generated and managed by xdg-desktop-menu -->
+<Menu>
+    <Name>Applications</Name>
+<Menu>
+    <Name>xfce-system</Name>
+    <Directory>xfce-system.directory</Directory>
+    <Include>
+        <Filename>debian-xterm.desktop</Filename>
+        <Filename>debian-uxterm.desktop</Filename>
+        <Filename>system-config-printer.desktop</Filename>
+    </Include>
+</Menu>
+</Menu>

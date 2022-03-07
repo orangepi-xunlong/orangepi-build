@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.1
+Type=Application
+Name=UXTerm
+NoDisplay=true
+Comment=xterm wrapper for Unicode environments
+Icon=mini.xterm
+Exec=uxterm
+Actions=
+Categories=System;TerminalEmulator;
+Keywords=shell;prompt;command;commandline;cmd;

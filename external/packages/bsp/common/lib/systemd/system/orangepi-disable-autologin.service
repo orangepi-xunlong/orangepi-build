@@ -1,0 +1,8 @@
+[Unit]
+Description=Disable automated desktop login
+
+[Service]
+Type=simple
+ExecStart=rm -f /etc/lightdm/lightdm.conf.d/22-orangepi-autologin.conf
+TimeoutStopSec= 10
+ExecStop=systemctl disable orangepi-disable-autologin.timer

@@ -10,6 +10,7 @@
 
 # NOTE: If you want to transfer files between chroot and host
 # userpatches/overlay directory on host is bind-mounted to /tmp/overlay in chroot
+# The sd card's root path is accessible via $SDCARD variable.
 
 RELEASE=$1
 LINUXFAMILY=$2
@@ -28,7 +29,13 @@ Main() {
 		buster)
 			# your code here
 			;;
+		bullseye)
+			# your code here
+			;;
 		bionic)
+			# your code here
+			;;
+		focal)
 			# your code here
 			;;
 	esac
@@ -43,6 +50,10 @@ InstallOpenMediaVault() {
 	# policies since you end up with root password 'openmediavault' which
 	# you have to change yourself later. SSH login as root has to be enabled
 	# through OMV web UI first
+	#
+	# This routine is based on idea/code courtesy Benny Stark. For fixes,
+	# discussion and feature requests please refer to
+	# https://forum.armbian.com/index.php?/topic/2644-openmediavault-3x-customize-imagesh/
 
 	echo root:openmediavault | chpasswd
 	rm /root/.not_logged_in_yet
@@ -222,7 +233,7 @@ UnattendedStorageBenchmark() {
 
 InstallAdvancedDesktop()
 {
-	apt install -yy transmission libreoffice libreoffice-style-tango meld remmina thunderbird kazam avahi-daemon
+	apt-get install -yy transmission libreoffice libreoffice-style-tango meld remmina thunderbird kazam avahi-daemon
 	[[ -f /usr/share/doc/avahi-daemon/examples/sftp-ssh.service ]] && cp /usr/share/doc/avahi-daemon/examples/sftp-ssh.service /etc/avahi/services/
 	[[ -f /usr/share/doc/avahi-daemon/examples/ssh.service ]] && cp /usr/share/doc/avahi-daemon/examples/ssh.service /etc/avahi/services/
 	apt clean

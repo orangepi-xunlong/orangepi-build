@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Link
+Name=Help
+Comment=Community forums
+URL=http://www.orangepi.org
+Icon=help-about
+StartupNotify=false
+Terminal=false
+Categories=GTK;GNOME;X-Xfce-Toplevel;

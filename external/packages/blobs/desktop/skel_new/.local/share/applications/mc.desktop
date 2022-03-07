@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.1
+Type=Application
+Name=Midnight Commander
+NoDisplay=true
+Comment=File manager
+Icon=MidnightCommander
+Exec=mc
+Terminal=true
+Actions=
+Categories=ConsoleOnly;FileManager;FileTools;System;Utility;
+Keywords=file manager;console;

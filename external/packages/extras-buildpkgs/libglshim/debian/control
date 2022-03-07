@@ -1,7 +1,7 @@
 Source: glshim
 Section: libs
 Priority: optional
-Maintainer: Armbian maintainers <root@localhost>
+Maintainer: Orange Pi maintainers <root@localhost>
 Build-Depends:
  debhelper (>= 9),
  cmake,

@@ -1,0 +1,2 @@
+sed -i '/xfdesktop/a  <property name="Num_Lock" type="string" value="/usr/bin/numlock.sh"/>' /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml
+sed -i '/xfdesktop/a  <property name="Caps_Lock" type="string" value="/usr/bin/capslock.sh"/>' /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml

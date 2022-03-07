@@ -8,7 +8,7 @@ Soc | Boards |
 | Allwinner H6 | Orange Pi 3/3 LTS/Lite2/OnePlus| 
 | Allwinner H616 | Orange Pi Zero2 | 
 | Rockchip RK3328 | Orange Pi R1Plus/R1Plus LTS| 
-| Rockchip RK3399 | Orange Pi 4/4B | 
+| Rockchip RK3399 | Orange Pi 4/4 LTS/4B |
 
 ## Download links
 

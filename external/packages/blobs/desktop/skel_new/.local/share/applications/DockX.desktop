@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.1
+Type=Application
+Name=DockX
+GenericName=Dock for DockbarX
+NoDisplay=true
+Comment=Stand-alone dock for DockbarX
+Icon=dockbarx
+Exec=dockx
+Actions=
+Categories=Utility;

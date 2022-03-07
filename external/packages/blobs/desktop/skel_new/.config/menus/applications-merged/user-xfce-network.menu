@@ -1,0 +1,14 @@
+<!DOCTYPE Menu PUBLIC "-//freedesktop//DTD Menu 1.0//EN"
+    "http://www.freedesktop.org/standards/menu-spec/menu-1.0.dtd">
+<!-- Do not edit manually - generated and managed by xdg-desktop-menu -->
+<Menu>
+    <Name>Applications</Name>
+<Menu>
+    <Name>xfce-network</Name>
+    <Directory>xfce-network.directory</Directory>
+    <Include>
+        <Filename>xfce4-web-browser.desktop</Filename>
+        <Filename>xfce4-mail-reader.desktop</Filename>
+    </Include>
+</Menu>
+</Menu>

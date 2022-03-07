@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) Authors: http://www.armbian.com/authors
+# Copyright (c) Authors: https://www.armbian.com/authors
 #
 # This file is licensed under the terms of the GNU General Public
 # License version 2. This program is licensed "as is" without any
@@ -15,8 +15,12 @@
 
 # Read in basic OS image information
 . /etc/orangepi-release
+
 # and script configuration
 . /usr/lib/orangepi/orangepi-common
+
+# set audio
+#. /usr/lib/orangepi/orangepi-audio-config
 
 set_io_scheduler() {
 
@@ -48,12 +52,12 @@ prepare_board() {
 
 	CheckDevice=$(for i in /var/log /var / ; do findmnt -n -o SOURCE $i && break ; done)
 	# adjust logrotate configs
-	if [[ "${CheckDevice}" == "/dev/zram0" || "${CheckDevice}" == "orangepi-ramlog" ]]; then
-		for ConfigFile in /etc/logrotate.d/* ; do sed -i -e "s/\/log\//\/log.hdd\//g" "${ConfigFile}"; done
-		sed -i "s/\/log\//\/log.hdd\//g" /etc/logrotate.conf
+	if [[ "${CheckDevice}" == *"/dev/zram"* || "${CheckDevice}" == "orangepi-ramlog" ]]; then
+		for ConfigFile in /etc/logrotate.d/* ; do sed -i -e "s/\/var\/log\//\/var\/log.hdd\//g" "${ConfigFile}"; done
+		sed -i "s/\/var\/log\//\/var\/log.hdd\//g" /etc/logrotate.conf
 	else
-		for ConfigFile in /etc/logrotate.d/* ; do sed -i -e "s/\/log.hdd\//\/log\//g" "${ConfigFile}"; done
-		sed -i "s/\/log.hdd\//\/log\//g" /etc/logrotate.conf
+		for ConfigFile in /etc/logrotate.d/* ; do sed -i -e "s/\/var\/log.hdd\//\/var\/log\//g" "${ConfigFile}"; done
+		sed -i "s/\/var\/log.hdd\//\/var\/log\//g" /etc/logrotate.conf
 	fi
 
 	# unlock cpuinfo_cur_freq to be accesible by a normal user
@@ -67,7 +71,7 @@ prepare_board() {
 	[[ -f $prefix/cpuinfo_cur_freq ]] && chmod +r $prefix/cpuinfo_cur_freq 2> /dev/null
 
 	# enable compression where not exists
-	find /etc/logrotate.d/. -type f | xargs grep -H -c 'compress' | grep 0$ | cut -d':' -f1 | xargs -L1 sed -i '/{/ a compress'
+	find /etc/logrotate.d/. -type f | xargs grep -H -c 'compress' | grep 0$ | cut -d':' -f1 | xargs -r -L1 sed -i '/{/ a compress'
 	sed -i "s/#compress/compress/" /etc/logrotate.conf
 
 	# tweak ondemand cpufreq governor settings to increase cpufreq with IO load
@@ -85,12 +89,38 @@ prepare_board() {
 		done
 	fi
 
+	chmod +x /etc/update-motd.d/*
+
 	# IRQ distribution based on $BOARDFAMILY and/or $BOARD_NAME
 	case ${BOARD} in
 
+		rockpro64|renegade-elite|pinebook-pro|station-p1)
+			BOARDFAMILY=rk3399
+			;;
 		orangepi3-lts)
-
 			#aplay /usr/share/sounds/alsa/audio.wav -D hw:0,0 > /dev/null 2>&1
+			rfkill unblock all
+			/usr/bin/hciattach_opi -n -s 1500000 /dev/ttyBT0 sprd &
+			;;
+		orangepi800)
+			[[ -f /sys/class/leds/caps_led/brightness ]] && chmod 666 /sys/class/leds/caps_led/brightness
+			[[ -f /sys/class/leds/num_led/brightness ]] && chmod 666 /sys/class/leds/num_led/brightness
+
+			CODEC_CARD=1
+			amixer -c ${CODEC_CARD} cset name='Headphone Playback Volume' 11 > /dev/null 2>&1
+			amixer -c ${CODEC_CARD} cset name='DAC Playback Volume' 170 > /dev/null 2>&1
+			amixer -c ${CODEC_CARD} cset name='ADC Capture Volume' 190 >/dev/null 2>&1
+			amixer -c ${CODEC_CARD} cset name='Differential Mux' 1 >/dev/null 2>&1
+
+			if [[ -c /dev/mpp_service ]]; then
+				chmod 666 /dev/mpp_service
+
+				# Create dummy video node for chromium V4L2 VDA/VEA with rkmpp plugin
+				echo dec > /dev/video-dec0
+				echo enc > /dev/video-enc0
+				chmod 660 /dev/video-*
+				chown root.video /dev/video-*
+			fi
 
 			rfkill unblock all
 			/usr/bin/hciattach_opi -n -s 1500000 /dev/ttyBT0 sprd &
@@ -102,7 +132,7 @@ prepare_board() {
 
 			/usr/bin/pwm-fan.sh &
 			;;
-		orangepizero2|orangepizero2-lts|orangepizero2-b)
+		orangepizero2|orangepizero2-lts|orangepizero2-b|orangepi400)
 			if [[ $BRANCH == current ]]; then
 				# Initial hdmi audio
 				aplay /usr/share/sounds/alsa/audio.wav -D hw:0,0 > /dev/null 2>&1
@@ -116,9 +146,75 @@ prepare_board() {
 			rfkill unblock all
 			/usr/bin/hciattach_opi -n -s 1500000 /dev/ttyBT0 sprd &
 			;;
+		orangepi400)
+			rfkill unblock all
+			/usr/bin/hciattach_opi -n -s 1500000 /dev/ttyBT0 sprd &
+
+			[[ -f /sys/class/leds/caps_led/brightness ]] && chmod 666 /sys/class/leds/caps_led/brightness
+			[[ -f /sys/class/leds/num_led/brightness ]] && chmod 666 /sys/class/leds/num_led/brightness
+			;;
+		orangepi4-lts)
+			# RK3399 - 1.8GHz
+			# RK3399-T - 1.6GHz
+			sed -i "s/MAX_SPEED=.*/MAX_SPEED=$(cpufreq-info -c 4 -l | awk '{ print $2 }')/" /etc/default/cpufrequtils
+
+			CODEC_CARD=0
+			amixer -c ${CODEC_CARD} cset name='Differential Mux' 1 >/dev/null 2>&1
+
+			if [[ -c /dev/mpp_service ]]; then
+				chmod 666 /dev/mpp_service
+
+			elif [[ -c /dev/vpu_service ]]; then
+				chmod 666 /dev/vpu_service
+			fi
+
+			# Create dummy video node for chromium V4L2 VDA/VEA with rkmpp plugin
+			echo dec > /dev/video-dec0
+			echo enc > /dev/video-enc0
+			chmod 660 /dev/video-*
+			chown root.video /dev/video-*
+
+			rfkill unblock all
+			/usr/bin/hciattach_opi -n -s 1500000 /dev/ttyBT0 sprd &
+			;;
+
 	esac
 
 	case ${BOARDFAMILY} in
+		rockchip) # RK3288: usb1 on cpu1, usb3 (EHCI) on cpu2, eth0 and GPU on cpu3
+			echo 2 >/proc/irq/$(awk -F":" "/usb1/ {print \$1}" </proc/interrupts | sed 's/\ //g')/smp_affinity
+			echo 4 >/proc/irq/$(awk -F":" "/usb3/ {print \$1}" </proc/interrupts | sed 's/\ //g')/smp_affinity
+			echo 8 >/proc/irq/$(awk -F":" "/eth0/ {print \$1}" </proc/interrupts | sed 's/\ //g' | head -n1)/smp_affinity
+			echo 7 >/sys/class/net/eth0/queues/rx-0/rps_cpus
+			for i in $(awk -F':' '/gpu/{print $1}' /proc/interrupts | sed 's/\ //g'); do
+				echo 8 >/proc/irq/$i/smp_affinity
+			done
+			;;
+		rockchip64) # Rock64 and Renegade: GPU on cpu1, USB3 on cpu2, Ethernet on cpu3
+			for i in $(awk -F':' '/Mali/{print $1}' </proc/interrupts | sed 's/\ //g'); do
+				echo 2 >/proc/irq/$i/smp_affinity
+			done
+			for i in $(awk -F":" "/ehci/ {print \$1}" </proc/interrupts | sed 's/\ //g'); do
+				echo 2 >/proc/irq/$i/smp_affinity
+			done
+			for i in $(awk -F":" "/ohci/ {print \$1}" </proc/interrupts | sed 's/\ //g'); do
+				echo 2 >/proc/irq/$i/smp_affinity
+			done
+			for i in $(awk -F":" "/xhci/ {print \$1}" </proc/interrupts | sed 's/\ //g'); do
+				echo 4 >/proc/irq/$i/smp_affinity
+			done
+
+			# Wait (up to 5s) until eth0 brought up
+			for i in {1..5}; do
+				grep -q "eth0" /proc/interrupts && break
+				sleep 1
+			done
+
+			echo 8 >/proc/irq/$(awk -F":" "/eth0/ {print \$1}" </proc/interrupts | sed 's/\ //g')/smp_affinity
+			echo 7 >/sys/class/net/eth0/queues/rx-0/rps_cpus
+			echo 32768 >/proc/sys/net/core/rps_sock_flow_entries
+			echo 32768 >/sys/class/net/eth0/queues/rx-0/rps_flow_cnt
+			;;
 		rk3399)
 			for i in $(awk -F':' '/gpu/{print $1}' </proc/interrupts | sed 's/\ //g'); do
 				echo 2 >/proc/irq/$i/smp_affinity
@@ -126,9 +222,22 @@ prepare_board() {
 			for i in $(awk -F':' '/dw-mci/{print $1}' </proc/interrupts | sed 's/\ //g'); do
 				echo 2 >/proc/irq/$i/smp_affinity
 			done
-			echo 2 >/proc/irq/$(awk -F":" "/ehci/ {print \$1}" </proc/interrupts | sed 's/\ //g')/smp_affinity
-			echo 2 >/proc/irq/$(awk -F":" "/ohci/ {print \$1}" </proc/interrupts | sed 's/\ //g')/smp_affinity
-			echo 4 >/proc/irq/$(awk -F":" "/xhci/ {print \$1}" </proc/interrupts | sed 's/\ //g')/smp_affinity
+			for i in $(awk -F":" "/ehci/ {print \$1}" </proc/interrupts | sed 's/\ //g'); do
+				echo 2 >/proc/irq/$i/smp_affinity
+			done
+			for i in $(awk -F":" "/ohci/ {print \$1}" </proc/interrupts | sed 's/\ //g'); do
+				echo 2 >/proc/irq/$i/smp_affinity
+			done
+			for i in $(awk -F":" "/xhci/ {print \$1}" </proc/interrupts | sed 's/\ //g'); do
+				echo 4 >/proc/irq/$i/smp_affinity
+			done
+
+			# Wait (up to 5s) until eth0 brought up
+			for i in {1..5}; do
+				grep -q "eth0" /proc/interrupts && break
+				sleep 1
+			done
+
 			echo 8 >/proc/irq/$(awk -F":" "/eth0/ {print \$1}" </proc/interrupts | sed 's/\ //g')/smp_affinity
 			echo 7 >/sys/class/net/eth0/queues/rx-0/rps_cpus
 			echo 32768 >/proc/sys/net/core/rps_sock_flow_entries
@@ -140,6 +249,9 @@ prepare_board() {
 			if [ -f /sys/bus/platform/drivers/rockchip-dmc/dmc/devfreq/dmc/governor ]; then
 				echo performance > /sys/bus/platform/drivers/rockchip-dmc/dmc/devfreq/dmc/governor
 			fi
+			;;
+		sun4i|sun5i|rda8810) # only one core, nothing to improve
+			:
 			;;
 		sun8i*) # H3/R40/V40 boards, try to do the best based on specific board since interfaces vary a lot
 			# 10 or 120 sec user feedback that the board is ready after 1st login with 3.4 kernel
@@ -202,7 +314,7 @@ prepare_board() {
 			echo 8 >/proc/irq/$(awk -F":" "/eth/ {print \$1}" </proc/interrupts | sed 's/\ //g' | head -n1)/smp_affinity
 			echo 7 >/sys/class/net/eth0/queues/rx-0/rps_cpus
 			# OrangePi win GMAC is very unstable on gigabit. Limit it down to 100Mb solve problems
-			[[ $BOARD == orangepiwin && $BRANCH == default ]] && ethtool -s eth0 speed 100 duplex full
+			[[ $BOARD == orangepiwin && $BRANCH == legacy ]] && ethtool -s eth0 speed 100 duplex full
 			;;
 	esac
 } # prepare_board
@@ -246,6 +358,19 @@ add_usb_storage_quirks() {
 
 } # add_usb_storage_quirks
 
+
+branch_naming_workaround()
+# https://armbian.atlassian.net/browse/AR-748
+# Once we rework kernel packages, this can be done better
+{
+
+	if [[ -z $(cat /etc/orangepi-release | grep BRANCH) ]]; then
+		BRANCH=$(dpkg -l | egrep "linux-image" | egrep "current|legacy|edge" | awk '{print $2}' | cut -d"-" -f3 | head -1)
+		[[ -n ${BRANCH} ]] && echo "BRANCH=$BRANCH" >> /etc/orangepi-release
+	fi
+}
+
+
 case $1 in
 	*start*)
 		# set optimal disk scheduler settings
@@ -256,5 +381,8 @@ case $1 in
 
 		# add usb quirks
 		add_usb_storage_quirks &
+
+		# branch naming workaround
+		branch_naming_workaround &
 		;;
 esac

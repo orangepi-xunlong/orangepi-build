@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.1
+Type=Application
+Name=DockbarX Preference
+GenericName=Preference Dialog
+NoDisplay=true
+Comment=Preference dialog for DockbarX
+Icon=dockbarx
+Exec=dbx_preference
+Actions=
+Categories=Utility;

@@ -52,7 +52,7 @@
 #   HDMI modes to choose and whether a HDMI-to-DVI converter is used or not
 #
 # - maybe implement live resolution switching as outlined by Jernej:
-#   http://forum.armbian.com/index.php/topic/617-wip-orange-pi-one-support-for-the-upcoming-orange-pi-one/?p=5305
+#   https://forum.armbian.com/index.php/topic/617-wip-orange-pi-one-support-for-the-upcoming-orange-pi-one/?p=5305
 #   (we would also need a working set of fbset modes in /etc/fb.modes
 #   of course)
 #
@@ -370,7 +370,7 @@ ShowVideoModes() {
 	IFS=${OIFS}
 	if [ ! $clean ]; then
 		echo -e "\n Two examples:\n\n    '${BOLD}${0##*/}${NC} ${LGREEN}-m 1080p60 -d${NC}' (1920x1080@60Hz DVI)"
-		echo -e "    '${BOLD}${0##*/}${NC} ${LGREEN}-m 720p60${NC}' (1280x720@60Hz HDMI)\n"
+		echo -e "    '${BOLD}${0##*/}${NC} ${LGREEN}-m 720i${NC}' (1280x720@30Hz HDMI)\n"
 	fi
 } # ShowVideoModes
 

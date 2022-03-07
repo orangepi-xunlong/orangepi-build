@@ -1,39 +1,58 @@
 #!/bin/bash
 #
-# Copyright (c) 2015 Igor Pecovnik, igor.pecovnik@gma**.com
+# Copyright (c) 2021 Igor Pecovnik, igor.pecovnik@gma**.com
 #
 # This file is licensed under the terms of the GNU General Public
 # License version 2. This program is licensed "as is" without any
 # warranty of any kind, whether express or implied.
 
 
-# Create board support packages
 #
 # Functions:
 # create_board_package
 
+
+
+
 create_board_package()
 {
-	display_alert "Creating board support package" "$BOARD $BRANCH" "info"
+	display_alert "Creating board support package for CLI" "$CHOSEN_ROOTFS" "info"
 
-	local destination=$SRC/.tmp/${RELEASE}/${CHOSEN_ROOTFS}_${REVISION}_${ARCH}
-	rm -rf "${destination}"
+	bsptempdir=$(mktemp -d)
+	chmod 700 ${bsptempdir}
+	trap "rm -rf \"${bsptempdir}\" ; exit 0" 0 1 2 3 15
+	local destination=${bsptempdir}/${RELEASE}/${BSP_CLI_PACKAGE_FULLNAME}
 	mkdir -p "${destination}"/DEBIAN
+	cd $destination
+
+	# copy general overlay from packages/bsp-cli
+	copy_all_packages_files_for "bsp-cli"
 
 	# install copy of boot script & environment file
-	local bootscript_src=${BOOTSCRIPT%%:*}
-	local bootscript_dst=${BOOTSCRIPT##*:}
-	mkdir -p "${destination}"/usr/share/orangepi/
-	cp "${EXTER}/config/bootscripts/${bootscript_src}" "${destination}/usr/share/orangepi/${bootscript_dst}"
-	[[ -n $BOOTENV_FILE && -f ${EXTER}/config/bootenv/$BOOTENV_FILE ]] && \
-		cp "${EXTER}/config/bootenv/${BOOTENV_FILE}" "${destination}"/usr/share/orangepi/orangepiEnv.txt
+	if [[ "${BOOTCONFIG}" != "none" ]]; then
+		# @TODO: add extension method bsp_prepare_bootloader(), refactor into u-boot extension
+		local bootscript_src=${BOOTSCRIPT%%:*}
+		local bootscript_dst=${BOOTSCRIPT##*:}
+		mkdir -p "${destination}"/usr/share/orangepi/
 
-	# add configuration for setting uboot environment from userspace with: fw_setenv fw_printenv
-	if [[ -n $UBOOT_FW_ENV ]]; then
-		UBOOT_FW_ENV=($(tr ',' ' ' <<< "$UBOOT_FW_ENV"))
-		mkdir -p "${destination}"/etc
-		echo "# Device to access      offset           env size" > "${destination}"/etc/fw_env.config
-		echo "/dev/mmcblk0	${UBOOT_FW_ENV[0]}	${UBOOT_FW_ENV[1]}" >> "${destination}"/etc/fw_env.config
+		# create extlinux config file
+		if [[ $SRC_EXTLINUX != yes ]]; then
+			if [ -f "${USERPATCHES_PATH}/bootscripts/${bootscript_src}" ]; then
+			  cp "${USERPATCHES_PATH}/bootscripts/${bootscript_src}" "${destination}/usr/share/orangepi/${bootscript_dst}"
+			else
+			  cp "${EXTER}/config/bootscripts/${bootscript_src}" "${destination}/usr/share/orangepi/${bootscript_dst}"
+			fi
+			[[ -n $BOOTENV_FILE && -f $SRC/config/bootenv/$BOOTENV_FILE ]] && \
+				cp "${EXTER}/config/bootenv/${BOOTENV_FILE}" "${destination}"/usr/share/orangepi/orangepiEnv.txt
+		fi
+
+		# add configuration for setting uboot environment from userspace with: fw_setenv fw_printenv
+		if [[ -n $UBOOT_FW_ENV ]]; then
+			UBOOT_FW_ENV=($(tr ',' ' ' <<< "$UBOOT_FW_ENV"))
+			mkdir -p "${destination}"/etc
+			echo "# Device to access      offset           env size" > "${destination}"/etc/fw_env.config
+			echo "/dev/mmcblk0	${UBOOT_FW_ENV[0]}	${UBOOT_FW_ENV[1]}" >> "${destination}"/etc/fw_env.config
+		fi
 	fi
 
 	# Replaces: base-files is needed to replace /etc/update-motd.d/ files on Xenial
@@ -42,7 +61,7 @@ create_board_package()
 	# Depends: linux-base is needed for "linux-version" command in initrd cleanup script
 	# Depends: fping is needed for orangepimonitor to upload orangepi-hardware-monitor.log
 	cat <<-EOF > "${destination}"/DEBIAN/control
-	Package: linux-${RELEASE}-root-${DEB_BRANCH}${BOARD}
+	Package: ${BSP_CLI_PACKAGE_NAME}
 	Version: $REVISION
 	Architecture: $ARCH
 	Maintainer: $MAINTAINER <$MAINTAINERMAIL>
@@ -50,12 +69,12 @@ create_board_package()
 	Section: kernel
 	Priority: optional
 	Depends: bash, linux-base, u-boot-tools, initramfs-tools, lsb-release, fping
-	Provides: orangepi-bsp
-	Conflicts: orangepi-bsp
+	Provides: linux-${RELEASE}-root-legacy-$BOARD, linux-${RELEASE}-root-current-$BOARD, linux-${RELEASE}-root-edge-$BOARD
 	Suggests: orangepi-config
-	Replaces: zram-config, base-files, orangepi-tools-$RELEASE
+	Replaces: zram-config, base-files, orangepi-tools-$RELEASE, linux-${RELEASE}-root-legacy-$BOARD (<< $REVISION~), linux-${RELEASE}-root-current-$BOARD (<< $REVISION~), linux-${RELEASE}-root-edge-$BOARD (<< $REVISION~)
+	Breaks: linux-${RELEASE}-root-legacy-$BOARD (<< $REVISION~), linux-${RELEASE}-root-current-$BOARD (<< $REVISION~), linux-${RELEASE}-root-edge-$BOARD (<< $REVISION~)
 	Recommends: bsdutils, parted, util-linux, toilet
-	Description: OrangePi tweaks for $RELEASE on $BOARD ($BRANCH branch)
+	Description: OrangePi board support files for $BOARD
 	EOF
 
 	# set up pre install script
@@ -102,7 +121,6 @@ create_board_package()
 	[ -f "/etc/update-motd.d/99-point-to-faq" ] && rm /etc/update-motd.d/99-point-to-faq
 	[ -f "/etc/update-motd.d/80-esm" ] && rm /etc/update-motd.d/80-esm
 	[ -f "/etc/update-motd.d/80-livepatch" ] && rm /etc/update-motd.d/80-livepatch
-	[ -f "/etc/apt/apt.conf.d/50unattended-upgrades" ] && rm /etc/apt/apt.conf.d/50unattended-upgrades
 	[ -f "/etc/apt/apt.conf.d/02compress-indexes" ] && rm /etc/apt/apt.conf.d/02compress-indexes
 	[ -f "/etc/apt/apt.conf.d/02periodic" ] && rm /etc/apt/apt.conf.d/02periodic
 	[ -f "/etc/apt/apt.conf.d/no-languages" ] && rm /etc/apt/apt.conf.d/no-languages
@@ -115,7 +133,8 @@ create_board_package()
 	[ -f "/lib/systemd/system/resize2fs.service" ] && rm /lib/systemd/system/resize2fs.service
 	[ -f "/usr/lib/orangepi/apt-updates" ] && rm /usr/lib/orangepi/apt-updates
 	[ -f "/usr/lib/orangepi/firstrun-config.sh" ] && rm /usr/lib/orangepi/firstrun-config.sh
-	dpkg-divert --quiet --package linux-${RELEASE}-root-${DEB_BRANCH}${BOARD} --add --rename --divert /etc/mpv/mpv-dist.conf /etc/mpv/mpv.conf
+	# fix for https://bugs.launchpad.net/ubuntu/+source/lightdm-gtk-greeter/+bug/1897491
+	[ -d "/var/lib/lightdm" ] && (chown -R lightdm:lightdm /var/lib/lightdm ; chmod 0750 /var/lib/lightdm)
 	exit 0
 	EOF
 
@@ -126,7 +145,6 @@ create_board_package()
 	#!/bin/sh
 	if [ remove = "\$1" ] || [ abort-install = "\$1" ]; then
 
-	    dpkg-divert --quiet --package linux-${RELEASE}-root-${DEB_BRANCH}${BOARD} --remove --rename	--divert /etc/mpv/mpv-dist.conf /etc/mpv/mpv.conf
 	    systemctl disable orangepi-hardware-monitor.service orangepi-hardware-optimize.service >/dev/null 2>&1
 	    systemctl disable orangepi-zram-config.service orangepi-ramlog.service >/dev/null 2>&1
 
@@ -143,7 +161,7 @@ create_board_package()
 	# ${BOARD} BSP post installation script
 	#
 
-	systemctl --no-reload enable orangepi-ramlog.service
+	[ -f /etc/lib/systemd/system/orangepi-ramlog.service ] && systemctl --no-reload enable orangepi-ramlog.service
 
 	# check if it was disabled in config and disable in new service
 	if [ -n "\$(grep -w '^ENABLED=false' /etc/default/log2ram 2> /dev/null)" ]; then
@@ -162,25 +180,6 @@ create_board_package()
 	fi
 
 	EOF
-
-	if [[ $RELEASE == bionic && $BOARD != orangepi4 ]] || [[ $RELEASE == focal && $BOARDFAMILY == sun50iw6 ]]; then
-		cat <<-EOF >> "${destination}"/DEBIAN/postinst
-		# temporally disable acceleration on some arch in Bionic due to broken mesa packages
-		echo 'Section "Device"
-		\tIdentifier \t"Default Device"
-		\tOption \t"AccelMethod" "none"
-		EndSection' >> /etc/X11/xorg.conf.d/01-orangepi-defaults.conf
-		EOF
-	elif [[ $RELEASE == bionic && $BOARD == orangepi4 ]]; then
-		cat <<-EOF >> "${destination}"/DEBIAN/postinst
-		# temporally disable acceleration on some arch in Bionic due to broken mesa packages
-		echo 'Section "Device"
-		\tIdentifier \t"Default Device"
-		\tOption \t"AccelMethod" "glamor"
-		EndSection' >> /etc/X11/xorg.conf.d/01-orangepi-defaults.conf
-		EOF
-	fi
-
 	# install bootscripts if they are not present. Fix upgrades from old images
 	if [[ $FORCE_BOOTSCRIPT_UPDATE == yes ]]; then
 	    cat <<-EOF >> "${destination}"/DEBIAN/postinst
@@ -214,9 +213,9 @@ create_board_package()
     rootdev=\$(sed -e 's/^.*root=//' -e 's/ .*\$//' < /proc/cmdline)
     rootfstype=\$(sed -e 's/^.*rootfstype=//' -e 's/ .*$//' < /proc/cmdline)
 
-    # recreate orangepiEnv.txt only not exists
-    if [ ! -f /boot/orangepiEnv.txt ]; then
-      cp /usr/share/orangepi/orangepiEnv.txt /boot/  >/dev/null 2>&1
+    # recreate orangepiEnv.txt if it and extlinux does not exists
+    if [ ! -f /boot/orangepiEnv.txt ] && [ ! -f /boot/extlinux/extlinux.conf ]; then
+      cp /usr/share/orangepi/orangepiEnv.txt /boot  >/dev/null 2>&1
       echo "rootdev="\$rootdev >> /boot/orangepiEnv.txt
       echo "rootfstype="\$rootfstype >> /boot/orangepiEnv.txt
     fi
@@ -227,17 +226,17 @@ create_board_package()
 
 	fi
 
-	[ ! -f "/etc/network/interfaces" ] && cp /etc/network/interfaces.default /etc/network/interfaces
+	[ ! -f "/etc/network/interfaces" ] && [ -f "/etc/network/interfaces.default" ] && cp /etc/network/interfaces.default /etc/network/interfaces
 	ln -sf /var/run/motd /etc/motd
 	rm -f /etc/update-motd.d/00-header /etc/update-motd.d/10-help-text
 	if [ -f "/boot/bin/$BOARD.bin" ] && [ ! -f "/boot/script.bin" ]; then ln -sf bin/$BOARD.bin /boot/script.bin >/dev/null 2>&1 || cp /boot/bin/$BOARD.bin /boot/script.bin; fi
 	if [ ! -f "/etc/default/orangepi-motd" ]; then
 		mv /etc/default/orangepi-motd.dpkg-dist /etc/default/orangepi-motd
 	fi
-	if [ ! -f "/etc/default/orangepi-ramlog" ]; then
+	if [ ! -f "/etc/default/orangepi-ramlog" ] && [ -f /etc/default/orangepi-ramlog.dpkg-dist ]; then
 		mv /etc/default/orangepi-ramlog.dpkg-dist /etc/default/orangepi-ramlog
 	fi
-	if [ ! -f "/etc/default/orangepi-zram-config" ]; then
+	if [ ! -f "/etc/default/orangepi-zram-config" ] && [ -f /etc/default/orangepi-zram-config.dpkg-dist ]; then
 		mv /etc/default/orangepi-zram-config.dpkg-dist /etc/default/orangepi-zram-config
 	fi
 
@@ -245,6 +244,15 @@ create_board_package()
 		mv /usr/lib/chromium-browser/master_preferences.dpkg-dist /usr/lib/chromium-browser/master_preferences
 	fi
 
+	# Read release value
+	if [ -f /etc/lsb-release ]; then
+		RELEASE=\$(cat /etc/lsb-release | grep CODENAME | cut -d"=" -f2 | sed 's/.*/\u&/')
+		sed -i "s/^PRETTY_NAME=.*/PRETTY_NAME=\"${VENDOR} $REVISION "\${RELEASE}"\"/" /etc/os-release
+		echo "${VENDOR} ${REVISION} \${RELEASE} \\l \n" > /etc/issue
+		echo "${VENDOR} ${REVISION} \${RELEASE}" > /etc/issue.net
+	fi
+
+	# Reload services
 	systemctl --no-reload enable orangepi-hardware-monitor.service orangepi-hardware-optimize.service orangepi-zram-config.service >/dev/null 2>&1
 	exit 0
 	EOF
@@ -257,13 +265,20 @@ create_board_package()
 	#EOF
 
 	# copy common files from a premade directory structure
-	rsync -a "${EXTER}"/packages/bsp/common/* "${destination}"/
+	rsync -a "${EXTER}"/packages/bsp/common/* ${destination}
 
 	# trigger uInitrd creation after installation, to apply
 	# /etc/initramfs/post-update.d/99-uboot
 	cat <<-EOF > "${destination}"/DEBIAN/triggers
 	activate update-initramfs
 	EOF
+
+	# copy distribution support status
+	local releases=($(find ${EXTER}/config/distributions -mindepth 1 -maxdepth 1 -type d))
+	for i in ${releases[@]}
+	do
+		echo "$(echo $i | sed 's/.*\///')=$(cat $i/support)" >> "${destination}"/etc/orangepi-distribution-status
+	done
 
 	# armhwinfo, firstrun, orangepimonitor, etc. config file
 	cat <<-EOF > "${destination}"/etc/orangepi-release
@@ -274,9 +289,9 @@ create_board_package()
 	BUILD_REPOSITORY_URL=${BUILD_REPOSITORY_URL}
 	BUILD_REPOSITORY_COMMIT=${BUILD_REPOSITORY_COMMIT}
 	DISTRIBUTION_CODENAME=${RELEASE}
+	DISTRIBUTION_STATUS=${DISTRIBUTION_STATUS}
 	VERSION=${REVISION}
 	LINUXFAMILY=${LINUXFAMILY}
-	BRANCH=${BRANCH}
 	ARCH=${ARCHITECTURE}
 	IMAGE_TYPE=$IMAGE_TYPE
 	BOARD_TYPE=$BOARD_TYPE
@@ -314,6 +329,11 @@ create_board_package()
 	# execute $LINUXFAMILY-specific tweaks
 	[[ $(type -t family_tweaks_bsp) == function ]] && family_tweaks_bsp
 
+	call_extension_method "post_family_tweaks_bsp" << 'POST_FAMILY_TWEAKS_BSP'
+*family_tweaks_bsp overrrides what is in the config, so give it a chance to override the family tweaks*
+This should be implemented by the config to tweak the BSP, after the board or family has had the chance to.
+POST_FAMILY_TWEAKS_BSP
+
 	# add some summary to the image
 	fingerprint_image "${destination}/etc/orangepi.txt"
 
@@ -322,10 +342,10 @@ create_board_package()
 	find "${destination}" ! -type l -print0 2>/dev/null | xargs -0r chmod 'go=rX,u+rw,a-s'
 
 	# create board DEB file
-	display_alert "Building package" "$CHOSEN_ROOTFS" "info"
-	fakeroot dpkg-deb -b "${destination}" "${destination}.deb" >> "${DEST}"/debug/install.log 2>&1
+	fakeroot dpkg-deb -b -Z${DEB_COMPRESS} "${destination}" "${destination}.deb" >> "${DEST}"/${LOG_SUBPATH}/output.log 2>&1
 	mkdir -p "${DEB_STORAGE}/${RELEASE}/"
-	mv "${destination}.deb" "${DEB_STORAGE}/${RELEASE}/"
+	rsync --remove-source-files -rq "${destination}.deb" "${DEB_STORAGE}/${RELEASE}/"
+
 	# cleanup
-	rm -rf "${destination}"
+	rm -rf ${bsptempdir}
 }

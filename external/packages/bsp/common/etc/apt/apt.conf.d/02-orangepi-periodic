@@ -19,4 +19,5 @@ APT::Periodic::AutocleanInterval "120";
 // Define basic patterns
 Unattended-Upgrade::Origins-Pattern {
         "origin=${distro_id},codename=${distro_codename}";
+        "origin=OrangePi";
 };

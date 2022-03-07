@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) Authors: http://www.armbian.com/authors
+# Copyright (c) 2013-2021 Igor Pecovnik, igor.pecovnik@gma**.com
 #
 # This file is licensed under the terms of the GNU General Public
 # License version 2. This program is licensed "as is" without any
@@ -8,9 +8,11 @@
 
 
 # Functions:
+# unset_all
 # pack_upload
 # build_main
 # array_contains
+# check_hash
 # build_all
 
 

@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.1
+Type=Application
+Name=PulseAudio Volume Control
+GenericName=Volume Control
+NoDisplay=true
+Comment=Adjust the volume level
+Icon=multimedia-volume-control
+Exec=pavucontrol-qt
+Actions=
+Categories=Audio;AudioVideo;Mixer;Qt;
+StartupNotify=true

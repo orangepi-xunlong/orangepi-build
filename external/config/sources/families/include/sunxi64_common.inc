@@ -8,6 +8,8 @@ BOOTSCRIPT='boot-sun50i-next.cmd:boot.cmd'
 LINUXFAMILY=sunxi64
 PACKAGE_LIST_DESKTOP_FAMILY="fcitx fonts-wqy-zenhei"
 
+#PACKAGE_LIST_FAMILY_REMOVE="mpv"
+
 case $BRANCH in
 
 	current)
@@ -24,6 +26,17 @@ family_tweaks()
 	# execute specific tweaks function if present
 	[[ $(type -t family_tweaks_s) == function ]] && family_tweaks_s
 	#cp $SRC/packages/blobs/splash/orangepi-u-boot-24.bmp $SDCARD/boot/boot.bmp
+	
+	#if [[ $BOARD == orangepizero2 ]]; then
+
+	#	install_deb_chroot "$EXTER/cache/debs/extra/bullseye-desktop/xfce4-zorinmenulite-plugin_1.1.2_arm64.deb"
+	#	install_deb_chroot "$EXTER/cache/debs/extra/bullseye-desktop/dockbarx-common_1.0~beta+git20210222-1~ppa1_all.deb"
+	#	install_deb_chroot "$EXTER/cache/debs/extra/bullseye-desktop/dockbarx-dockx_1.0~beta+git20210222-1~ppa1_all.deb"
+	#	install_deb_chroot "$EXTER/cache/debs/extra/bullseye-desktop/dockbarx_1.0~beta+git20210222-1~ppa1_all.deb"
+	#	install_deb_chroot "$EXTER/cache/debs/extra/bullseye-desktop/xfce4-dockbarx-plugin_0.6+git20210221-1~ppa2~20.10_arm64.deb"
+	#	install_deb_chroot "$EXTER/cache/debs/extra/bullseye-desktop/dockbarx-theme-zorin_1.1.0_all.deb"
+	#	#install_deb_chroot "$EXTER/cache/debs/extra/bullseye-desktop/scratch-desktop_3.26.0_arm64.deb"
+	#fi
 }
 
 write_uboot_platform()

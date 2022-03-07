@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) Authors: http://www.armbian.com/authors
+# Copyright (c) Authors: https://www.armbian.com/authors
 #
 # This file is licensed under the terms of the GNU General Public
 # License version 2. This program is licensed "as is" without any
@@ -23,4 +23,4 @@ done
 
 KERNELID=$(uname -r)
 TERM=linux toilet -f standard -F metal $(echo $BOARD_NAME | sed 's/Orange Pi/OPi/')
-echo -e "Welcome to \e[0;91mOrange Pi \x1B[0m$(if [[ $ID == debian ]]; then echo ${PRETTY_NAME##*\(} |  sed -e 's/^.*Linux //' | sed "s/\/.*//" | sed 's|)||'; else echo -n ${VERSION_CODENAME^};fi) with \e[0;91mLinux $KERNELID\x1B[0m\n"
+echo -e "Welcome to \e[0;91mOrange Pi ${VERSION} ${DISTRIBUTION_CODENAME^}\x1B[0m with $([[ $BRANCH == edge ]] && echo -e "\e[0;91mbleeding\x1B[0m edge " )\e[0;91mLinux $KERNELID\x1B[0m\n"

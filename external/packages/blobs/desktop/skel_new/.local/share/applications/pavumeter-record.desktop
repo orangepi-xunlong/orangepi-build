@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.1
+Type=Application
+Name=PulseAudio Volume Meter (Capture)
+GenericName=Capture Volume Meter
+NoDisplay=true
+Comment=Monitor the input volume
+Icon=audio-input-microphone
+Exec=pavumeter --record
+Actions=
+Categories=Audio;AudioVideo;
+StartupNotify=true

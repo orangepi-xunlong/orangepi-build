@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.1
+Type=Application
+Name=XTerm
+NoDisplay=true
+Comment=standard terminal emulator for the X window system
+Icon=mini.xterm
+Exec=xterm
+Actions=
+Categories=System;TerminalEmulator;
+Keywords=shell;prompt;command;commandline;cmd;

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (c) Authors: http://www.armbian.com/authors
+# Copyright (c) Authors: https://www.armbian.com/authors
 #
 # This file is licensed under the terms of the GNU General Public
 # License version 2. This program is licensed "as is" without any
@@ -10,6 +10,7 @@
 # working only when orangepi-ramlog is enabled
 
 treshold=75 # %
+JOURNAL_SIZE=5M # size to shrink systemd-journal
 
 [ -f /etc/default/orangepi-ramlog ] && . /etc/default/orangepi-ramlog
 
@@ -27,4 +28,6 @@ if [ $logusage -ge $treshold ]; then
     /usr/bin/find /var/log -name 'mail.err' -or -name 'mail.info' -or -name 'mail.warning' | xargs -r truncate --size 0
     # remove
     /usr/bin/find /var/log -name '*.[0-9]' -or -name '*.gz' | xargs -r rm -f
+    # vacuum systemd-journald
+    [ -d /var/log/journal ] && journalctl --vacuum-size=${JOURNAL_SIZE}
 fi

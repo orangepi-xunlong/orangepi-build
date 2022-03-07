@@ -1,7 +1,10 @@
 # configuration values for the orangepi-zram-config service
 #
 # enable the orangepi-zram-config service?
-ENABLED=true
+ENABLED=false
+
+# Zram swap enabled by default, unless set to disabled
+# SWAP=false
 
 # percentage of zram used as swap compared to physically available DRAM.
 # Huge overcommitment (300) is possible and sometimes desirable. See
@@ -27,6 +30,9 @@ ENABLED=true
 
 # Which algorithm to choose for zram based /tmp
 # TMP_ALGORITHM=zstd
+
+# Size for zram based /tmp, total memory / 2 by default
+# TMP_SIZE=500M
 
 # If defined a separate partition will be used as zram backing device. Be CAREFUL
 # which partition you assign and read starting from CONFIG_ZRAM_WRITEBACK in

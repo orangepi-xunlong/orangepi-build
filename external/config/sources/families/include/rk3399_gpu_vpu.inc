@@ -163,8 +163,8 @@ rk3399_gpu_vpu_tweaks()
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/libv4l/libv4l-rkmpp_1.3.3-1_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/libv4l/v4l-utils_1.20.0-2_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/chromium/chromium-x11_91.0.4472.164_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/libdrm-cursor/libdrm-cursor_1.2.3-1_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/libdrm-cursor/libdrm-cursor-dev_1.2.3-1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/libdrm-cursor/libdrm-cursor_1.3.0-1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/libdrm-cursor/libdrm-cursor-dev_1.3.0-1_arm64.deb"
 
 		# The chromium using fixed pathes for libv4l2.so
 		chroot $SDCARD /bin/bash -c "ln -rsf /usr/lib/*/libv4l2.so /usr/lib/"
@@ -283,8 +283,8 @@ rk3399_gpu_vpu_tweaks()
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/mpv/libmpv1_0.32.0-1ubuntu1_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/mpv/libmpv-dev_0.32.0-1ubuntu1_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/mpv/mpv_0.32.0-1ubuntu1_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/libdrm-cursor/libdrm-cursor_1.2.3-1_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/libdrm-cursor/libdrm-cursor-dev_1.2.3-1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/libdrm-cursor/libdrm-cursor_1.3.0-1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/libdrm-cursor/libdrm-cursor-dev_1.3.0-1_arm64.deb"
 
 	fi
 }

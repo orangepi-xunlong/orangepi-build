@@ -56,7 +56,7 @@ rk3399_gpu_vpu_tweaks()
 
 			#Multimedia Framework
 			chroot $SDCARD /bin/bash -c "apt-get -q update >/dev/null 2>&1"
-			chroot $SDCARD /bin/bash -c "apt-get remove -y --purge xserver-xorg-core orangepi-bsp-desktop-${BOARD} >/dev/null 2>&1"
+			chroot $SDCARD /bin/bash -c "apt-get remove -y --purge xserver-xorg-core >/dev/null 2>&1"
 			chroot $SDCARD /bin/bash -c "apt install -q -y --no-install-recommends gstreamer1.0-plugins-ugly gstreamer1.0-plugins-bad \
 				qtgstreamer-plugins-qt5	qtmultimedia5-examples mesa-utils fonts-liberation python-bluez python-lightblue python-pil \
 				python-simplejson libshairplay0 libaacs0 libcec4 libfstrcmp0 libiso9660-11 liblirc-client0 libmariadb3 libmicrohttpd12 \
@@ -79,6 +79,8 @@ rk3399_gpu_vpu_tweaks()
 
 			chroot $SDCARD /bin/bash -c "apt install -q -y --no-install-recommends xserver-xorg \
 				xserver-xorg-video-fbdev xserver-xorg-input-all xserver-xorg-input-libinput  >/dev/null 2>&1"
+
+			cp $EXTER/packages/bsp/rk3399/02-rockchip-accel.conf ${SDCARD}/etc/X11/xorg.conf.d/
 
 			dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/rkisp/rkisp-engine-2.2.0_arm64.deb"
 			install -m 0755 ${EXTER}/packages/bsp/rk3399/scripts/test_camera-gst.sh    	${SDCARD}/usr/local/bin/
@@ -111,6 +113,7 @@ rk3399_gpu_vpu_tweaks()
 
 	if [[ ${BOARD} =~ orangepi800 && ${SELECTED_CONFIGURATION} == desktop && ${RELEASE} == bookworm ]]; then
 
+		chroot $SDCARD /bin/bash -c "apt-get remove -y --purge xserver-xorg-core >/dev/null 2>&1"
 		chroot $SDCARD /bin/bash -c "apt install -q -y --no-install-recommends libdrm-dev libqt5opengl5 \
 					libgdk-pixbuf2.0-0 libminizip1 libre2-9 >/dev/null 2>&1"
 
@@ -166,6 +169,12 @@ rk3399_gpu_vpu_tweaks()
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/libdrm-cursor/libdrm-cursor_1.3.0-1_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/libdrm-cursor/libdrm-cursor-dev_1.3.0-1_arm64.deb"
 
+		chroot $SDCARD /bin/bash -c "apt install -q -y --no-install-recommends xserver-xorg \
+			xserver-xorg-video-fbdev xserver-xorg-input-all xserver-xorg-input-libinput  >/dev/null 2>&1"
+
+		cp $EXTER/packages/bsp/rk3399/02-modesetting.conf ${SDCARD}/etc/X11/xorg.conf.d/
+		cp $EXTER/packages/bsp/rk3399/mpv.conf ${SDCARD}/etc/mpv/
+
 		# The chromium using fixed pathes for libv4l2.so
 		chroot $SDCARD /bin/bash -c "ln -rsf /usr/lib/*/libv4l2.so /usr/lib/"
 		chroot $SDCARD /bin/bash -c "[ -e /usr/lib/aarch64-linux-gnu/ ] && ln -Tsf lib /usr/lib64"
@@ -174,6 +183,7 @@ rk3399_gpu_vpu_tweaks()
 
 	if [[ ${BOARD} =~ orangepi4|orangepi4-lts|orangepi800 && ${SELECTED_CONFIGURATION} == desktop && ${RELEASE} == bullseye ]]; then
 
+		chroot $SDCARD /bin/bash -c "apt-get remove -y --purge xserver-xorg-core >/dev/null 2>&1"
 		chroot $SDCARD /bin/bash -c "apt install -q -y --no-install-recommends libchromaprint1 libgme0 \
 			libopenmpt0 librabbitmq4 libsrt1.4-gnutls libssh-gcrypt-4 libzmq5 libass9 libbs2b0 \
 			libflite1 liblilv-0-0 libmysofa1 libpocketsphinx3 libsphinxbase3 librubberband2 \
@@ -188,6 +198,7 @@ rk3399_gpu_vpu_tweaks()
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/xserver/xserver-common_1.20.11-1_all.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/xserver/xserver-xorg-core_1.20.11-1_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/xserver/xserver-xorg-legacy_1.20.11-1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/xserver/xserver-xorg-core-rockchip_1.20.3_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/glmark2/glmark2-data_2021.02+ds-1_all.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/glmark2/glmark2-es2-x11_2021.02+ds-1_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/mpp/librockchip-mpp1_1.5.0-1_arm64.deb"
@@ -233,6 +244,12 @@ rk3399_gpu_vpu_tweaks()
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/libdrm-cursor/libdrm-cursor_1.3.0-1_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/libdrm-cursor/libdrm-cursor-dev_1.3.0-1_arm64.deb"
 
+		chroot $SDCARD /bin/bash -c "apt install -q -y --no-install-recommends xserver-xorg \
+			xserver-xorg-video-fbdev xserver-xorg-input-all xserver-xorg-input-libinput  >/dev/null 2>&1"
+
+		cp $EXTER/packages/bsp/rk3399/02-modesetting.conf ${SDCARD}/etc/X11/xorg.conf.d/
+		cp $EXTER/packages/bsp/rk3399/mpv.conf ${SDCARD}/etc/mpv/
+
 		# The chromium using fixed pathes for libv4l2.so
 		chroot $SDCARD /bin/bash -c "ln -rsf /usr/lib/*/libv4l2.so /usr/lib/"
 		chroot $SDCARD /bin/bash -c "[ -e /usr/lib/aarch64-linux-gnu/ ] && ln -Tsf lib /usr/lib64"
@@ -241,50 +258,54 @@ rk3399_gpu_vpu_tweaks()
 
 	if [[ ${BOARD} =~ orangepi4|orangepi4-lts|orangepi800 && ${SELECTED_CONFIGURATION} == desktop && ${RELEASE} == focal ]]; then
 
-                chroot $SDCARD /bin/bash -c "apt install -q -y --no-install-recommends libdrm-dev \
+		#chroot $SDCARD /bin/bash -c "apt-get remove -y --purge xserver-xorg-core >/dev/null 2>&1"
+		chroot $SDCARD /bin/bash -c "apt install -q -y --no-install-recommends libdrm-dev \
                         ocl-icd-libopencl1 libgsm1 libshine3 libsnappy1v5 libx264-155 libx265-179 \
                         libxvidcore4 libzvbi0 libbluray2 libchromaprint1 libgme0 libopenmpt0 libssh-gcrypt-4 \
                         libass9 libbs2b0 libflite1 liblilv-0-0 libmysofa1 librubberband2 libvidstab1.1 \
                         libzmq5 libdc1394-22 libopenal1 libsdl2-2.0-0 libsndio7.0 libxv1 libdvdnav4 \
-                        liblua5.2-0 libva-wayland2>/dev/null 2>&1"
+                        liblua5.2-0 libva-wayland2 >/dev/null 2>&1"
 
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/rga/librga2_2.2.0-1_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/rga/librga-dev_2.2.0-1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/rga/librga2_2.2.0-1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/rga/librga-dev_2.2.0-1_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/libmali/libmali-midgard-t86x-r18p0-x11_1.9-1_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/xserver/xserver-common_1.20.13-1ubuntu1~20.04.2_all.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/xserver/xserver-xorg-core_1.20.13-1ubuntu1~20.04.2_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/xserver/xserver-xorg-legacy_1.20.13-1ubuntu1~20.04.2_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/mpp/librockchip-mpp1_1.5.0-1_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/mpp/librockchip-mpp-dev_1.5.0-1_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/mpp/librockchip-vpu0_1.5.0-1_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/mpp/rockchip-mpp-demos_1.5.0-1_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/gst-rkmpp/gstreamer1.0-rockchip1_1.14-4_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libaom0_1.0.0.errata1-3_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libcodec2-0.9_0.9.2-4_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libavutil56_4.2.4-1ubuntu0.1_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libavutil-dev_4.2.4-1ubuntu0.1_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libpostproc55_4.2.4-1ubuntu0.1_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libpostproc-dev_4.2.4-1ubuntu0.1_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libswresample3_4.2.4-1ubuntu0.1_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libswresample-dev_4.2.4-1ubuntu0.1_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libswscale5_4.2.4-1ubuntu0.1_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libswscale-dev_4.2.4-1ubuntu0.1_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libavcodec58_4.2.4-1ubuntu0.1_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libavcodec-dev_4.2.4-1ubuntu0.1_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libavformat58_4.2.4-1ubuntu0.1_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libavformat-dev_4.2.4-1ubuntu0.1_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libavresample4_4.2.4-1ubuntu0.1_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libavresample-dev_4.2.4-1ubuntu0.1_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libavfilter7_4.2.4-1ubuntu0.1_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libavfilter-dev_4.2.4-1ubuntu0.1_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libavdevice58_4.2.4-1ubuntu0.1_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libavdevice-dev_4.2.4-1ubuntu0.1_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/ffmpeg_4.2.4-1ubuntu0.1_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/mpv/libmpv1_0.32.0-1ubuntu1_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/mpv/libmpv-dev_0.32.0-1ubuntu1_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/mpv/mpv_0.32.0-1ubuntu1_arm64.deb"
+		##dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/xserver/xserver-common_1.20.13-1ubuntu1~20.04.2_all.deb"
+		##dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/xserver/xserver-xorg-core_1.20.13-1ubuntu1~20.04.2_arm64.deb"
+		##dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/xserver/xserver-xorg-legacy_1.20.13-1ubuntu1~20.04.2_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/xserver/xserver-xorg-core-rockchip_1.20.3_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/mpp/librockchip-mpp1_1.5.0-1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/mpp/librockchip-mpp-dev_1.5.0-1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/mpp/librockchip-vpu0_1.5.0-1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/mpp/rockchip-mpp-demos_1.5.0-1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/gst-rkmpp/gstreamer1.0-rockchip1_1.14-4_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libaom0_1.0.0.errata1-3_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libcodec2-0.9_0.9.2-4_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libavutil56_4.2.4-1ubuntu0.1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libavutil-dev_4.2.4-1ubuntu0.1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libpostproc55_4.2.4-1ubuntu0.1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libpostproc-dev_4.2.4-1ubuntu0.1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libswresample3_4.2.4-1ubuntu0.1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libswresample-dev_4.2.4-1ubuntu0.1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libswscale5_4.2.4-1ubuntu0.1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libswscale-dev_4.2.4-1ubuntu0.1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libavcodec58_4.2.4-1ubuntu0.1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libavcodec-dev_4.2.4-1ubuntu0.1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libavformat58_4.2.4-1ubuntu0.1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libavformat-dev_4.2.4-1ubuntu0.1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libavresample4_4.2.4-1ubuntu0.1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libavresample-dev_4.2.4-1ubuntu0.1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libavfilter7_4.2.4-1ubuntu0.1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libavfilter-dev_4.2.4-1ubuntu0.1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libavdevice58_4.2.4-1ubuntu0.1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/libavdevice-dev_4.2.4-1ubuntu0.1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/ffmpeg/ffmpeg_4.2.4-1ubuntu0.1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/mpv/libmpv1_0.32.0-1ubuntu1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/mpv/libmpv-dev_0.32.0-1ubuntu1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/mpv/mpv_0.32.0-1ubuntu1_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/libdrm-cursor/libdrm-cursor_1.3.0-1_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/libdrm-cursor/libdrm-cursor-dev_1.3.0-1_arm64.deb"
 
+		#chroot $SDCARD /bin/bash -c "apt install -q -y --no-install-recommends xserver-xorg \
+		#	xserver-xorg-video-fbdev xserver-xorg-input-all xserver-xorg-input-libinput  >/dev/null 2>&1"
 	fi
 }

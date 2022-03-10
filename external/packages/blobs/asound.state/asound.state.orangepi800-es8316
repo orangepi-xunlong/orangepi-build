@@ -1,74 +1,67 @@
+state.hdmisound {
+	control.1 {
+		iface PCM
+		name 'Playback Channel Map'
+		value.0 0
+		value.1 0
+		value.2 0
+		value.3 0
+		value.4 0
+		value.5 0
+		value.6 0
+		value.7 0
+		comment {
+			access read
+			type INTEGER
+			count 8
+			range '0 - 36'
+		}
+	}
+	control.2 {
+		iface PCM
+		name ELD
+		value '100008006c1000010000000000000000410c1000323450464c333534332f5433090701000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'
+		comment {
+			access 'read volatile'
+			type BYTES
+			count 128
+		}
+	}
+}
 state.rockchipes8316c {
 	control.1 {
 		iface MIXER
-		name 'HP Playback Volume'
-		value.0 0
-		value.1 0
+		name 'Headphone Playback Volume'
+		value.0 3
+		value.1 3
 		comment {
 			access 'read write'
 			type INTEGER
 			count 2
-			range '0 - 0'
+			range '0 - 3'
 			dbmin -4800
-			dbmax -4800
-			dbvalue.0 -4800
-			dbvalue.1 -4800
+			dbmax 0
+			dbvalue.0 0
+			dbvalue.1 0
 		}
 	}
 	control.2 {
 		iface MIXER
-		name 'HPMixer Gain'
+		name 'Headphone Mixer Volume'
 		value.0 0
 		value.1 0
 		comment {
 			access 'read write'
 			type INTEGER
 			count 2
-			range '0 - 7'
+			range '0 - 11'
 			dbmin -1200
-			dbmax -150
+			dbmax 0
 			dbvalue.0 -1200
 			dbvalue.1 -1200
 		}
 	}
 	control.3 {
-		iface MIXER
-		name 'DAC Playback Volume'
-		value.0 152
-		value.1 152
-		comment {
-			access 'read write'
-			type INTEGER
-			count 2
-			range '0 - 192'
-			dbmin -9999999
-			dbmax 0
-			dbvalue.0 -2000
-			dbvalue.1 -2000
-		}
-	}
-	control.4 {
-		iface MIXER
-		name 'Enable DAC Soft Ramp'
-		value true
-		comment {
-			access 'read write'
-			type BOOLEAN
-			count 1
-		}
-	}
-	control.5 {
-		iface MIXER
-		name 'DAC Soft Ramp Rate'
-		value 0
-		comment {
-			access 'read write'
-			type INTEGER
-			count 1
-			range '0 - 4'
-		}
-	}
-	control.6 {
 		iface MIXER
 		name 'Playback Polarity'
 		value Normal
@@ -82,9 +75,46 @@ state.rockchipes8316c {
 			item.3 'L + R Invert'
 		}
 	}
+	control.4 {
+		iface MIXER
+		name 'DAC Playback Volume'
+		value.0 170
+		value.1 170
+		comment {
+			access 'read write'
+			type INTEGER
+			count 2
+			range '0 - 192'
+			dbmin -9999999
+			dbmax 0
+			dbvalue.0 -1100
+			dbvalue.1 -1100
+		}
+	}
+	control.5 {
+		iface MIXER
+		name 'DAC Soft Ramp Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.6 {
+		iface MIXER
+		name 'DAC Soft Ramp Rate'
+		value 4
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 4'
+		}
+	}
 	control.7 {
 		iface MIXER
-		name 'DAC Notch Filter'
+		name 'DAC Notch Filter Switch'
 		value false
 		comment {
 			access 'read write'
@@ -94,7 +124,7 @@ state.rockchipes8316c {
 	}
 	control.8 {
 		iface MIXER
-		name 'DAC Double Fs Mode'
+		name 'DAC Double Fs Switch'
 		value false
 		comment {
 			access 'read write'
@@ -103,17 +133,6 @@ state.rockchipes8316c {
 		}
 	}
 	control.9 {
-		iface MIXER
-		name 'DAC Volume Control-LeR'
-		value 0
-		comment {
-			access 'read write'
-			type INTEGER
-			count 1
-			range '0 - 1'
-		}
-	}
-	control.10 {
 		iface MIXER
 		name 'DAC Stereo Enhancement'
 		value 0
@@ -124,52 +143,17 @@ state.rockchipes8316c {
 			range '0 - 7'
 		}
 	}
+	control.10 {
+		iface MIXER
+		name 'DAC Mono Mix Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
 	control.11 {
-		iface MIXER
-		name 'MIC Boost'
-		value true
-		comment {
-			access 'read write'
-			type BOOLEAN
-			count 1
-		}
-	}
-	control.12 {
-		iface MIXER
-		name 'Input PGA'
-		value 6
-		comment {
-			access 'read write'
-			type INTEGER
-			count 1
-			range '0 - 8'
-		}
-	}
-	control.13 {
-		iface MIXER
-		name 'ADC Capture Volume'
-		value 10
-		comment {
-			access 'read write'
-			type INTEGER
-			count 1
-			range '0 - 192'
-			dbmin -9999999
-			dbmax 0
-			dbvalue.0 -9100
-		}
-	}
-	control.14 {
-		iface MIXER
-		name 'ADC Soft Ramp'
-		value true
-		comment {
-			access 'read write'
-			type BOOLEAN
-			count 1
-		}
-	}
-	control.15 {
 		iface MIXER
 		name 'Capture Polarity'
 		value Normal
@@ -181,9 +165,57 @@ state.rockchipes8316c {
 			item.1 Invert
 		}
 	}
+	control.12 {
+		iface MIXER
+		name 'Mic Boost Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.13 {
+		iface MIXER
+		name 'ADC Capture Volume'
+		value 190
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 192'
+			dbmin -9999999
+			dbmax 0
+			dbvalue.0 -100
+		}
+	}
+	control.14 {
+		iface MIXER
+		name 'ADC PGA Gain Volume'
+		value 0
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 10'
+			dbmin -350
+			dbmax 2400
+			dbvalue.0 -350
+		}
+	}
+	control.15 {
+		iface MIXER
+		name 'ADC Soft Ramp Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
 	control.16 {
 		iface MIXER
-		name 'ADC Double FS Mode'
+		name 'ADC Double Fs Switch'
 		value false
 		comment {
 			access 'read write'
@@ -193,47 +225,54 @@ state.rockchipes8316c {
 	}
 	control.17 {
 		iface MIXER
+		name 'ALC Capture Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.18 {
+		iface MIXER
+		name 'ALC Capture Max Volume'
+		value 28
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 28'
+			dbmin -650
+			dbmax 3550
+			dbvalue.0 3550
+		}
+	}
+	control.19 {
+		iface MIXER
+		name 'ALC Capture Min Volume'
+		value 0
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 28'
+			dbmin -1200
+			dbmax 3000
+			dbvalue.0 -1200
+		}
+	}
+	control.20 {
+		iface MIXER
 		name 'ALC Capture Target Volume'
-		value 10
+		value 11
 		comment {
 			access 'read write'
 			type INTEGER
 			count 1
 			range '0 - 10'
-		}
-	}
-	control.18 {
-		iface MIXER
-		name 'ALC Capture Max PGA'
-		value 13
-		comment {
-			access 'read write'
-			type INTEGER
-			count 1
-			range '0 - 28'
-		}
-	}
-	control.19 {
-		iface MIXER
-		name 'ALC Capture Min PGA'
-		value 8
-		comment {
-			access 'read write'
-			type INTEGER
-			count 1
-			range '0 - 28'
-		}
-	}
-	control.20 {
-		iface MIXER
-		name 'ALC Capture Function'
-		value On
-		comment {
-			access 'read write'
-			type ENUMERATED
-			count 1
-			item.0 Off
-			item.1 On
+			dbmin -1650
+			dbmax -150
+			dbvalue.0 0
 		}
 	}
 	control.21 {
@@ -250,7 +289,7 @@ state.rockchipes8316c {
 	control.22 {
 		iface MIXER
 		name 'ALC Capture Decay Time'
-		value 0
+		value 3
 		comment {
 			access 'read write'
 			type INTEGER
@@ -261,7 +300,7 @@ state.rockchipes8316c {
 	control.23 {
 		iface MIXER
 		name 'ALC Capture Attack Time'
-		value 5
+		value 2
 		comment {
 			access 'read write'
 			type INTEGER
@@ -271,8 +310,18 @@ state.rockchipes8316c {
 	}
 	control.24 {
 		iface MIXER
-		name 'ALC Capture NG Threshold'
-		value 1
+		name 'ALC Capture Noise Gate Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.25 {
+		iface MIXER
+		name 'ALC Capture Noise Gate Threshold'
+		value 0
 		comment {
 			access 'read write'
 			type INTEGER
@@ -280,26 +329,16 @@ state.rockchipes8316c {
 			range '0 - 31'
 		}
 	}
-	control.25 {
+	control.26 {
 		iface MIXER
-		name 'ALC Capture NG Type'
-		value 'Mute ADC Output'
+		name 'ALC Capture Noise Gate Type'
+		value 'Constant PGA Gain'
 		comment {
 			access 'read write'
 			type ENUMERATED
 			count 1
 			item.0 'Constant PGA Gain'
 			item.1 'Mute ADC Output'
-		}
-	}
-	control.26 {
-		iface MIXER
-		name 'ALC Capture NG Switch'
-		value true
-		comment {
-			access 'read write'
-			type BOOLEAN
-			count 1
 		}
 	}
 	control.27 {
@@ -331,7 +370,7 @@ state.rockchipes8316c {
 	}
 	control.29 {
 		iface MIXER
-		name 'DAC SRC Mux'
+		name 'DAC Source Mux'
 		value 'LDATA TO LDAC, RDATA TO RDAC'
 		comment {
 			access 'read write'
@@ -345,7 +384,7 @@ state.rockchipes8316c {
 	}
 	control.30 {
 		iface MIXER
-		name 'Left Hp mux'
+		name 'Left Headphone Mux'
 		value lin1-rin1
 		comment {
 			access 'read write'
@@ -359,7 +398,7 @@ state.rockchipes8316c {
 	}
 	control.31 {
 		iface MIXER
-		name 'Right Hp mux'
+		name 'Right Headphone Mux'
 		value lin1-rin1
 		comment {
 			access 'read write'
@@ -373,7 +412,7 @@ state.rockchipes8316c {
 	}
 	control.32 {
 		iface MIXER
-		name 'LLIN Switch'
+		name 'Left Headphone Mixer LLIN Switch'
 		value false
 		comment {
 			access 'read write'
@@ -383,8 +422,8 @@ state.rockchipes8316c {
 	}
 	control.33 {
 		iface MIXER
-		name 'Left DAC Switch'
-		value false
+		name 'Left Headphone Mixer Left DAC Switch'
+		value true
 		comment {
 			access 'read write'
 			type BOOLEAN
@@ -393,7 +432,7 @@ state.rockchipes8316c {
 	}
 	control.34 {
 		iface MIXER
-		name 'RLIN Switch'
+		name 'Right Headphone Mixer RLIN Switch'
 		value false
 		comment {
 			access 'read write'
@@ -403,35 +442,12 @@ state.rockchipes8316c {
 	}
 	control.35 {
 		iface MIXER
-		name 'Right DAC Switch'
-		value false
+		name 'Right Headphone Mixer Right DAC Switch'
+		value true
 		comment {
 			access 'read write'
 			type BOOLEAN
 			count 1
-		}
-	}
-}
-state.rkhdmidpsound {
-	control.1 {
-		iface PCM
-		name ELD
-		value '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'
-		comment {
-			access 'read volatile'
-			type BYTES
-			count 128
-		}
-	}
-	control.2 {
-		iface PCM
-		name 'AUDIO MODE'
-		value 0
-		comment {
-			access 'read write volatile'
-			type INTEGER
-			count 1
-			range '0 - 2'
 		}
 	}
 }

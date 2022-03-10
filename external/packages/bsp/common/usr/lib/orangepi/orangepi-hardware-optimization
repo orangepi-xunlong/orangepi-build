@@ -106,12 +106,6 @@ prepare_board() {
 			[[ -f /sys/class/leds/caps_led/brightness ]] && chmod 666 /sys/class/leds/caps_led/brightness
 			[[ -f /sys/class/leds/num_led/brightness ]] && chmod 666 /sys/class/leds/num_led/brightness
 
-			CODEC_CARD=1
-			amixer -c ${CODEC_CARD} cset name='Headphone Playback Volume' 11 > /dev/null 2>&1
-			amixer -c ${CODEC_CARD} cset name='DAC Playback Volume' 170 > /dev/null 2>&1
-			amixer -c ${CODEC_CARD} cset name='ADC Capture Volume' 190 >/dev/null 2>&1
-			amixer -c ${CODEC_CARD} cset name='Differential Mux' 1 >/dev/null 2>&1
-
 			if [[ -c /dev/mpp_service ]]; then
 				chmod 666 /dev/mpp_service
 

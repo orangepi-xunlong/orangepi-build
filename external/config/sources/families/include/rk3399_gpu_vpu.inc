@@ -192,8 +192,8 @@ rk3399_gpu_vpu_tweaks()
 			libdrm-dev libqt5opengl5 libgdk-pixbuf2.0-0 libminizip1 libre2-9 >/dev/null 2>&1"
 
 		# RK GPU VPU
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/rga/librga2_2.2.0-1_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/rga/librga-dev_2.2.0-1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/rga/librga2_2.1.0-1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/rga/librga-dev_2.1.0-1_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/libmali/libmali-midgard-t86x-r18p0-x11_1.9-1_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/xserver/xserver-common_1.20.11-1_all.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/xserver/xserver-xorg-core_1.20.11-1_arm64.deb"
@@ -266,8 +266,8 @@ rk3399_gpu_vpu_tweaks()
                         libzmq5 libdc1394-22 libopenal1 libsdl2-2.0-0 libsndio7.0 libxv1 libdvdnav4 \
                         liblua5.2-0 libva-wayland2 >/dev/null 2>&1"
 
-		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/rga/librga2_2.2.0-1_arm64.deb"
-		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/rga/librga-dev_2.2.0-1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/rga/librga2_2.1.0-1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/rga/librga-dev_2.1.0-1_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/libmali/libmali-midgard-t86x-r18p0-x11_1.9-1_arm64.deb"
 		##dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/xserver/xserver-common_1.20.13-1ubuntu1~20.04.2_all.deb"
 		##dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/xserver/xserver-xorg-core_1.20.13-1ubuntu1~20.04.2_arm64.deb"

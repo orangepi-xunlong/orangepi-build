@@ -1,2 +1,2 @@
-Acquire::GzipIndexes "true";
+Acquire::GzipIndexes "false";
 Acquire::CompressionTypes::Order:: "gz";

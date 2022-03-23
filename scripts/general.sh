@@ -95,7 +95,7 @@ cleaning()
 		;;
 
 		oldcache) # remove old `cache/rootfs` except for the newest 8 files
-		if [[ -d $EXTER/cache/rootfs && $(ls -1 $EXTER/cache/rootfs/*.lz4 2> /dev/null | wc -l) -gt ${ROOTFS_CACHE_MAX} ]]; then
+		if [[ -d $EXTER/cache/rootfs && $(ls -1 $EXTER/cache/rootfs/*.lz4 2> /dev/null | wc -l) -gt "${ROOTFS_CACHE_MAX}" ]]; then
 			display_alert "Cleaning" "rootfs cache (old)" "info"
 			(cd $EXTER/cache/rootfs; ls -t *.lz4 | sed -e "1,${ROOTFS_CACHE_MAX}d" | xargs -d '\n' rm -f)
 			# Remove signatures if they are present. We use them for internal purpose
@@ -435,7 +435,8 @@ fetch_from_repo()
 	local ref_subdir=$4
 
 	# Set GitHub mirror before anything else touches $url
-	url=${url//'https://github.com/'/$GITHUB_SOURCE}
+	url=${url//'https://github.com/'/$GITHUB_SOURCE'/'}
+
 	# The 'offline' variable must always be set to 'true' or 'false'
 	if [ "$OFFLINE_WORK" == "yes" ]; then
 		local offline=true
@@ -1367,7 +1368,7 @@ prepare_host()
 
   if [[ $(dpkg --print-architecture) == amd64 ]]; then
 
-	hostdeps+=" distcc lib32ncurses-dev lib32stdc++6 libc6-i386 zlib1g:i386"
+	hostdeps+=" distcc lib32ncurses-dev lib32stdc++6 libc6-i386"
 	grep -q i386 <(dpkg --print-foreign-architectures) || dpkg --add-architecture i386
 
   elif [[ $(dpkg --print-architecture) == arm64 ]]; then

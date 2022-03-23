@@ -61,7 +61,7 @@ case $REGIONAL_MIRROR in
 	china)
 		[[ -z $USE_MAINLINE_GOOGLE_MIRROR ]] && [[ -z $MAINLINE_MIRROR ]] && MAINLINE_MIRROR=tuna
 		[[ -z $USE_GITHUB_UBOOT_MIRROR ]] && [[ -z $UBOOT_MIRROR ]] && UBOOT_MIRROR=gitee
-		[[ -z $GITHUB_MIRROR ]] && GITHUB_MIRROR=fastgit
+		[[ -z $GITHUB_MIRROR ]] && GITHUB_MIRROR=gitclone
 		[[ -z $DOWNLOAD_MIRROR ]] && DOWNLOAD_MIRROR=china
 		;;
 	*)
@@ -110,16 +110,13 @@ MAINLINE_UBOOT_DIR="$SRC/u-boot"
 
 case $GITHUB_MIRROR in
 	fastgit)
-		GITHUB_SOURCE='https://hub.fastgit.org/'
+		GITHUB_SOURCE='https://hub.fastgit.xyz'
 		;;
 	gitclone)
-		GITHUB_SOURCE='https://gitclone.com/github.com/'
-		;;
-	cnpmjs)
-		GITHUB_SOURCE='https://github.com.cnpmjs.org/'
+		GITHUB_SOURCE='https://gitclone.com/github.com'
 		;;
 	*)
-		GITHUB_SOURCE='https://github.com/'
+		GITHUB_SOURCE='https://github.com'
 		;;
 esac
 
@@ -601,6 +598,10 @@ fi
 
 if [[ "${ARCH}" == "amd64" ]]; then
 	UBUNTU_MIRROR='archive.ubuntu.com/ubuntu' # ports are only for non-amd64, of course.
+
+		if [[ -n ${CUSTOM_UBUNTU_MIRROR} ]]; then # ubuntu redirector doesn't work well on amd64
+			UBUNTU_MIRROR="${CUSTOM_UBUNTU_MIRROR}"
+		fi
 fi
 
 # don't use mirrors that throws garbage on 404

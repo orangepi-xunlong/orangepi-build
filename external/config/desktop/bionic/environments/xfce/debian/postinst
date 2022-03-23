@@ -6,11 +6,11 @@ if [ -d /etc/orangepi/lightdm ]; then cp -R /etc/orangepi/lightdm /etc/; fi
 if [ -f /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml ]; then sed -i 's/Xfce-dusk/NumixBlue/g' /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml; fi
 
 # Adjust menu
-if [ -f /etc/xdg/menus/xfce-applications.menu ]; then
-sed -i -n '/<Menuname>Settings<\/Menuname>/{p;:a;N;/<Filename>xfce4-session-logout.desktop<\/Filename>/!ba;s/.*\n/\
-\t<Separator\/>\n\t<Merge type="all"\/>\n        <Separator\/>\n        <Filename>orangepi-donate.desktop<\/Filename>\
-\n        <Filename>orangepi-support.desktop<\/Filename>\n/};p' /etc/xdg/menus/xfce-applications.menu
-fi
+#if [ -f /etc/xdg/menus/xfce-applications.menu ]; then
+#sed -i -n '/<Menuname>Settings<\/Menuname>/{p;:a;N;/<Filename>xfce4-session-logout.desktop<\/Filename>/!ba;s/.*\n/\
+#\t<Separator\/>\n\t<Merge type="all"\/>\n        <Separator\/>\n        <Filename>orangepi-donate.desktop<\/Filename>\
+#\n        <Filename>orangepi-support.desktop<\/Filename>\n/};p' /etc/xdg/menus/xfce-applications.menu
+#fi
 
 # Hide few items
 if [ -f /usr/share/applications/display-im6.q16.desktop ]; then mv /usr/share/applications/display-im6.q16.desktop /usr/share/applications/display-im6.q16.desktop.hidden; fi

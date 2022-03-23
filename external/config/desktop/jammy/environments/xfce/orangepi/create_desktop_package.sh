@@ -11,11 +11,11 @@ cp "${EXTER}"/packages/blobs/desktop/desktop-icons/*.png "${destination}"/usr/sh
 
 # install wallpapers
 mkdir -p "${destination}"/usr/share/backgrounds/orangepi/
-cp "${EXTER}"/packages/blobs/desktop/desktop-wallpapers/*.jpg "${destination}"/usr/share/backgrounds/orangepi
+cp "${EXTER}"/packages/blobs/desktop/desktop-wallpapers/*.png "${destination}"/usr/share/backgrounds/orangepi
 
 # install wallpapers
 mkdir -p "${destination}"/usr/share/backgrounds/orangepi-lightdm/
-cp "${EXTER}"/packages/blobs/desktop/lightdm-wallpapers/*.jpg "${destination}"/usr/share/backgrounds/orangepi-lightdm
+cp "${EXTER}"/packages/blobs/desktop/lightdm-wallpapers/*.png "${destination}"/usr/share/backgrounds/orangepi-lightdm
 
 # install logo for login screen
 mkdir -p "${destination}"/usr/share/pixmaps/orangepi

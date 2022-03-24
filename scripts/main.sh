@@ -254,7 +254,7 @@ if [[ -z $BRANCH ]]; then
 	options=()
 	[[ $KERNEL_TARGET == *current* ]] && options+=("current" "Recommended. Come with best support")
 	[[ $KERNEL_TARGET == *legacy* ]] && options+=("legacy" "Old stable / Legacy")
-	[[ $KERNEL_TARGET == *edge* && $EXPERT = yes ]] && options+=("edge" "\Z1Bleeding edge from @kernel.org\Zn")
+	[[ $KERNEL_TARGET == *next* ]] && options+=("next" "Use the latest kernel")
 
 	menustr="Select the target kernel branch\nExact kernel versions depend on selected board"
 	# do not display selection dialog if only one kernel branch is available
@@ -269,13 +269,6 @@ if [[ -z $BRANCH ]]; then
 	unset options
 	[[ -z $BRANCH ]] && exit_with_error "No kernel branch selected"
 	[[ $BRANCH == dev && $SHOW_WARNING == yes ]] && show_developer_warning
-
-else
-
-	[[ $BRANCH == next ]] && KERNEL_TARGET="next"
-	# next = new legacy. Should stay for backward compatibility, but be removed from menu above
-	# or we left definitions in board configs and only remove menu
-	[[ $KERNEL_TARGET != *$BRANCH* ]] && exit_with_error "Kernel branch not defined for this board" "$BRANCH"
 
 fi
 

@@ -222,7 +222,7 @@ desktop_element_available_for_arch() {
 
 	echo "Checking if ${desktop_element_path} is available for ${targeted_arch} in ${arch_limitation_file}" >> "${DEST}"/${LOG_SUBPATH}/output.log
 	if [[ -f "${arch_limitation_file}" ]]; then
-		grep -- "${targeted_arch}" "${arch_limitation_file}"
+		grep -- "${targeted_arch}" "${arch_limitation_file}" > /dev/null
 		return $?
 	else
 		return 0

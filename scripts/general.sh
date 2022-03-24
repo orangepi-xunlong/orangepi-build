@@ -821,7 +821,10 @@ function distro_menu ()
 				[[ -z "${DISTRIB_TYPE_LEGACY}" ]] && DISTRIB_TYPE="buster bionic focal"
 			elif [[ "${BRANCH}" == "current" ]]; then
 				DISTRIB_TYPE="${DISTRIB_TYPE_CURRENT}"
-				[[ -z "${DISTRIB_TYPE_LEGACY}" ]] && DISTRIB_TYPE="bullseye bookworm focal jammy"
+				[[ -z "${DISTRIB_TYPE_CURRENT}" ]] && DISTRIB_TYPE="bullseye bookworm focal jammy"
+			elif [[ "${BRANCH}" == "next" ]]; then
+				DISTRIB_TYPE="${DISTRIB_TYPE_CURRENT}"
+				[[ -z "${DISTRIB_TYPE_CURRENT}" ]] && DISTRIB_TYPE="bullseye bookworm focal jammy"
 			fi
 
 			if [[ "${DISTRIB_TYPE}" =~ "${distro_codename}" ]]; then

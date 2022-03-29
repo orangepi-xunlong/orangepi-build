@@ -3478,7 +3478,7 @@
 			//sd-uhs-ddr50;
 			//sd-uhs-sdr104;
 			ctl-spec-caps = <0x8>;
-			vdmmc-supply = <&reg_dcdc5>;
+			//vdmmc-supply = <&reg_dcdc5>;
 		};
 
 		sdmmc@04021000 {

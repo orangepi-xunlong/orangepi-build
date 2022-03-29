@@ -223,39 +223,37 @@ select_gpio3	=
 ;
 ;*****************************************************************************
 [dram_para]
-
-dram_clk       = 720
-dram_type      = 3
-dram_dx_odt    = 0x08080808
-dram_dx_dri    = 0x0e0e0e0e
-dram_ca_dri    = 0x0e0e
-dram_odt_en    = 1
-dram_para1     = 0x30FA
-dram_para2     = 0x1000
-dram_mr0       = 0x840
-dram_mr1       = 0x4
-dram_mr2       = 0x8
-dram_mr3       = 0x0
-dram_mr4       = 0x0
-dram_mr5       = 0x0
-dram_mr6       = 0x0
-dram_mr11      = 0x0
-dram_mr12      = 0x0
-dram_mr13      = 0x0
-dram_mr14      = 0x0
-dram_mr16      = 0x0
-dram_mr17      = 0x0
-dram_mr22      = 0x0
-dram_tpr0      = 0x0
-dram_tpr1      = 0x0
-dram_tpr2      = 0x0
-dram_tpr3      = 0x0
-dram_tpr6      = 0x33808080
-dram_tpr10     = 0x00f83438
-dram_tpr11     = 0x0
-dram_tpr12     = 0x0
-dram_tpr13     = 0x40
-
+dram_clk = 672
+dram_type = 7
+dram_dx_odt = 0x06060606
+dram_dx_dri = 0x0d0d0d0d
+dram_ca_dri = 0x0d0d
+dram_odt_en = 0x9988eeee
+dram_para1 = 0x30fa
+dram_para2 = 0x1000
+dram_mr0 = 0x0
+dram_mr1 = 0xc3
+dram_mr2 = 0x6
+dram_mr3 = 0x1
+dram_mr4 = 0x0
+dram_mr5 = 0x0
+dram_mr6 = 0x0
+dram_mr11 = 0x0
+dram_mr12 = 0x0
+dram_mr13 = 0x0
+dram_mr14 = 0x0
+dram_mr16 = 0x0
+dram_mr17 = 0x0
+dram_mr22 = 0x0
+dram_tpr0 = 0x0
+dram_tpr1 = 0x0
+dram_tpr2 = 0x0
+dram_tpr3 = 0x0
+dram_tpr6 = 0x2fb28080
+dram_tpr10 = 0x402f4429
+dram_tpr11 = 0x0d0e0a09
+dram_tpr12 = 0x0c0d0a0b
+dram_tpr13 = 0xc60
 
 [dram_para1]
 

@@ -493,7 +493,8 @@ function jobs ()
 				iptables -t nat -D POSTROUTING 1 >/dev/null 2>&1
 				rm -f /etc/iptables.ipv4.nat
 				systemctl stop orangepi-restore-iptables.service
-				systemctl disable orangepi-restore-iptables.service				rm -f /var/run/hostapd/* >/dev/null 2>&1
+				systemctl disable orangepi-restore-iptables.service
+				rm -f /var/run/hostapd/* >/dev/null 2>&1
 				sed -i '/^iptables/ d' /etc/rc.local
 				sed -i '/^service dnsmasq/ d' /etc/rc.local
 				sed 's/interface-name:wl.*//' -i /etc/NetworkManager/conf.d/10-ignore-interfaces.conf
@@ -520,7 +521,8 @@ function jobs ()
 				rm -f /etc/network/interfaces.d/orangepi.ap.nat
 				rm -f /etc/network/interfaces.d/orangepi.ap.bridge
 				service networking restart
-				service network-manager restart
+				service network-manager restart >/dev/null 2>&1
+				service NetworkManager restart >/dev/null 2>&1
 				{ for ((i = 0 ; i <= 100 ; i+=20)); do sleep 1; echo $i; done } | dialog --title " Initializing wireless adapters " --colors --gauge "" 5 50 0
 
 				# start with basic config
@@ -529,7 +531,8 @@ function jobs ()
 				if grep -q "^## IEEE 802.11n" /etc/hostapd.conf; then sed '/## IEEE 802.11n/,/^## IEEE 802.11n/ s/.*/#&/' -i /etc/hostapd.conf; fi
 				sed -i "s/^channel=.*/channel=5/" /etc/hostapd.conf
 
-				service network-manager reload
+				service network-manager reload >/dev/null 2>&1
+				service NetworkManager reload >/dev/null 2>&1
 				# change special adapters to AP mode
 				wlan_exceptions "on"
 				# check for WLAN interfaces
@@ -542,7 +545,8 @@ function jobs ()
 					echo "[keyfile]" > /etc/NetworkManager/conf.d/10-ignore-interfaces.conf
 					echo "unmanaged-devices=interface-name:$WIRELESS_ADAPTER" >> /etc/NetworkManager/conf.d/10-ignore-interfaces.conf
 				fi
-				service network-manager reload
+				service network-manager reload >/dev/null 2>&1
+				service NetworkManager reload >/dev/null 2>&1
 				# display dialog
 				dialog --colors --backtitle "$BACKTITLE" --title "Please wait" --infobox \
 				"\nWireless adapter: \Z1${WIRELESS_ADAPTER}\Z0\n\nProbing nl80211 hostapd driver compatibility." 7 50
@@ -697,7 +701,7 @@ function jobs ()
 							mv $TEMP_CONF".tmp" $TEMP_CONF
 							#reboot
 						fi
-					else
+				else
 						ifdown $WIRELESS_ADAPTER 2> /dev/null
 						sleep 2
 						ifup $WIRELESS_ADAPTER 2> /dev/null

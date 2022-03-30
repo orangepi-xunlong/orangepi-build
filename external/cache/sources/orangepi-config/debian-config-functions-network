@@ -247,9 +247,9 @@ function reload-nety() {
 
 	systemctl daemon-reload
 	if [[ "$1" == "reload" ]]; then WHATODO="Reloading services"; else WHATODO="Stopping services"; fi
-	(service network-manager stop; echo 10; sleep 1; service hostapd stop; echo 20; sleep 1; service dnsmasq stop; echo 30; sleep 1;\
+	(service network-manager stop >/dev/null 2>&1; service NetworkManager stop >/dev/null 2>&1; echo 10; sleep 1; service hostapd stop; echo 20; sleep 1; service dnsmasq stop; echo 30; sleep 1;\
 	[[ "$1" == "reload" ]] && service dnsmasq start && echo 60 && sleep 1 && service hostapd start && echo 80 && sleep 1;\
-	service network-manager start; echo 90; sleep 5;) | dialog --backtitle "$BACKTITLE" --title " $WHATODO " --gauge "" 6 70 0
+	service network-manager start >/dev/null 2>&1; service NetworkManager start >/dev/null 2>&1; echo 90; sleep 5;) | dialog --backtitle "$BACKTITLE" --title " $WHATODO " --gauge "" 6 70 0
 	systemctl restart systemd-resolved.service
 
 }

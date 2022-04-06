@@ -147,6 +147,24 @@ prepare_board() {
 			[[ -f /sys/class/leds/caps_led/brightness ]] && chmod 666 /sys/class/leds/caps_led/brightness
 			[[ -f /sys/class/leds/num_led/brightness ]] && chmod 666 /sys/class/leds/num_led/brightness
 			;;
+		orangepi4)
+			if [[ -c /dev/mpp_service ]]; then
+				chmod 666 /dev/mpp_service
+
+			elif [[ -c /dev/vpu_service ]]; then
+				chmod 666 /dev/vpu_service
+			fi
+
+			# Create dummy video node for chromium V4L2 VDA/VEA with rkmpp plugin
+			echo dec > /dev/video-dec0
+			echo enc > /dev/video-enc0
+			chmod 660 /dev/video-*
+			chown root.video /dev/video-*
+
+			rfkill unblock all
+			/usr/bin/brcm_patchram_plus -d --enable_hci --no2bytes --use_baudrate_for_download --tosleep 200000 \
+				--baudrate 1500000 --patchram /lib/firmware/brcm/BCM4345C5.hcd /dev/ttyS0
+			;;
 		orangepi4-lts)
 			# RK3399 - 1.8GHz
 			# RK3399-T - 1.6GHz

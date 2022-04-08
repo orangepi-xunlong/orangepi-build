@@ -1,7 +1,7 @@
 # configuration values for the orangepi-ram-logging service
 #
 # enable the orangepi-ram-logging service?
-ENABLED=false
+ENABLED=true
 #
 # size of the tmpfs mount -- please keep in mind to adjust /etc/default/orangepi-zram-config too when increasing
 SIZE=50M

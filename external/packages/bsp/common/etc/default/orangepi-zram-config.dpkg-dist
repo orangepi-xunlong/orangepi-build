@@ -1,7 +1,7 @@
 # configuration values for the orangepi-zram-config service
 #
 # enable the orangepi-zram-config service?
-ENABLED=false
+ENABLED=true
 
 # Zram swap enabled by default, unless set to disabled
 # SWAP=false

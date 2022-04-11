@@ -251,13 +251,6 @@ family_tweaks_bsp()
 		EOF
 	fi
 
-	if [[ ${BOARD} == orangepi4 && $BRANCH == legacy ]]; then
-
-		# Bluetooth for most of others (custom patchram is needed only in legacy)
-		install -m 755 $EXTER/packages/bsp/rk3399/brcm_patchram_plus_rk3399 $destination/usr/bin
-		cp $EXTER/packages/bsp/rk3399/rk3399-bluetooth.service $destination/lib/systemd/system/
-	fi
-
 	# Graphics and media
 	mkdir -p $destination/etc/udev/rules.d
 	cp $EXTER/packages/bsp/rk3399/50-mali.rules $destination/etc/udev/rules.d/

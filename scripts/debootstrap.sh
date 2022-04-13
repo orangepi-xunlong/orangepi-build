@@ -749,7 +749,15 @@ update_initramfs()
 create_image()
 {
 	# stage: create file name
-	local version="${BOARD^}_${REVISION}_${DISTRIBUTION,}_${RELEASE}_linux"$(grab_version "$LINUXSOURCEDIR")"${DESKTOP_ENVIRONMENT:+_$DESKTOP_ENVIRONMENT}_${SELECTED_CONFIGURATION}"
+	if [[ $SELECTED_CONFIGURATION == "cli_standard" ]]; then
+		IMAGE_TYPE=server
+	elif [[ $SELECTED_CONFIGURATION == "cli_minimal" ]]; then
+		IMAGE_TYPE=minimal
+	else
+		IMAGE_TYPE=desktop
+	fi
+
+	local version="${BOARD^}_${REVISION}_${DISTRIBUTION,}_${RELEASE}_${IMAGE_TYPE}"${DESKTOP_ENVIRONMENT:+_$DESKTOP_ENVIRONMENT}"_linux$(grab_version "$LINUXSOURCEDIR")"
 	[[ $ROOTFS_TYPE == nfs ]] && version=${version}_nfsboot
 
 	destimg=$DEST/images/${version}

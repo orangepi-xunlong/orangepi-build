@@ -1309,6 +1309,7 @@ prepare_host_basic()
 			"curl:curl"
 			"gpg:gnupg"
 			"gawk:gawk"
+			"git:git"
 			)
 
 	for check_pack in "${checklist[@]}"; do

@@ -441,6 +441,12 @@ if [[ ${IGNORE_UPDATES} != yes ]]; then
 
 	fi
 
+	if [[ ${BOARD} =~ orangepi3|orangepi3-lts && $RELEASE =~ bullseye && $BRANCH==current ]]; then
+
+		[[ ${BUILD_OPT} == image ]] && fetch_from_repo "https://github.com/orangepi-xunlong/rk-rootfs-build.git" "${EXTER}/cache/sources/ffmpeg_kodi_debian11" "branch:ffmpeg_kodi_debian11"
+
+	fi
+
 	call_extension_method "fetch_sources_tools"  <<- 'FETCH_SOURCES_TOOLS'
 	*fetch host-side sources needed for tools and build*
 	Run early to fetch_from_repo or otherwise obtain sources for needed tools.

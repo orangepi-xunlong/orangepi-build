@@ -38,5 +38,6 @@ external/cache/sources/rkbin-tools
 external/cache/sources/rk-rootfs-build*
 external/cache/sources/orangepi-firmware
 external/cache/sources/orangepi-firmware-git
+external/cache/sources/ffmpeg_kodi_debian11
 external/cache/sources/rk3399_gst_xserver_libs
 external/cache/sources/arm-trusted-firmware-sunxi-mainline

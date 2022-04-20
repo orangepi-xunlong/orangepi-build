@@ -1,8 +1,15 @@
 function ffmepg_kodi_install()
 {
 
-	chroot $SDCARD /bin/bash -c "apt install -q -y ffmpeg kodi libgles2 libjs-bootstrap lockfile-progs"
-	#chroot $SDCARD /bin/bash -c "apt install -q -y ffmpeg kodi libgles2 libjs-bootstrap >/dev/null 2>&1"
+	#chroot $SDCARD /bin/bash -c "apt-get clean"
+	#chroot $SDCARD /bin/bash -c "mv /var/lib/apt/lists /tmp"
+	#chroot $SDCARD /bin/bash -c "mkdir -p /var/lib/apt/lists/partial"
+	#chroot $SDCARD /bin/bash -c "apt-get clean"
+
+	chroot $SDCARD /bin/bash -c "apt-get -q update"
+	chroot $SDCARD /bin/bash -c "apt-get install -q -y ffmpeg kodi libgles2 libjs-bootstrap lockfile-progs"
+	#chroot $SDCARD /bin/bash -c "apt-get -q update >/dev/null 2>&1"
+	#chroot $SDCARD /bin/bash -c "apt-get install -q -y ffmpeg kodi libgles2 libjs-bootstrap >/dev/null 2>&1"
 
 	dpkg_install_deb_chroot "$EXTER/cache/sources/ffmpeg_kodi_debian11/ffmpeg/libavcodec58_4.3.3-0+deb11u1_arm64.deb"
 	dpkg_install_deb_chroot "$EXTER/cache/sources/ffmpeg_kodi_debian11/ffmpeg/libavdevice58_4.3.3-0+deb11u1_arm64.deb"

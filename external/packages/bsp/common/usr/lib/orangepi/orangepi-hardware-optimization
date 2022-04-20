@@ -129,7 +129,7 @@ prepare_board() {
 		orangepizero2|orangepizero2-lts|orangepizero2-b|orangepi400)
 			if [[ $BRANCH == current ]]; then
 				# Initial hdmi audio
-				aplay /usr/share/sounds/alsa/audio.wav -D hw:0,0 > /dev/null 2>&1
+				#aplay /usr/share/sounds/alsa/audio.wav -D hw:0,0 > /dev/null 2>&1
 				aplay /usr/share/sounds/alsa/audio.wav -D hw:1,0 > /dev/null 2>&1
 			fi
 

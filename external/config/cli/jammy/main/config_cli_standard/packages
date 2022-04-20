@@ -4,7 +4,6 @@ bridge-utils
 build-essential
 ca-certificates
 console-setup
-crda
 dkms
 expect
 fbset

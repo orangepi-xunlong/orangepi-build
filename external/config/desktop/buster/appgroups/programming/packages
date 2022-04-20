@@ -1,2 +1,3 @@
-geany
-thonny
+build-essential
+clang
+meld

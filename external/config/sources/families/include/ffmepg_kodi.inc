@@ -7,7 +7,9 @@ function ffmepg_kodi_install()
 	#chroot $SDCARD /bin/bash -c "apt-get clean"
 
 	chroot $SDCARD /bin/bash -c "apt-get -q update"
-	chroot $SDCARD /bin/bash -c "apt-get install -q -y ffmpeg kodi libgles2 libjs-bootstrap lockfile-progs"
+	chroot $SDCARD /bin/bash -c "apt-get install -q -y ffmpeg"
+	chroot $SDCARD /bin/bash -c "apt-get install -q -y kodi"
+	chroot $SDCARD /bin/bash -c "apt-get install -q -y libgles2 libjs-bootstrap lockfile-progs"
 	#chroot $SDCARD /bin/bash -c "apt-get -q update >/dev/null 2>&1"
 	#chroot $SDCARD /bin/bash -c "apt-get install -q -y ffmpeg kodi libgles2 libjs-bootstrap >/dev/null 2>&1"
 

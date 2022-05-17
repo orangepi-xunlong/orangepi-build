@@ -42,7 +42,7 @@ else
 	DEST="${SRC}"/output
 fi
 
-REVISION="3.0.0"
+REVISION="3.0.2"
 
 [[ $DOWNLOAD_MIRROR == "china" ]] && NTP_SERVER="cn.pool.ntp.org"
 

@@ -435,4 +435,6 @@ chroot_installpackages()
 	EOF
 	chmod +x "${SDCARD}"/tmp/install.sh
 	chroot "${SDCARD}" /bin/bash -c "/tmp/install.sh" >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
+
+	[[ -f ${SDCARD}/etc/hostapd.conf ]] && sed -i "s/^ssid=.*/ssid=OrangePi/" ${SDCARD}/etc/hostapd.conf
 } #############################################################################

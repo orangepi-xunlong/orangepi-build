@@ -27,7 +27,7 @@ family_tweaks()
 	# execute specific tweaks function if present
 	[[ $(type -t family_tweaks_s) == function ]] && family_tweaks_s
 	#cp $SRC/packages/blobs/splash/orangepi-u-boot-24.bmp $SDCARD/boot/boot.bmp
-	
+
 	#if [[ $BOARD == orangepizero2 ]]; then
 
 	#	install_deb_chroot "$EXTER/cache/debs/extra/bullseye-desktop/xfce4-zorinmenulite-plugin_1.1.2_arm64.deb"
@@ -38,6 +38,15 @@ family_tweaks()
 	#	install_deb_chroot "$EXTER/cache/debs/extra/bullseye-desktop/dockbarx-theme-zorin_1.1.0_all.deb"
 	#	#install_deb_chroot "$EXTER/cache/debs/extra/bullseye-desktop/scratch-desktop_3.26.0_arm64.deb"
 	#fi
+
+	if [[ $BOARD =~ orangepi3-lts|orangepizero2|orangepizero2-b|orangepizero2-lts ]]; then
+
+		[[ $RELEASE == bookworm ]] && dpkg_install_deb_chroot "$EXTER/cache/debs/extra/${RELEASE}-utils/wpasupplicant_2.10-9_arm64.deb"
+		[[ $RELEASE == jammy ]] && dpkg_install_deb_chroot "$EXTER/cache/debs/extra/${RELEASE}-utils/wpasupplicant_2.10-6_arm64.deb"
+
+		rm $SDCARD/root/*.deb >/dev/null 2>&1
+	fi
+
 }
 
 write_uboot_platform()

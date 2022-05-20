@@ -47,6 +47,23 @@ family_tweaks()
 		rm $SDCARD/root/*.deb >/dev/null 2>&1
 	fi
 
+	if [[ $RELEASE == jammy && $BUILD_DESKTOP == yes && $install_chromium == yes ]]; then
+
+		chromium_name="chromium-browser_101.0.4951.15-0ubuntu1~ppa1~22.04.1_arm64.deb"
+		chromium_extra_name="chromium-codecs-ffmpeg-extra_101.0.4951.15-0ubuntu1~ppa1~22.04.1_arm64.deb"
+		chromium_url="http://ppa.launchpadcontent.net/saiarcot895/chromium-beta/ubuntu/pool/main/c/chromium-browser"
+		chromium=${EXTER}/cache/debs/arm64/${chromium_name}
+		chromium_extra=${EXTER}/cache/debs/arm64/${chromium_extra_name}
+
+		if [[ ! -f $chromium_extra ]]; then
+			wget -P ${EXTER}/cache/debs/arm64 ${chromium_url}/${chromium_name}
+			wget -P ${EXTER}/cache/debs/arm64 ${chromium_url}/${chromium_extra_name}
+		fi
+
+		dpkg_install_deb_chroot $chromium_extra
+		dpkg_install_deb_chroot $chromium
+
+	fi
 }
 
 write_uboot_platform()

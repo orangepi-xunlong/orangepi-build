@@ -160,7 +160,7 @@ compile_uboot()
 	# create directory structure for the .deb package
 	uboottempdir=$(mktemp -d)
 	chmod 700 ${uboottempdir}
-	trap "rm -rf \"${uboottempdir}\" ; exit 0" 0 1 2 3 15
+	trap "ret=\$?; rm -rf \"${uboottempdir}\" ; exit \$ret" 0 1 2 3 15
 	local uboot_name=${CHOSEN_UBOOT}_${REVISION}_${ARCH}
 	rm -rf $uboottempdir/$uboot_name
 	mkdir -p $uboottempdir/$uboot_name/usr/lib/{u-boot,$uboot_name} $uboottempdir/$uboot_name/DEBIAN
@@ -325,7 +325,7 @@ create_linux-source_package ()
 	ts=$(date +%s)
 	local sources_pkg_dir tmp_src_dir
 	tmp_src_dir=$(mktemp -d)
-	trap "rm -rf \"${tmp_src_dir}\" ; exit 0" 0 1 2 3 15
+	trap "ret=\$?; rm -rf \"${tmp_src_dir}\" ; exit \$ret" 0 1 2 3 15
 	sources_pkg_dir=${tmp_src_dir}/${CHOSEN_KSRC}_${REVISION}_all
 	mkdir -p "${sources_pkg_dir}"/usr/src/ \
 		"${sources_pkg_dir}"/usr/share/doc/linux-source-${version}-${LINUXFAMILY} \
@@ -495,6 +495,7 @@ CUSTOM_KERNEL_CONFIG
 		${OUTPUT_VERYSILENT:+' >/dev/null 2>/dev/null'}
 
 	if [[ ${PIPESTATUS[0]} -ne 0 || ! -f arch/$ARCHITECTURE/boot/$KERNEL_IMAGE_TYPE ]]; then
+		grep -i error $DEST/${LOG_SUBPATH}/compilation.log
 		exit_with_error "Kernel was not built" "@host"
 	fi
 
@@ -580,7 +581,7 @@ compile_firmware()
 
 	firmwaretempdir=$(mktemp -d)
 	chmod 700 ${firmwaretempdir}
-	trap "rm -rf \"${firmwaretempdir}\" ; exit 0" 0 1 2 3 15
+	trap "ret=\$?; rm -rf \"${firmwaretempdir}\" ; exit \$ret" 0 1 2 3 15
 	plugin_dir="orangepi-firmware${FULL}"
 	mkdir -p "${firmwaretempdir}/${plugin_dir}/lib/firmware"
 

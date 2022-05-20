@@ -435,8 +435,9 @@ POST_INSTALL_KERNEL_DEBS
 	# copy boot splash images
 	cp "${EXTER}"/packages/blobs/splash/orangepi-u-boot.bmp "${SDCARD}"/boot/boot.bmp
 
-	# copy audio.wav
+	# copy audio.wav and mute.wav
 	cp "${EXTER}"/packages/blobs/audio_wav/audio.wav "${SDCARD}"/usr/share/sounds/alsa/
+	cp "${EXTER}"/packages/blobs/audio_wav/mute.wav "${SDCARD}"/usr/share/sounds/alsa/
 
 	# copy watchdog test programm
 	cp "${EXTER}"/packages/blobs/watchdog/watchdog_test_${ARCH} "${SDCARD}"/usr/local/bin/watchdog_test

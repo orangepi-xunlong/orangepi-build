@@ -823,8 +823,12 @@ function distro_menu ()
 				DISTRIB_TYPE="${DISTRIB_TYPE_CURRENT}"
 				[[ -z "${DISTRIB_TYPE_CURRENT}" ]] && DISTRIB_TYPE="bullseye bookworm focal jammy"
 			elif [[ "${BRANCH}" == "next" ]]; then
-				DISTRIB_TYPE="${DISTRIB_TYPE_CURRENT}"
-				[[ -z "${DISTRIB_TYPE_CURRENT}" ]] && DISTRIB_TYPE="bullseye bookworm focal jammy"
+				if [[ -n "${DISTRIB_TYPE_NEXT}" ]]; then
+					DISTRIB_TYPE="${DISTRIB_TYPE_NEXT}"
+				else
+					DISTRIB_TYPE="${DISTRIB_TYPE_CURRENT}"
+					[[ -z "${DISTRIB_TYPE_CURRENT}" ]] && DISTRIB_TYPE="bullseye bookworm focal jammy"
+				fi
 			fi
 
 			if [[ "${DISTRIB_TYPE}" =~ "${distro_codename}" ]]; then

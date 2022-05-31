@@ -14,7 +14,7 @@ GOVERNOR="ondemand"
 BOOTBRANCH="branch:v2020.10-rockchip64"
 PACKAGE_LIST_FAMILY="ethtool"
 PACKAGE_LIST_DESKTOP_FAMILY="fcitx fonts-wqy-zenhei"
-PACKAGE_LIST_FAMILY_REMOVE="mpv"
+[[ $BRANCH != "next" ]] && PACKAGE_LIST_FAMILY_REMOVE="mpv"
 
 RKBIN_DIR="$EXTER/cache/sources/rkbin-tools"
 if [ "$(uname -m)" = "aarch64" ]; then
@@ -197,21 +197,21 @@ family_tweaks()
 	# execute specific tweaks function if present
 	[[ $(type -t family_tweaks_s) == function ]] && family_tweaks_s
 
-	rk3399_gpu_vpu_tweaks
+	[[ "$BRANCH" =~ legacy|current ]] && rk3399_gpu_vpu_tweaks
 
-	if [[ ${BOARD} == orangepi800 && ${SELECTED_CONFIGURATION} == desktop && ${RELEASE} =~ bullseye|bookworm ]]; then
+	#if [[ ${BOARD} == orangepi800 && ${SELECTED_CONFIGURATION} == desktop && ${RELEASE} =~ bullseye|bookworm ]]; then
 
-		install_deb_chroot "$EXTER/cache/debs/extra/bullseye-desktop/xfce4-zorinmenulite-plugin_1.1.2_arm64.deb"
-		install_deb_chroot "$EXTER/cache/debs/extra/bullseye-desktop/dockbarx-common_1.0~beta+git20210222-1~ppa1_all.deb"
-		install_deb_chroot "$EXTER/cache/debs/extra/bullseye-desktop/dockbarx-dockx_1.0~beta+git20210222-1~ppa1_all.deb"
-		install_deb_chroot "$EXTER/cache/debs/extra/bullseye-desktop/dockbarx_1.0~beta+git20210222-1~ppa1_all.deb"
-		install_deb_chroot "$EXTER/cache/debs/extra/bullseye-desktop/xfce4-dockbarx-plugin_0.6+git20210221-1~ppa2~20.10_arm64.deb"
-		install_deb_chroot "$EXTER/cache/debs/extra/bullseye-desktop/dockbarx-theme-zorin_1.1.0_all.deb"
+	#	install_deb_chroot "$EXTER/cache/debs/extra/bullseye-desktop/xfce4-zorinmenulite-plugin_1.1.2_arm64.deb"
+	#	install_deb_chroot "$EXTER/cache/debs/extra/bullseye-desktop/dockbarx-common_1.0~beta+git20210222-1~ppa1_all.deb"
+	#	install_deb_chroot "$EXTER/cache/debs/extra/bullseye-desktop/dockbarx-dockx_1.0~beta+git20210222-1~ppa1_all.deb"
+	#	install_deb_chroot "$EXTER/cache/debs/extra/bullseye-desktop/dockbarx_1.0~beta+git20210222-1~ppa1_all.deb"
+	#	install_deb_chroot "$EXTER/cache/debs/extra/bullseye-desktop/xfce4-dockbarx-plugin_0.6+git20210221-1~ppa2~20.10_arm64.deb"
+	#	install_deb_chroot "$EXTER/cache/debs/extra/bullseye-desktop/dockbarx-theme-zorin_1.1.0_all.deb"
 
-		## Orange Pi Desktop layout switcher
-		install_deb_chroot "$EXTER/cache/debs/arm64/layout_switcher/layoutswitcher_0.2-0_all.deb"
-		#install_deb_chroot "$EXTER/cache/debs/arm64/layout_switcher/switcher_1.0-1_arm64.deb"
-	fi
+	#	## Orange Pi Desktop layout switcher
+	#	install_deb_chroot "$EXTER/cache/debs/arm64/layout_switcher/layoutswitcher_0.2-0_all.deb"
+	#	#install_deb_chroot "$EXTER/cache/debs/arm64/layout_switcher/switcher_1.0-1_arm64.deb"
+	#fi
 
 	if [[ $BOARD =~ orangepir1plus|orangepir1plus-lts ]]; then
 
@@ -231,6 +231,31 @@ family_tweaks()
 		# install and enable Bluetooth
 		chroot $SDCARD /bin/bash -c "apt-get -y -qq install rfkill bluetooth bluez bluez-tools >/dev/null 2>&1"
 		chroot $SDCARD /bin/bash -c "systemctl --no-reload enable rk3399-bluetooth.service >/dev/null 2>&1"
+	fi
+
+	if [[ $BOARD =~ orangepi800|orangepi4-lts ]]; then
+
+		[[ $RELEASE == bookworm ]] && dpkg_install_deb_chroot "$EXTER/cache/debs/extra/${RELEASE}-utils/wpasupplicant_2.10-9_arm64.deb"
+		[[ $RELEASE == jammy ]] && dpkg_install_deb_chroot "$EXTER/cache/debs/extra/${RELEASE}-utils/wpasupplicant_2.10-6ubuntu1_arm64.deb"
+
+	fi
+
+	if [[ $RELEASE == jammy && $BUILD_DESKTOP == yes && $install_chromium == yes ]]; then
+
+		chromium_name="chromium-browser_101.0.4951.15-0ubuntu1~ppa1~22.04.1_arm64.deb"
+		chromium_extra_name="chromium-codecs-ffmpeg-extra_101.0.4951.15-0ubuntu1~ppa1~22.04.1_arm64.deb"
+		chromium_url="http://ppa.launchpadcontent.net/saiarcot895/chromium-beta/ubuntu/pool/main/c/chromium-browser"
+		chromium=${EXTER}/cache/debs/arm64/${chromium_name}
+		chromium_extra=${EXTER}/cache/debs/arm64/${chromium_extra_name}
+
+		if [[ ! -f $chromium_extra ]]; then
+			wget -P ${EXTER}/cache/debs/arm64 ${chromium_url}/${chromium_name}
+			wget -P ${EXTER}/cache/debs/arm64 ${chromium_url}/${chromium_extra_name}
+		fi
+
+		install_deb_chroot $chromium_extra
+		install_deb_chroot $chromium
+
 	fi
 
 	rm $SDCARD/root/*.deb >/dev/null 2>&1

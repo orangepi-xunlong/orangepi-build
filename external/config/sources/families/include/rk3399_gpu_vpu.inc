@@ -70,7 +70,7 @@ rk3399_gpu_vpu_tweaks()
 			dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/mpp/librockchip-mpp1_1.4.0_arm64.deb"
 			dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/mpp/librockchip-vpu0_1.4.0_arm64.deb"
 			dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/xserver/xserver-xorg-core-rockchip_1.20.3_arm64.deb"
-			dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/xserver/gl4es_1.1.5_arm64.deb"
+			#dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/xserver/gl4es_1.1.5_arm64.deb"
 			dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/gst/gstreamer1.0-rockchip1_2.1.10_arm64.deb"
 			dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/gst/gstreamer1.0-rockchip1-extra_3-20180115_arm64.deb"
 
@@ -82,7 +82,7 @@ rk3399_gpu_vpu_tweaks()
 
 			cp $EXTER/packages/bsp/rk3399/02-rockchip-accel.conf ${SDCARD}/etc/X11/xorg.conf.d/
 
-			dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/rkisp/rkisp-engine-2.2.0_arm64.deb"
+			dpkg_install_deb_chroot "$EXTER/cache/sources/rk-rootfs-build-${RELEASE}/rkisp/rkisp-engine_2.2.0_arm64.deb"
 			install -m 0755 ${EXTER}/packages/bsp/rk3399/scripts/test_camera-gst.sh    	${SDCARD}/usr/local/bin/
 			install -m 0755 ${EXTER}/packages/bsp/rk3399/scripts/test_camera-dual.sh    	${SDCARD}/usr/local/bin/
 			install -m 0755 ${EXTER}/packages/bsp/rk3399/scripts/io   			${SDCARD}/usr/local/bin/

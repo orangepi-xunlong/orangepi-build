@@ -42,9 +42,8 @@ family_tweaks()
 	if [[ $BOARD =~ orangepi3-lts|orangepizero2|orangepizero2-b|orangepizero2-lts ]]; then
 
 		[[ $RELEASE == bookworm ]] && dpkg_install_deb_chroot "$EXTER/cache/debs/extra/${RELEASE}-utils/wpasupplicant_2.10-9_arm64.deb"
-		[[ $RELEASE == jammy ]] && dpkg_install_deb_chroot "$EXTER/cache/debs/extra/${RELEASE}-utils/wpasupplicant_2.10-6_arm64.deb"
+		[[ $RELEASE == jammy ]] && dpkg_install_deb_chroot "$EXTER/cache/debs/extra/${RELEASE}-utils/wpasupplicant_2.10-6ubuntu1_arm64.deb"
 
-		rm $SDCARD/root/*.deb >/dev/null 2>&1
 	fi
 
 	if [[ $RELEASE == jammy && $BUILD_DESKTOP == yes && $install_chromium == yes ]]; then
@@ -60,10 +59,12 @@ family_tweaks()
 			wget -P ${EXTER}/cache/debs/arm64 ${chromium_url}/${chromium_extra_name}
 		fi
 
-		dpkg_install_deb_chroot $chromium_extra
-		dpkg_install_deb_chroot $chromium
+		install_deb_chroot $chromium_extra
+		install_deb_chroot $chromium
 
 	fi
+
+	rm $SDCARD/root/*.deb >/dev/null 2>&1
 }
 
 write_uboot_platform()

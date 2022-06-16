@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) Authors: http://www.armbian.com/authors
+# Copyright (c) Authors: https://www.armbian.com/authors
 #
 # Tool to transfer the rootfs of an already running Orange Pi installation from SD card
 # to NAND, eMMC, SATA or USB storage. In case of eMMC it's also possible to transfer
@@ -10,6 +10,7 @@
 # Import:
 # DIR: path to u-boot directory
 # write_uboot_platform: function to write u-boot to a block device
+# write_uboot_platform_mtd: function to write u-boot to a mtd (eg. SPI flash) device
 
 [[ -f /usr/lib/u-boot/platform_install.sh ]] && source /usr/lib/u-boot/platform_install.sh
 
@@ -268,13 +269,13 @@ create_orangepi()
 		# fix that we can have one exlude file
 		cp -R /boot "${TempDir}"/bootfs
 		# old boot scripts
-		sed -e 's,root='"$root_uuid"',root='"$targetuuid"',g' -i "${TempDir}"/bootfs/boot/boot.cmd
+		[[ -f "${TempDir}"/bootfs/boot/boot.cmd ]] && sed -e 's,root='"$root_uuid"',root='"$targetuuid"',g' -i "${TempDir}"/bootfs/boot/boot.cmd
 		# new boot scripts
 		if [[ -f "${TempDir}"/bootfs/boot/orangepiEnv.txt ]]; then
 			sed -e 's,rootdev=.*,rootdev='"$targetuuid"',g' -i "${TempDir}"/bootfs/boot/orangepiEnv.txt
 			grep -q '^rootdev' "${TempDir}"/bootfs/boot/orangepiEnv.txt || echo "rootdev=$targetuuid" >> "${TempDir}"/bootfs/boot/orangepiEnv.txt
 		else
-			sed -e 's,setenv rootdev.*,setenv rootdev '"$targetuuid"',g' -i "${TempDir}"/bootfs/boot/boot.cmd
+			[[ -f "${TempDir}"/bootfs/boot/boot.cmd ]] && sed -e 's,setenv rootdev.*,setenv rootdev '"$targetuuid"',g' -i "${TempDir}"/bootfs/boot/boot.cmd
 			[[ -f "${TempDir}"/bootfs/boot/boot.ini ]] && sed -e 's,^setenv rootdev.*$,setenv rootdev "'"$targetuuid"'",' -i "${TempDir}"/bootfs/boot/boot.ini
 			[[ -f "${TempDir}"/rootfs/boot/boot.ini ]] && sed -e 's,^setenv rootdev.*$,setenv rootdev "'"$targetuuid"'",' -i "${TempDir}"/rootfs/boot/boot.ini
 		fi
@@ -294,16 +295,16 @@ create_orangepi()
 		# if the rootfstype is not defined as cmdline argument on orangepiEnv.txt
 		if ! grep -qE '^rootfstype=.*' "${TempDir}"/bootfs/boot/orangepiEnv.txt; then
 			# Add the line of type of the selected rootfstype to the file orangepiEnv.txt
-			echo "rootfstype=$choosen_fs" >> "${TempDir}"/bootfs/boot/orangepiEnv.txt
+			[[ -f "${TempDir}"/bootfs/boot/orangepiEnv.txt ]] && echo "rootfstype=$choosen_fs" >> "${TempDir}"/bootfs/boot/orangepiEnv.txt
 		fi
 
 		if [[ $eMMCFilesystemChoosen =~ ^(btrfs|f2fs)$ ]]; then
 			echo "$targetuuid	/		$choosen_fs	${mountopts[$choosen_fs]}" >> "${TempDir}"/rootfs/etc/fstab
 			# swap file not supported under btrfs but we might have made a partition
 			[[ -n ${emmcswapuuid} ]] && sed -e 's,/var/swap.*,'$emmcswapuuid' 	none		swap	sw								0	0,g' -i "${TempDir}"/rootfs/etc/fstab
-			sed -e 's,rootfstype=.*,rootfstype='$eMMCFilesystemChoosen',g' -i "${TempDir}"/bootfs/boot/orangepiEnv.txt
+			[[ -f "${TempDir}"/bootfs/boot/orangepiEnv.txt ]] && sed -e 's,rootfstype=.*,rootfstype='$eMMCFilesystemChoosen',g' -i "${TempDir}"/bootfs/boot/orangepiEnv.txt
 		else
-			sed -e 's,rootfstype=.*,rootfstype='$choosen_fs',g' -i "${TempDir}"/bootfs/boot/orangepiEnv.txt
+			[[ -f "${TempDir}"/bootfs/boot/orangepiEnv.txt ]] && sed -e 's,rootfstype=.*,rootfstype='$choosen_fs',g' -i "${TempDir}"/bootfs/boot/orangepiEnv.txt
 			echo "$targetuuid	/		$choosen_fs	${mountopts[$choosen_fs]}" >> "${TempDir}"/rootfs/etc/fstab
 		fi
 

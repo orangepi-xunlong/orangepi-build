@@ -22,7 +22,6 @@ libssl-dev
 libwrap0-dev
 linux-base
 man-db
-networkd-dispatcher
 python3-distutils
 python3-lib2to3
 sudo

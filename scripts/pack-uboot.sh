@@ -35,7 +35,7 @@ function do_ini_to_dts()
 function do_common()
 {
 	sun_str='sun'
-	if [[ "$BOARDFAMILY" =~ .*"$sun_str".* ]]; then
+	if [[ $BOARDFAMILY =~ .*"$sun_str".* ]]; then
 	
 		if [[ $BOARDFAMILY =~ sun50iw6|sun50iw9 ]]; then
 		unix2dos sys_config.fex > /dev/null 2>&1

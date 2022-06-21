@@ -37,7 +37,6 @@ function do_common()
 	sun_str='sun'
 	if [[ $BOARDFAMILY =~ .*"$sun_str".* ]]; then
 	
-		if [[ $BOARDFAMILY =~ sun50iw6|sun50iw9 ]]; then
 		unix2dos sys_config.fex > /dev/null 2>&1
 		script  sys_config.fex  > /dev/null 2>&1
 		cp ${PACKOUT_DIR}/${BOARD}-u-boot.dtb sunxi.fex

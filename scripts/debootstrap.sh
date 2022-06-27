@@ -128,6 +128,9 @@ create_rootfs_cache()
 		# fancy progress bars
 		[[ -z $OUTPUT_DIALOG ]] && local apt_extra_progress="--show-progress -o DPKG::Progress-Fancy=1"
 
+		if [[ $RELEASE == buster ]]; then
+			wget https://ftp-master.debian.org/keys/release-10.asc -qO- | gpg --import --no-default-keyring --keyring /usr/share/keyrings/debian-archive-keyring.gpg >/dev/null 2>/dev/null
+		fi
 
 		display_alert "Installing base system" "Stage 1/2" "info"
 		eval 'debootstrap --variant=minbase --include=${DEBOOTSTRAP_LIST// /,} ${PACKAGE_LIST_EXCLUDE:+ --exclude=${PACKAGE_LIST_EXCLUDE// /,}} \

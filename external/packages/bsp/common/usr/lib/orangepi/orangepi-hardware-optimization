@@ -283,6 +283,31 @@ prepare_board() {
 			rfkill unblock all
 			/usr/bin/hciattach_opi -n -s 1500000 /dev/ttyBT0 sprd &
 			;;
+		orangepicm4|orangepi3b)
+			if [[ -c /dev/mpp_service ]]; then
+				chmod 666 /dev/mpp_service
+
+				# Create dummy video node for chromium V4L2 VDA/VEA with rkmpp plugin
+				echo dec > /dev/video-dec0
+				echo enc > /dev/video-enc0
+				chmod 660 /dev/video-*
+				chown root.video /dev/video-*
+			fi
+
+			for p in $(modetest|grep "^Planes:" -A 9999|grep -o "^[0-9]*");
+			do
+				modetest -M rockchip -aw $p:ASYNC_COMMIT:1 &>/dev/null
+			done
+
+			amixer -c 0 cset name='Playback Path' HP > /dev/null 2>&1
+			amixer -c 0 cset name='Capture MIC Path' 'Main Mic' > /dev/null 2>&1
+
+			rfkill unblock all
+			/usr/bin/hciattach_opi -n -s 1500000 /dev/ttyBT0 sprd &
+                        #rfkill unblock all
+			#brcm_patchram_plus --bd_addr_rand --enable_hci --no2bytes --use_baudrate_for_download --tosleep 200000 \
+			#        --baudrate 1500000 --patchram /lib/firmware/cyw43455/BCM4345C0.hcd /dev/ttyS1 &
+			;;
 
 	esac
 

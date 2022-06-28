@@ -1,5 +1,6 @@
 source "${BASH_SOURCE%/*}/rk3399_gpu_vpu.inc"
 source "${BASH_SOURCE%/*}/rk3588_gpu_vpu.inc"
+source "${BASH_SOURCE%/*}/rk356x_gpu_vpu.inc"
 
 enable_extension "rkbin-tools"
 ARCH=arm64
@@ -37,7 +38,7 @@ else
 	PKG_PREFIX=""
 fi
 
-if [[ $BOOTCONFIG == *3399* ]]; then
+if [[ $BOOTCONFIG =~ *3399*|*3566* ]]; then
 
 	CPUMIN=${CPUMIN:="408000"}
 	CPUMAX=${CPUMAX:="1800000"}
@@ -62,6 +63,14 @@ elif [[ $BOARDFAMILY == "rockchip-rk3588" ]]; then
         BOOT_SCENARIO="${BOOT_SCENARIO:=spl-blobs}"
         DDR_BLOB="${DDR_BLOB:=rk35/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.08.bin}"
         BL31_BLOB='rk35/rk3588_bl31_v1.28.elf'
+
+elif [[ $BOARD =~ orangepicm4|orangepi3b ]]; then
+
+        BOOT_SCENARIO="${BOOT_SCENARIO:=spl-blobs}"
+	BOOT_SOC=rk3568
+        DDR_BLOB="${DDR_BLOB:=rk35/rk3566_ddr_1056MHz_v1.10.bin}"
+	BL31_BLOB='rk35/rk3568_bl31_v1.28.elf'
+
 else
 
 	ATFPATCHDIR='atf-rk3399'
@@ -129,6 +138,16 @@ uboot_custom_postprocess()
 			dd if=u-boot.itb of=rkspi_loader.img seek=1024 conv=notrunc
 			#dd if=$EXTER/packages/blobs/splash/logo.bmp of=rkspi_loader.img seek=8192 conv=notrunc
 
+		elif [[ $BOARDFAMILY == "rockchip-rk356x" ]]; then
+
+			tools/mkimage -n rk3568 -T rksd -d $RKBIN_DIR/$DDR_BLOB:spl/u-boot-spl.bin idbloader.img
+			dd if=/dev/zero of=rkspi_loader.img bs=1M count=0 seek=4
+			/sbin/parted -s rkspi_loader.img mklabel gpt
+			/sbin/parted -s rkspi_loader.img unit s mkpart idbloader 64 1023
+			/sbin/parted -s rkspi_loader.img unit s mkpart uboot 1024 7167
+			dd if=idbloader.img of=rkspi_loader.img seek=64 conv=notrunc
+			dd if=u-boot.itb of=rkspi_loader.img seek=1024 conv=notrunc
+
 		fi
 	fi
 
@@ -150,6 +169,9 @@ uboot_custom_postprocess()
 		trust_merger --replace bl31.elf $RKBIN_DIR/$BL31_BLOB trust.ini
 
         elif [[ $BOOT_SCENARIO == "spl-blobs" || $BOOT_SCENARIO == "tpl-blob-atf-mainline" ]]; then
+		if [[ $BOARD =~ orangepicm4|orangepi3b ]]; then
+			tools/mkimage -n rk3568 -T rksd -d $RKBIN_DIR/$DDR_BLOB:spl/u-boot-spl.bin idbloader.img
+		fi
 
 		:
 
@@ -243,6 +265,7 @@ family_tweaks()
 
 	[[ "$BRANCH" =~ legacy|current ]] && rk3399_gpu_vpu_tweaks
 	[[ "$BRANCH" =~ legacy && $BOARDFAMILY == "rockchip-rk3588" ]] && rk3588_gpu_vpu_tweaks
+	[[ "$BRANCH" == legacy && $BOARDFAMILY == "rockchip-rk356x" ]] && rk356x_gpu_vpu_tweaks
 
 	#if [[ ${BOARD} == orangepi800 && ${SELECTED_CONFIGURATION} == desktop && ${RELEASE} =~ bullseye|bookworm ]]; then
 

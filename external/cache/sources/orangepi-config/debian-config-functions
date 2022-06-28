@@ -62,6 +62,7 @@ function main(){
 	[[ "$LINUXFAMILY" == "rockchip-rk3588" ]] && OVERLAYDIR="/boot/dtb/rockchip/overlay";
 	[[ "$LINUXFAMILY" == "sun50iw9" && "$BRANCH" == "current" ]] && OVERLAYDIR="/boot/dtb/sunxi/overlay";
 	[[ "$LINUXFAMILY" == "sun50iw9" && "$BRANCH" == "next" ]] && OVERLAYDIR="/boot/dtb/allwinner/overlay";
+	[[ "$LINUXFAMILY" == "rockchip-rk356x" ]] && OVERLAYDIR="/boot/dtb/rockchip/overlay";
 	# detect desktop
 	check_desktop
 	dialog --backtitle "$BACKTITLE" --title "Please wait" --infobox "\nLoading Orange Pi configuration utility ... " 5 45

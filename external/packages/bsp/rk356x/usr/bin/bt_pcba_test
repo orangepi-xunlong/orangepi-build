@@ -1,0 +1,44 @@
+#!/bin/bash
+
+killall brcm_patchram_plus1
+
+echo 0 > /sys/class/rfkill/rfkill0/state
+sleep 2
+echo 1 > /sys/class/rfkill/rfkill0/state
+sleep 2
+
+COMPATIBLE=$(cat /proc/device-tree/compatible)
+
+if [[ $(expr $COMPATIBLE : ".*rk3588") -ne 0 ]]; then
+brcm_patchram_plus1 --bd_addr_rand --enable_hci --no2bytes --use_baudrate_for_download  --tosleep  200000 --baudrate 1500000 --patchram /system/etc/firmware/ /dev/ttyS8 &
+hciconfig hci0 up
+sleep 1
+elif [[ $(expr $COMPATIBLE : ".*rk3568") -ne 0 ]]; then
+brcm_patchram_plus1 --bd_addr_rand --enable_hci --no2bytes --use_baudrate_for_download  --tosleep  200000 --baudrate 1500000 --patchram /system/etc/firmware/ /dev/ttyS8 &
+hciconfig hci0 up
+sleep 1
+elif [[ $(expr $COMPATIBLE : ".*rk3566") -ne 0 ]]; then
+brcm_patchram_plus1 --bd_addr_rand --enable_hci --no2bytes --use_baudrate_for_download  --tosleep  200000 --baudrate 1500000 --patchram /system/etc/firmware/ /dev/ttyS0 &
+hciconfig hci0 up
+sleep 1
+elif [[ $(expr $COMPATIBLE : ".*rk3399") -ne 0 ]]; then
+brcm_patchram_plus1 --bd_addr_rand --enable_hci --no2bytes --use_baudrate_for_download  --tosleep  200000 --baudrate 1500000 --patchram /system/etc/firmware/ /dev/ttyS0 &
+hciconfig hci0 up
+sleep 1
+elif [[ $(expr $COMPATIBLE : ".*rk3288") -ne 0 ]]; then
+brcm_patchram_plus1 --bd_addr_rand --enable_hci --no2bytes --use_baudrate_for_download  --tosleep  200000 --baudrate 1500000 --patchram /system/etc/firmware/ /dev/ttyS0 &
+hciconfig hci0 up
+sleep 1
+elif [[ $(expr $COMPATIBLE : ".*rk3326") -ne 0 ]]; then
+brcm_patchram_plus1 --bd_addr_rand --enable_hci --no2bytes --use_baudrate_for_download  --tosleep  200000 --baudrate 1500000 --patchram /system/etc/firmware/ /dev/ttyS1 &
+hciconfig hci0 up
+sleep 1
+elif [[ $(expr $COMPATIBLE : ".*px30") -ne 0 ]]; then
+brcm_patchram_plus1 --bd_addr_rand --enable_hci --no2bytes --use_baudrate_for_download  --tosleep  200000 --baudrate 1500000 --patchram /system/etc/firmware/ /dev/ttyS1 &
+hciconfig hci0 up
+sleep 1
+else
+brcm_patchram_plus1 --bd_addr_rand --enable_hci --no2bytes --use_baudrate_for_download  --tosleep  200000 --baudrate 1500000 --patchram /system/etc/firmware/ /dev/ttyS0 &
+hciconfig hci0 up
+sleep 1
+fi

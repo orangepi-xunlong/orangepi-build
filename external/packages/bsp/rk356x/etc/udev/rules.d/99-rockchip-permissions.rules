@@ -1,0 +1,20 @@
+ACTION=="remove", GOTO="permissions_end"
+
+# VPU devices
+KERNEL=="avsd", MODE="0660", GROUP="video"
+KERNEL=="vepu", MODE="0660", GROUP="video"
+KERNEL=="h265e", MODE="0660", GROUP="video"
+KERNEL=="rkvdec", MODE="0660", GROUP="video"
+KERNEL=="rkvenc", MODE="0660", GROUP="video"
+KERNEL=="mpp_service", MODE="0660", GROUP="video"
+KERNEL=="vpu[_-]service", MODE="0660", GROUP="video"
+KERNEL=="hevc[_-]service", MODE="0660", GROUP="video"
+
+# RGA device
+KERNEL=="rga", MODE="0660", GROUP="video"
+
+# MALI devices (/dev/mali for mali400)
+KERNEL=="mali*", MODE="0660", GROUP="video"
+
+LABEL="permissions_end"
+

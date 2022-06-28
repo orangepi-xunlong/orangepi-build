@@ -1,0 +1,29 @@
+# rockchip internal storage links: /dev/disk/by-partlabel and /dev/block/by-name
+
+ACTION=="remove", GOTO="rk_internal_storage_end"
+ENV{UDEV_DISABLE_ROCKCHIP_STORAGE_RULES_FLAG}=="1", GOTO="rk_internal_storage_end"
+SUBSYSTEM!="block|mtd", GOTO="rk_internal_storage_end"
+KERNEL!="mmcblk*[0-9]|rkflash*|rknand*|mtd*|nvme*", GOTO="rk_internal_storage_end"
+
+# ignore partitions that span the entire disk
+TEST=="whole_disk", GOTO="rk_internal_storage_end"
+
+# for partitions import parent information
+ENV{DEVTYPE}=="partition", IMPORT{parent}="ID_*"
+
+# for rknand parameter partition name
+ENV{DEVNAME}=="/dev/rknand*", ENV{DEVTYPE}=="disk", ENV{DEVPATH}=="/devices/virtual/block/rknand", ENV{ID_RKNAND_PART_NAME}=""
+
+# for rkflash gpt partition name by-partlabel and /dev/block/by-name link
+ENV{DEVTYPE}=="partition", ENV{PARTNAME}=="?*", SYMLINK+="disk/by-partlabel/$env{PARTNAME}", SYMLINK+="block/by-name/$env{PARTNAME}"
+
+# for emmc gpt partition name /dev/block/by-name link
+ENV{ID_PART_ENTRY_SCHEME}=="gpt", ENV{ID_PART_ENTRY_NAME}=="?*", SYMLINK+="block/by-name/$env{ID_PART_ENTRY_NAME}"
+
+# for mtd partition name /dev/block/by-name link
+ENV{DEVNAME}=="/dev/mtd*", ENV{DEVTYPE}=="mtd", ATTRS{name}=="?*", SYMLINK+="block/by-name/$attr{name}"
+
+# for nvme partition name /dev/block/by-name link
+ENV{DEVNAME}=="/dev/nvme*", ENV{DEVTYPE}=="disk", ATTRS{name}=="?*", SYMLINK+="block/by-name/$attr{name}"
+
+LABEL="rk_internal_storage_end"

@@ -238,6 +238,8 @@ if [[ -z $BOARD ]]; then
 	#options+=("orangepitab"                 "Rockchip  RK3588S octa core 4-16GB RAM USB-C WiFi/BT NVMe")
 	#options+=("orangepi900"                 "Rockchip  RK3588 octa core 4-16GB RAM 2.5GBE USB3 USB-C WiFi/BT NVMe")
 	options+=("orangepi5plus"                 "Rockchip  RK3588 octa core 4-32GB RAM 2.5GBE USB3 USB-C WiFi/BT NVMe eMMC")
+	options+=("orangepicm4"                 "Rockchip  RK3566 quad core 2-8GB RAM GBE eMMC USB3 NvMe WiFi/BT")
+	options+=("orangepi3b"                  "Rockchip  RK3566 quad core 2-8GB RAM GBE eMMC USB3 NvMe WiFi/BT")
 	#options+=("orangepir1plus"              "Rockchip  RK3328 quad core 1GB RAM 2xGBE USB2 SPI")
 
 	menustr="Please choose a Board."
@@ -465,6 +467,12 @@ if [[ ${IGNORE_UPDATES} != yes ]]; then
 	if [[ ${BOARDFAMILY} == "rockchip-rk3588" && $RELEASE =~ bullseye|bookworm|focal|jammy ]]; then
 
 		[[ ${BUILD_OPT} == image ]] && fetch_from_repo "https://github.com/orangepi-xunlong/rk-rootfs-build.git" "${EXTER}/cache/sources/rk3588_packages_${RELEASE}" "branch:rk3588_packages_${RELEASE}"
+
+	fi
+
+	if [[ ${BOARDFAMILY} == "rockchip-rk356x" && $RELEASE =~ bullseye|focal|jammy ]]; then
+
+		[[ ${BUILD_OPT} == image ]] && fetch_from_repo "https://github.com/orangepi-xunlong/rk-rootfs-build.git" "${EXTER}/cache/sources/rk356x_packages" "branch:rk356x_packages"
 
 	fi
 

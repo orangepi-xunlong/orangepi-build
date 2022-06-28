@@ -1,0 +1,1 @@
+ACTION=="remove", SUBSYSTEM=="typec", RUN+="/usr/local/bin/typec_usb2.sh"

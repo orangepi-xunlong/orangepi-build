@@ -441,9 +441,15 @@ if [[ ${IGNORE_UPDATES} != yes ]]; then
 
 	fi
 
-	if [[ ${BOARD} =~ orangepi3|orangepi3-lts && $RELEASE =~ bullseye && $BRANCH==current ]]; then
+	if [[ ${BOARD} =~ orangepi3|orangepi3-lts && $RELEASE =~ bullseye && $BRANCH == current ]]; then
 
-		[[ ${BUILD_OPT} == image ]] && fetch_from_repo "https://github.com/orangepi-xunlong/rk-rootfs-build.git" "${EXTER}/cache/sources/ffmpeg_kodi_debian11" "branch:ffmpeg_kodi_debian11"
+		[[ ${BUILD_OPT} == image ]] && fetch_from_repo "https://github.com/orangepi-xunlong/rk-rootfs-build.git" "${EXTER}/cache/sources/ffmpeg_kodi_${RELEASE}" "branch:ffmpeg_kodi_${RELEASE}"
+
+	fi
+
+	if [[ ${BOARD} =~ orangepi4|orangepi4-lts|orangepi800 && $RELEASE =~ jammy && $BRANCH == next ]]; then
+
+		[[ ${BUILD_OPT} == image ]] && fetch_from_repo "https://github.com/orangepi-xunlong/rk-rootfs-build.git" "${EXTER}/cache/sources/ffmpeg_kodi_${RELEASE}" "branch:ffmpeg_kodi_${RELEASE}"
 
 	fi
 

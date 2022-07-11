@@ -2,14 +2,16 @@ FROM ubuntu:20.04
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
+       software-properties-common \
        gnupg \
        gnupg1 \
        gpgv1 \
+       curl \
     && rm -rf /var/lib/apt/lists/*
 RUN sh -c  "if [ x"" != x$http_proxy ]; then \
-			    apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --keyserver-options http-proxy=$http_proxy --recv-keys ED75B5A4483DA07C >/dev/null 2>&1; \
+			    curl -fsSL -x $http_proxy https://www.aptly.info/pubkey.txt | apt-key add - >/dev/null 2>&1; \
 		    else \
-			    apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys ED75B5A4483DA07C >/dev/null 2>&1; \
+			    curl -fsSL https://www.aptly.info/pubkey.txt | apt-key add - >/dev/null 2>&1; \
 		    fi"
 RUN echo "deb http://repo.aptly.info/ nightly main" > /etc/apt/sources.list.d/aptly.list
 RUN dpkg --add-architecture i386

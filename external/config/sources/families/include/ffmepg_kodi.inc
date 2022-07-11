@@ -8,7 +8,7 @@ function ffmepg_kodi_install()
 	chroot $SDCARD /bin/bash -c "apt-get -q update >/dev/null 2>&1"
 	chroot $SDCARD /bin/bash -c "apt-get install -q -y ffmpeg kodi libgles2 libjs-bootstrap >/dev/null 2>&1"
 
-	if [[ $RELEASE == bullseys ]]; then
+	if [[ $RELEASE == bullseye ]]; then
 
 		dpkg_install_deb_chroot "$EXTER/cache/sources/ffmpeg_kodi_$RELEASE/ffmpeg/libavcodec58_4.3.4-0+deb11u1_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/ffmpeg_kodi_$RELEASE/ffmpeg/libavdevice58_4.3.4-0+deb11u1_arm64.deb"
@@ -22,7 +22,7 @@ function ffmepg_kodi_install()
 		dpkg_install_deb_chroot "$EXTER/cache/sources/ffmpeg_kodi_$RELEASE/ffmpeg/ffmpeg_4.3.4-0+deb11u1_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/ffmpeg_kodi_$RELEASE/ffmpeg/ffmpeg-doc_4.3.4-0+deb11u1_all.deb"
 
-		kodi_rev=19.1+dfsg2-2+deb11u1
+		kodiversion=19.1+dfsg2-2+deb11u1
 
 	fi
 

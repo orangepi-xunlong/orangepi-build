@@ -310,7 +310,7 @@ compile_uboot()
 	[[ -n $atftempdir && -f $atftempdir/license.md ]] && cp "${atftempdir}/license.md" "$uboottempdir/${uboot_name}/usr/lib/u-boot/LICENSE.atf"
 
 	display_alert "Building deb" "${uboot_name}.deb" "info"
-	fakeroot dpkg-deb -b "$uboottempdir/${uboot_name}" "$uboottempdir/${uboot_name}.deb" >> "${DEST}"/${LOG_SUBPATH}/output.log 2>&1
+	fakeroot dpkg-deb -b -Z${DEB_COMPRESS} "$uboottempdir/${uboot_name}" "$uboottempdir/${uboot_name}.deb" >> "${DEST}"/${LOG_SUBPATH}/output.log 2>&1
 	rm -rf "$uboottempdir/${uboot_name}"
 	[[ -n $atftempdir ]] && rm -rf "${atftempdir}"
 
@@ -617,7 +617,7 @@ compile_firmware()
 	# pack
 	mv "orangepi-firmware${FULL}" "orangepi-firmware${FULL}_${REVISION}_all"
 	display_alert "Building firmware package" "orangepi-firmware${FULL}_${REVISION}_all" "info"
-	fakeroot dpkg -b "orangepi-firmware${FULL}_${REVISION}_all" >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
+	fakeroot dpkg-deb -b -Z${DEB_COMPRESS} "orangepi-firmware${FULL}_${REVISION}_all" >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
 	mv "orangepi-firmware${FULL}_${REVISION}_all" "orangepi-firmware${FULL}"
 	rsync -rq "orangepi-firmware${FULL}_${REVISION}_all.deb" "${DEB_STORAGE}/"
 
@@ -743,7 +743,7 @@ compile_orangepi-config()
 	ln -sf /usr/sbin/orangepi-config $tmpdir/usr/bin/orangepi-config
 	ln -sf /usr/sbin/softy "${tmpdir}"/usr/bin/softy
 
-	fakeroot dpkg -b "${tmpdir}" >/dev/null
+	fakeroot dpkg-deb -b -Z${DEB_COMPRESS} "${tmpdir}" >/dev/null
 	rsync --remove-source-files -rq "${tmpdir}.deb" "${DEB_STORAGE}/"
 	rm -rf "${tmpdir}"
 }

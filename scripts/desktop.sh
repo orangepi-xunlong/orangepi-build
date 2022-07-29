@@ -157,7 +157,7 @@ create_bsp_desktop_package ()
 
 	mkdir -p "${DEB_STORAGE}/${RELEASE}"
 	cd "${destination}"; cd ..
-	fakeroot dpkg-deb -b "${destination}" "${DEB_STORAGE}/${RELEASE}/${package_name}.deb"  >/dev/null
+	fakeroot dpkg-deb -b -Z${DEB_COMPRESS} "${destination}" "${DEB_STORAGE}/${RELEASE}/${package_name}.deb"  >/dev/null
 
 	# cleanup
 	rm -rf "${tmp_dir}"

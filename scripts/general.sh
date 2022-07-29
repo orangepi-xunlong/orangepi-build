@@ -1365,7 +1365,7 @@ prepare_host()
 	build-essential  ca-certificates ccache cpio cryptsetup curl              \
 	debian-archive-keyring debian-keyring debootstrap device-tree-compiler    \
 	dialog dirmngr dosfstools dwarves f2fs-tools fakeroot flex gawk           \
-	gcc-arm-linux-gnueabihf gdisk gnupg1 gpg imagemagick jq kmod libbison-dev \
+	gcc-arm-linux-gnueabihf gdisk gpg imagemagick jq kmod libbison-dev \
 	libc6-dev-armhf-cross libelf-dev libfdt-dev libfile-fcntllock-perl        \
 	libfl-dev liblz4-tool libncurses-dev libpython2.7-dev libssl-dev          \
 	libusb-1.0-0-dev linux-base locales lzop ncurses-base ncurses-term        \
@@ -1392,7 +1392,7 @@ prepare_host()
   fi
 
 	# Add support for Ubuntu 20.04, 21.04 and Mint 20.x
-	if [[ $HOSTRELEASE =~ ^(focal|hirsute|ulyana|ulyssa|bullseye|bookworm|uma)$ ]]; then
+	if [[ $HOSTRELEASE =~ ^(focal|hirsute|jammy|ulyana|ulyssa|bullseye|bookworm|uma)$ ]]; then
 		hostdeps+=" python2 python3"
 		ln -fs /usr/bin/python2.7 /usr/bin/python2
 		ln -fs /usr/bin/python2.7 /usr/bin/python
@@ -1407,7 +1407,7 @@ prepare_host()
 	#
 	# NO_HOST_RELEASE_CHECK overrides the check for a supported host system
 	# Disable host OS check at your own risk. Any issues reported with unsupported releases will be closed without discussion
-	if [[ -z $HOSTRELEASE || "buster bullseye bookworm focal hirsute debbie tricia ulyana ulyssa uma" != *"$HOSTRELEASE"* ]]; then
+	if [[ -z $HOSTRELEASE || "focal jammy" != *"$HOSTRELEASE"* ]]; then
 		if [[ $NO_HOST_RELEASE_CHECK == yes ]]; then
 			display_alert "You are running on an unsupported system" "${HOSTRELEASE:-(unknown)}" "wrn"
 			display_alert "Do not report any errors, warnings or other issues encountered beyond this point" "" "wrn"

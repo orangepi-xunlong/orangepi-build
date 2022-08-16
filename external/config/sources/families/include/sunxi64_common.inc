@@ -64,6 +64,20 @@ family_tweaks()
 
 	fi
 
+	if [[ $RELEASE == jammy && $BUILD_DESKTOP == yes && $install_firefox == yes ]]; then
+
+		firefox_name="firefox-esr_102.1.0esr+build1-0ubuntu0.22.04.1_arm64.deb"
+		firefox_url="https://ppa.launchpadcontent.net/mozillateam/ppa/ubuntu/pool/main/f/firefox-esr/"
+		firefox=${EXTER}/cache/debs/arm64/${firefox_name}
+
+		if [[ ! -f $firefox ]]; then
+			wget -P ${EXTER}/cache/debs/arm64 ${firefox_url}/${firefox_name}
+		fi
+
+		install_deb_chroot $firefox
+
+	fi
+
 	rm $SDCARD/root/*.deb >/dev/null 2>&1
 }
 

@@ -233,13 +233,6 @@ family_tweaks()
 		chroot $SDCARD /bin/bash -c "systemctl --no-reload enable rk3399-bluetooth.service >/dev/null 2>&1"
 	fi
 
-	if [[ $BOARD =~ orangepi800|orangepi4-lts ]]; then
-
-		[[ $RELEASE == bookworm ]] && dpkg_install_deb_chroot "$EXTER/cache/debs/extra/${RELEASE}-utils/wpasupplicant_2.10-9_arm64.deb"
-		[[ $RELEASE == jammy ]] && dpkg_install_deb_chroot "$EXTER/cache/debs/extra/${RELEASE}-utils/wpasupplicant_2.10-6ubuntu1_arm64.deb"
-
-	fi
-
 	if [[ $RELEASE == jammy && $BUILD_DESKTOP == yes && $install_chromium == yes ]]; then
 
 		chromium_name="chromium-browser_101.0.4951.15-0ubuntu1~ppa1~22.04.1_arm64.deb"

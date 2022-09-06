@@ -39,13 +39,6 @@ family_tweaks()
 	#	#install_deb_chroot "$EXTER/cache/debs/extra/bullseye-desktop/scratch-desktop_3.26.0_arm64.deb"
 	#fi
 
-	if [[ $BOARD =~ orangepi3-lts|orangepizero2|orangepizero2-b|orangepizero2-lts ]]; then
-
-		[[ $RELEASE == bookworm ]] && dpkg_install_deb_chroot "$EXTER/cache/debs/extra/${RELEASE}-utils/wpasupplicant_2.10-9_arm64.deb"
-		[[ $RELEASE == jammy ]] && dpkg_install_deb_chroot "$EXTER/cache/debs/extra/${RELEASE}-utils/wpasupplicant_2.10-6ubuntu1_arm64.deb"
-
-	fi
-
 	if [[ $RELEASE == jammy && $BUILD_DESKTOP == yes && $install_chromium == yes ]]; then
 
 		chromium_name="chromium-browser_101.0.4951.15-0ubuntu1~ppa1~22.04.1_arm64.deb"

@@ -3,11 +3,7 @@ cp -R "${EXTER}"/packages/blobs/desktop/lightdm "${destination}"/etc/orangepi
 
 # install default desktop settings
 mkdir -p "${destination}"/etc/skel
-if [[ $BOARD == orangepi800 ]]; then
-	cp -R "${EXTER}"/packages/blobs/desktop/skel_new/. "${destination}"/etc/skel
-else
-	cp -R "${EXTER}"/packages/blobs/desktop/skel/. "${destination}"/etc/skel
-fi
+cp -R "${EXTER}"/packages/blobs/desktop/skel/. "${destination}"/etc/skel
 
 #install cinnamon desktop bar icons
 mkdir -p "${destination}"/usr/share/icons/orangepi

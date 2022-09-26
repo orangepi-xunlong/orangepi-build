@@ -13,7 +13,13 @@ SERIALCON=${SERIALCON:=$([ $BRANCH == "legacy" ] && echo "ttyFIQ0:1500000" || ec
 GOVERNOR="ondemand"
 BOOTBRANCH="branch:v2020.10-rockchip64"
 PACKAGE_LIST_FAMILY="ethtool"
-PACKAGE_LIST_DESKTOP_FAMILY="fcitx fonts-wqy-zenhei"
+
+if [[ $RELEASE == "jammy" ]]; then
+	PACKAGE_LIST_DESKTOP_FAMILY="fcitx fonts-wqy-zenhei xfce4-volumed"
+else
+	PACKAGE_LIST_DESKTOP_FAMILY="fcitx fonts-wqy-zenhei"
+fi
+
 [[ $BRANCH != "next" ]] && PACKAGE_LIST_FAMILY_REMOVE="mpv"
 
 RKBIN_DIR="$EXTER/cache/sources/rkbin-tools"

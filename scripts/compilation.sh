@@ -448,7 +448,7 @@ CUSTOM_KERNEL_CONFIG
 	cp "$EXTER"/patch/misc/headers-debian-byteshift.patch /tmp
 
 	if [[ $KERNEL_CONFIGURE != yes ]]; then
-		if [[ $BRANCH == legacy ]]; then
+		if [[ $BRANCH == legacy && $BOARDFAMILY != "rockchip-rk3588" ]]; then
 			eval CCACHE_BASEDIR="$(pwd)" env PATH="${toolchain}:${PATH}" \
 				'make ARCH=$ARCHITECTURE CROSS_COMPILE="$CCACHE $KERNEL_COMPILER" silentoldconfig'
 		else

@@ -92,7 +92,7 @@ static const char *format_lookup[] = {
 /* Returns a human readable name for the format associated with bit_index,
  * NULL if bit_index is not known.
  */
-inline const char *pcm_get_format_name(unsigned bit_index)
+char *pcm_get_format_name(unsigned bit_index)
 {
     return bit_index < ARRAY_SIZE(format_lookup) ? format_lookup[bit_index] : NULL;
 }

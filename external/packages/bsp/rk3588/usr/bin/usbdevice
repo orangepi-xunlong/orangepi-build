@@ -1,0 +1,620 @@
+#!/bin/sh -e
+
+# Uncomment below to see more logs
+# set -x
+
+# Load default env variables from profiles
+. /etc/profile
+
+LOG_FILE=/tmp/usbdevice.log
+USB_FUNCS_FILE=/tmp/.usbdevice
+
+alias usb_enable='touch $USB_FUNCS_FILE'
+alias usb_disable='rm -f $USB_FUNCS_FILE'
+alias usb_is_enabled='[ -f $USB_FUNCS_FILE ]'
+alias usb_set_started='echo $USB_FUNCS > $USB_FUNCS_FILE'
+usb_get_started()
+{
+	usb_is_enabled || return 0
+	cat $USB_FUNCS_FILE
+}
+
+CONFIGFS_DIR=/sys/kernel/config
+USB_GROUP=rockchip
+USB_STRINGS_ATTR=strings/0x409
+USB_GADGET_DIR=$CONFIGFS_DIR/usb_gadget/$USB_GROUP
+USB_GADGET_STRINGS_DIR=$USB_GADGET_DIR/$USB_STRINGS_ATTR
+USB_FUNCTIONS_DIR=$USB_GADGET_DIR/functions
+USB_CONFIGS_DIR=$USB_GADGET_DIR/configs/b.1
+USB_CONFIGS_STRINGS_DIR=$USB_CONFIGS_DIR/$USB_STRINGS_ATTR
+
+# Make sure that we own this session (pid equals sid)
+if ! ps x -o cmd,pid,sid | grep -wq "$$$"; then
+	setsid $0 $@
+	exit $?
+fi
+
+# ---- helper functions
+usb_msg()
+{
+	logger -t $(basename $0) "[$$]: $@"
+	echo "[$(date +"%F %T")] $@"
+}
+
+usb_pid()
+{
+	case $1 in
+		ums)		echo 0x0000;;
+		mtp)		echo 0x0001;;
+		uvc)		echo 0x0005;;
+		adb)		echo 0x0006;;
+		adb_mtp)	echo 0x0011;;
+		adb_ums)	echo 0x0018;;
+		adb_uvc)	echo 0x0015;;
+		ntb_uvc)	echo 0x0017;;
+		acm)		echo 0x1005;;
+		*)		echo 0x0019;;
+	esac
+}
+
+usb_instances()
+{
+	for func in $@; do
+		VAR=$(echo $func | tr 'a-z' 'A-Z')_INSTANCES
+		eval echo "\${$VAR:-$func.gs0}"
+	done
+}
+
+usb_run_stage()
+{
+	for f in $1_pre_$2_hook $1_$2 $1_post_$2_hook; do
+		type $f >/dev/null 2>/dev/null || continue
+
+		usb_msg "Run stage: $f"
+		eval $f || break
+	done
+}
+
+usb_wait_files()
+{
+	for i in `seq 200`;do
+		fuser -s $@ 2>/dev/null && break
+		sleep .01
+	done
+}
+
+usb_release_files()
+{
+	for i in `seq 200`;do
+		fuser -s -k $@ 2>/dev/null || break
+		sleep .01
+	done
+}
+
+# usage: usb_mount <src> <mountpoint> <options>
+usb_mount()
+{
+	mkdir -p $2
+	mountpoint -q $2 || mount $@
+}
+
+usb_umount()
+{
+	mountpoint -q $1 || return 0
+	usb_release_files -m $1
+	umount $1
+}
+
+usb_symlink()
+{
+	mkdir -p $1
+	[ -e $2 ] || ln -s $1 $2
+}
+
+usb_try_symlink()
+{
+	usb_symlink $@ &>/dev/null || true
+}
+
+usb_write()
+{
+	if echo "x$1" | grep -q "^x-"; then
+		OPTS=$1
+		shift
+	fi
+
+	FILE=$1
+	shift
+
+	if [ -r $FILE ] && [ "$(cat $FILE)" = "$@" ]; then
+		return 0
+	fi
+
+	echo $OPTS "$@" > $FILE
+}
+
+usb_try_write()
+{
+	usb_write $@ &>/dev/null || true
+}
+
+usb_start_daemon()
+{
+	NAME=$(echo $1 | sed "s#^[^ ]*/\([^ ]*\).*#\1#")
+	TAG_FILE=/tmp/.usb_$NAME
+
+	# Enable spawn
+	touch $TAG_FILE
+
+	# Already started
+	[ -z "$(usb_get_started)" ] || return 0
+
+	# Start and spawn background daemon
+	{
+		exec 3<&-
+
+		cd /
+		while usb_is_enabled; do
+			# Don't spawn after stopped
+			[ ! -f $TAG_FILE ] ||
+				start-stop-daemon -Sqx $@ || true
+			sleep .5
+		done
+	}&
+}
+
+usb_stop_daemon()
+{
+	NAME=$(echo $1 | sed "s#^[^ ]*/\([^ ]*\).*#\1#")
+	TAG_FILE=/tmp/.usb_$NAME
+
+	# Stop and disable spawn
+	rm -f $TAG_FILE
+	start-stop-daemon -Kqox $@
+}
+
+usb_load_config()
+{
+	USB_CONFIG_FILE=$(find /etc/ -name .usb_config | head -n 1)
+	[ -n "$USB_CONFIG_FILE" -a -r $USB_CONFIG_FILE ] || return 0
+
+	ums_parse()
+	{
+		grep "\<$1=" $USB_CONFIG_FILE | cut -d'=' -f2
+	}
+	UMS_FILE=$(ums_parse ums_block)
+	UMS_SIZE=$(ums_parse ums_block_size || echo 0)M
+	UMS_FSTYPE=$(ums_parse ums_block_type)
+	UMS_MOUNT=$([ "$(ums_parse ums_block_auto_mount)" != on ]; echo $?)
+	UMS_RO=$([ "$(ums_parse ums_block_ro)" != on ]; echo $?)
+
+	USB_FUNCS=$(grep "usb_.*_en" $USB_CONFIG_FILE | cut -d'_' -f2 | xargs)
+}
+
+# ---- adb
+ADB_INSTANCES=${ADB_INSTANCES:-ffs.adb}
+
+adb_prepare()
+{
+	usb_mount adb /dev/usb-ffs/adb -o uid=2000,gid=2000 -t functionfs
+	usb_start_daemon /usr/bin/adbd
+	usb_wait_files -m /dev/usb-ffs/adb
+}
+
+adb_stop()
+{
+	usb_stop_daemon /usr/bin/adbd
+}
+
+# ---- ntb
+NTB_INSTANCES=${NTB_INSTANCES:-ffs.ntb}
+
+ntb_prepare()
+{
+	usb_mount ntb /dev/usb-ffs/ntb -o uid=2000,gid=2000 -t functionfs
+}
+
+# ---- uac1
+uac1_prepare()
+{
+	for f in $(find . -name "*_feature_unit"); do
+		echo 1 >$f
+	done
+}
+
+# ---- uac2
+uac2_prepare()
+{
+	uac1_prepare
+}
+
+# ---- mtp
+mtp_prepare()
+{
+	echo "MTP" > os_desc/interface.MTP/compatible_id
+	echo 1 > $USB_GADGET_DIR/os_desc/use
+}
+
+mtp_start()
+{
+	usb_start_daemon /usr/bin/mtp-server
+	usb_wait_files /dev/mtp_usb
+}
+
+mtp_stop()
+{
+	usb_stop_daemon /usr/bin/mtp-server
+	usb_release_files /dev/mtp_usb
+
+	echo 0 > $USB_GADGET_DIR/os_desc/use
+}
+
+# ---- acm
+ACM_INSTANCES=${ACM_INSTANCES:-acm.gs6}
+
+# ---- rndis
+# Nothing special
+
+# ---- uvc
+UVC_INSTANCES=${UVC_INSTANCES:-uvc.gs6}
+
+uvc_add_yuyv()
+{
+	WIDTH=$(echo $1 | cut -d'x' -f1)
+	HEIGHT=$(echo $1 | cut -d'x' -f2)
+	DIR=${HEIGHT}p
+
+	[ ! -d $DIR ] || return 0
+
+	mkdir -p $DIR
+	echo $WIDTH > $DIR/wWidth
+	echo $HEIGHT > $DIR/wHeight
+	echo 333333 > $DIR/dwDefaultFrameInterval
+	echo $((WIDTH * HEIGHT * 20)) > $DIR/dwMinBitRate
+	echo $((WIDTH * HEIGHT * 20)) > $DIR/dwMaxBitRate
+	echo $((WIDTH * HEIGHT * 2)) > $DIR/dwMaxVideoFrameBufferSize
+	echo -e "333333\n666666\n1000000\n2000000" > $DIR/dwFrameInterval
+}
+
+uvc_add_mjpeg()
+{
+	WIDTH=$(echo $1 | cut -d'x' -f1)
+	HEIGHT=$(echo $1 | cut -d'x' -f2)
+	DIR=${HEIGHT}p
+
+	[ ! -d $DIR ] || return 0
+
+	mkdir -p $DIR
+	echo $WIDTH > $DIR/wWidth
+	echo $HEIGHT > $DIR/wHeight
+	echo 333333 > $DIR/dwDefaultFrameInterval
+	echo $((WIDTH * HEIGHT * 20)) > $DIR/dwMinBitRate
+	echo $((WIDTH * HEIGHT * 20)) > $DIR/dwMaxBitRate
+	echo $((WIDTH * HEIGHT * 2)) > $DIR/dwMaxVideoFrameBufferSize
+	echo -e "333333\n666666\n1000000\n2000000" > $DIR/dwFrameInterval
+}
+
+uvc_add_h264()
+{
+	WIDTH=$(echo $1 | cut -d'x' -f1)
+	HEIGHT=$(echo $1 | cut -d'x' -f2)
+	DIR=${HEIGHT}p
+
+	[ ! -d $DIR ] || return 0
+
+	mkdir -p $DIR
+	echo $WIDTH > $DIR/wWidth
+	echo $HEIGHT > $DIR/wHeight
+	echo 333333 > $DIR/dwDefaultFrameInterval
+	echo $((WIDTH * HEIGHT * 10)) > $DIR/dwMinBitRate
+	echo $((WIDTH * HEIGHT * 10)) > $DIR/dwMaxBitRate
+	echo -e "333333\n666666\n1000000\n2000000" > $DIR/dwFrameInterval
+}
+
+uvc_support_resolutions()
+{
+	case ${1:-yuyv} in
+		yuyv)	echo "640x480 1280x720";;
+		mjpeg)	echo "640x480 1280x720 1920x1080 2560x1440 2592x1944";;
+		h264)	echo "640x480 1280x720 1920x1080";;
+	esac
+}
+
+uvc_prepare()
+{
+	UVC_DIR=$(pwd)
+
+	usb_symlink $UVC_DIR/control/header/h $UVC_DIR/control/class/fs/h
+	usb_symlink $UVC_DIR/control/header/h $UVC_DIR/control/class/ss/h
+
+	usb_symlink $UVC_DIR/streaming/header/h $UVC_DIR/streaming/class/fs/h
+	usb_symlink $UVC_DIR/streaming/header/h $UVC_DIR/streaming/class/hs/h
+	usb_symlink $UVC_DIR/streaming/header/h $UVC_DIR/streaming/class/ss/h
+
+	UVC_YUYV_RES=$(uvc_support_resolutions yuyv)
+	if [ -n "$UVC_YUYV_RES" ]; then
+		usb_try_symlink $UVC_DIR/streaming/uncompressed/u \
+			$UVC_DIR/streaming/header/h/u
+		cd $UVC_DIR/streaming/uncompressed/u
+
+		for res in $UVC_YUYV_RES; do
+			uvc_add_yuyv $res
+		done
+	fi
+
+	UVC_MJPEG_RES=$(uvc_support_resolutions mjpeg)
+	if [ -n "$UVC_MJPEG_RES" ]; then
+		usb_try_symlink $UVC_DIR/streaming/mjpeg/m \
+			$UVC_DIR/streaming/header/h/m
+		cd $UVC_DIR/streaming/mjpeg/m
+
+		for res in $UVC_MJPEG_RES; do
+			uvc_add_mjpeg $res
+		done
+	fi
+
+	UVC_H264_RES=$(uvc_support_resolutions h264)
+	if [ -n "$UVC_H264_RES" ]; then
+		usb_try_symlink $UVC_DIR/streaming/framebased/f \
+			$UVC_DIR/streaming/header/h/f
+		cd $UVC_DIR/streaming/framebased/f
+
+		for res in $UVC_H264_RES; do
+			uvc_add_h264 $res
+		done
+
+		usb_try_write -ne guidFormat "\\x48\\x32\\x36\\x34\\x00\\x00\\x10\\x00\\x80\\x00\\x00\\xaa\\x00\\x38\\x9b\\x71"
+	fi
+}
+
+# TODO: Start UVC daemon in uvc_start
+# TODO: Stop UVC daemon in uvc_stop
+
+# ---- hid
+HID_INSTANCES=${HID_INSTANCES:-hid.usb0}
+
+hid_prepare()
+{
+	echo 1 > protocol
+	echo 1 > subclass
+	echo 8 > report_length
+	echo -ne "\\x05\\x01\\x09\\x06\\xa1\\x01\\x05\\x07\\x19\\xe0\\x29\\xe7\\x15\\x00\\x25\\x01\\x75\\x01\\x95\\x08\\x81\\x02\\x95\\x01\\x75\\x08\\x81\\x03\\x95\\x05\\x75\\x01\\x05\\x08\\x19\\x01\\x29\\x05\\x91\\x02\\x95\\x01\\x75\\x03\\x91\\x03\\x95\\x06\\x75\\x08\\x15\\x00\\x25\\x65\\x05\\x07\\x19\\x00\\x29\\x65\\x81\\x00\\xc0" \
+		> report_desc
+}
+
+# ---- ums
+UMS_INSTANCES=${UMS_INSTANCES:-mass_storage.0}
+
+ums_prepare()
+{
+	if [ ! -f $UMS_FILE ]; then
+		usb_msg "Formating $UMS_FILE($UMS_SIZE) to $UMS_FSTYPE"
+		truncate -s $UMS_SIZE $UMS_FILE
+		mkfs.$UMS_FSTYPE $UMS_FILE || \
+			usb_msg "Failed to format $UMS_FILE to $UMS_FSTYPE"
+	fi
+}
+
+ums_stop()
+{
+	echo > lun.0/file
+	usb_umount $UMS_MOUNTPOINT
+
+	[ "$UMS_MOUNT" -eq 1 ] || return 0
+
+	# Try auto fstype firstly
+	usb_mount $UMS_FILE $UMS_MOUNTPOINT -o sync 2>/dev/null || \
+		usb_mount $UMS_FILE $UMS_MOUNTPOINT -o sync -t $UMS_FSTYPE
+}
+
+ums_start()
+{
+	case "$USB_STATE" in
+		CONFIGURED)
+			if [ "$(cat lun.0/ro)" != "$UMS_RO" ]; then
+				echo > lun.0/file
+				echo $UMS_RO > lun.0/ro
+			fi
+
+			if ! grep -wq $UMS_FILE lun.0/file; then
+				usb_umount $UMS_MOUNTPOINT
+				echo $UMS_FILE > lun.0/file
+			fi
+			;;
+		DISCONNECTED)
+			ums_stop
+			;;
+	esac
+}
+
+# ---- global
+usb_init()
+{
+	usb_msg "Initializing"
+
+	echo 0x2207 > idVendor
+	echo 0x0310 > bcdDevice
+	echo 0x0200 > bcdUSB
+
+	mkdir -p $USB_GADGET_STRINGS_DIR
+	SERIAL=$(grep Serial /proc/cpuinfo | cut -d':' -f2)
+	echo ${SERIAL:-0123456789ABCDEF} > $USB_GADGET_STRINGS_DIR/serialnumber
+	echo $USB_GROUP  > $USB_GADGET_STRINGS_DIR/manufacturer
+	echo "rk3xxx"  > $USB_GADGET_STRINGS_DIR/product
+
+	mkdir -p $USB_CONFIGS_DIR
+	echo 500 > $USB_CONFIGS_DIR/MaxPower
+
+	echo 0x1 > os_desc/b_vendor_code
+	echo MSFT100 > os_desc/qw_sign
+	ln -s $USB_CONFIGS_DIR os_desc/
+
+	mkdir -p $USB_CONFIGS_STRINGS_DIR
+}
+
+usb_funcs_grep()
+{
+	echo $USB_FUNCS | xargs -n 1 | sort | uniq | grep $@ || true
+}
+
+usb_funcs_sort()
+{
+	{
+		for func in $@; do
+			usb_funcs_grep -E $func
+		done
+		usb_funcs_grep -vE $(echo $@ | tr ' ' '|')
+	} | uniq | xargs
+}
+
+usb_prepare()
+{
+	usb_load_config
+
+	# Allow function/variable overriding
+	[ -d /etc/usbdevice.d ] && . /etc/usbdevice.d/*
+
+	UMS_FILE=${UMS_FILE:-/userdata/ums_shared.img}
+	UMS_SIZE=${UMS_SIZE:-256M}
+	UMS_FSTYPE=${UMS_FSTYPE:-vfat}
+	UMS_MOUNT=${UMS_MOUNT:-0}
+	UMS_MOUNTPOINT=${UMS_MOUNTPOINT:-/mnt/ums}
+	UMS_RO=${UMS_RO:-0}
+
+	# Put RNDIS & UAC & UVC at first (required by kernel)
+	USB_FUNCS=$(usb_funcs_sort rndis uac uvc)
+
+	if [ ! -d $USB_GADGET_DIR ]; then
+		mountpoint -q $CONFIGFS_DIR || \
+			mount -t configfs none $CONFIGFS_DIR
+
+		mkdir -p $USB_GADGET_DIR
+		cd $USB_GADGET_DIR
+
+		# Global initialize
+		usb_run_stage usb init
+	fi
+
+	USB_STATE=$(cat /sys/class/android_usb/android0/state)
+	USB_UDC=$(ls /sys/class/udc/ | head -n 1)
+
+	# Parse started USB functions
+	OLD_FUNCS=$(usb_get_started)
+
+	# Stop old USB functions when USB functions changed
+	if [ -n "$OLD_FUNCS" ] && [ "$OLD_FUNCS" != "$USB_FUNCS" ]; then
+		usb_msg "Functions changed $OLD_FUNCS -> $USB_FUNCS"
+		usb_stop
+	fi
+}
+
+usb_start()
+{
+	usb_msg "Starting functions: $USB_FUNCS"
+
+	echo $USB_FUNCS | tr ' ' '_' > $USB_CONFIGS_STRINGS_DIR/configuration
+
+	for func in $USB_FUNCS; do
+		for instance in $(usb_instances $func); do
+			usb_msg "Preparing instance: $instance"
+
+			if ! mkdir -p $USB_FUNCTIONS_DIR/$instance 2>/dev/null; then
+				usb_msg "Failed to create instance: $instance"
+				continue
+			fi
+
+			cd $USB_FUNCTIONS_DIR/$instance &>/dev/null || continue
+
+			usb_run_stage $func prepare
+
+			# Make symlink after prepared (required by UVC)
+			usb_symlink $USB_FUNCTIONS_DIR/$instance \
+				$USB_CONFIGS_DIR/f-$instance
+		done
+	done
+
+	usb_write $USB_GADGET_DIR/UDC $USB_UDC
+
+	for func in $USB_FUNCS; do
+		for instance in $(usb_instances $func); do
+			cd $USB_FUNCTIONS_DIR/$instance &>/dev/null || continue
+
+			usb_msg "Starting instance: $instance"
+			usb_run_stage $func start
+		done
+	done
+
+	# Store started functions
+	usb_set_started
+}
+
+usb_stop()
+{
+	if [ -n "$OLD_FUNCS" ]; then
+		usb_msg "Stopping functions: $OLD_FUNCS"
+	fi
+
+	usb_write $USB_GADGET_DIR/UDC ""
+
+	for func in $USB_FUNCS; do
+		for instance in $(usb_instances $func); do
+			cd $USB_FUNCTIONS_DIR/$instance &>/dev/null || continue
+
+			usb_msg "Stopping instance: $instance"
+			usb_run_stage $func stop
+		done
+	done
+
+	rm -f $USB_CONFIGS_DIR/f-*
+
+	# Clear functions to avoid stopping them again
+	unset OLD_FUNCS
+}
+
+usb_restart()
+{
+	usb_run_stage usb stop
+	usb_run_stage usb start
+}
+
+ACTION=${1:-update}
+if [ "$ACTION" = update ]; then
+	usb_is_enabled || exit 0
+fi
+
+# Lock it
+exec 3<$0
+flock -x 3
+
+echo "Starting $0 ${ACTION}, log saved to $LOG_FILE"
+
+# Redirect outputs to log file
+exec >>$LOG_FILE 2>&1
+
+usb_msg "Handling ${ACTION} request"
+
+usb_run_stage usb prepare
+
+case "$ACTION" in
+	start|update)
+		usb_enable
+		usb_run_stage usb start
+		;;
+	stop)
+		usb_disable
+		usb_run_stage usb stop
+		;;
+	restart)
+		usb_enable
+		usb_run_stage usb restart
+		;;
+	*)
+		echo "Usage: usbdevice [start|stop|restart|update]" >&2
+		;;
+esac
+
+usb_msg "Done $ACTION request"
+echo
+
+# Unlock it
+flock -u 3

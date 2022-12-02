@@ -185,17 +185,17 @@ create_sources_list()
 
 	bullseye|bookworm|trixie)
 	cat <<-EOF > "${basedir}"/etc/apt/sources.list
-	deb http://${DEBIAN_MIRROR} $release main contrib non-free
-	#deb-src http://${DEBIAN_MIRROR} $release main contrib non-free
+	deb https://${DEBIAN_MIRROR} $release main contrib non-free
+	#deb-src https://${DEBIAN_MIRROR} $release main contrib non-free
 
-	deb http://${DEBIAN_MIRROR} ${release}-updates main contrib non-free
-	#deb-src http://${DEBIAN_MIRROR} ${release}-updates main contrib non-free
+	deb https://${DEBIAN_MIRROR} ${release}-updates main contrib non-free
+	#deb-src https://${DEBIAN_MIRROR} ${release}-updates main contrib non-free
 
-	deb http://${DEBIAN_MIRROR} ${release}-backports main contrib non-free
-	#deb-src http://${DEBIAN_MIRROR} ${release}-backports main contrib non-free
+	deb https://${DEBIAN_MIRROR} ${release}-backports main contrib non-free
+	#deb-src https://${DEBIAN_MIRROR} ${release}-backports main contrib non-free
 
-	deb http://${DEBIAN_SECURTY} ${release}-security main contrib non-free
-	#deb-src http://${DEBIAN_SECURTY} ${release}-security main contrib non-free
+	deb https://${DEBIAN_SECURTY} ${release}-security main contrib non-free
+	#deb-src https://${DEBIAN_SECURTY} ${release}-security main contrib non-free
 	EOF
 	;;
 
@@ -1813,6 +1813,30 @@ show_checklist_variables ()
 	done
 }
 
+
+install_docker() {
+
+	display_alert "Install Docker" "/etc/apt/sources.list.d/docker.list" "info"
+	chroot "${SDCARD}" /bin/bash -c "apt-get install -y -qq apt-transport-https ca-certificates curl gnupg lsb-release >/dev/null 2>&1"
+
+	case ${RELEASE} in
+		buster|bullseye|bookworm)
+		distributor_id="debian"
+		;;
+		xenial|bionic|focal|jammy)
+		distributor_id="ubuntu"
+		;;
+	esac
+
+	chroot "${SDCARD}" /bin/bash -c "curl -fsSL https://repo.huaweicloud.com/docker-ce/linux/${distributor_id}/gpg | sudo apt-key add -"
+	echo "deb [arch=${ARCH} signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://repo.huaweicloud.com/docker-ce/linux/${distributor_id} ${RELEASE} stable" > "${SDCARD}"/etc/apt/sources.list.d/docker.list
+
+	chroot "${SDCARD}" /bin/bash -c "apt-get update >/dev/null 2>&1"
+	chroot "${SDCARD}" /bin/bash -c "apt-get install -y -qq docker-ce docker-ce-cli containerd.io >/dev/null 2>&1"
+	chroot "${SDCARD}" /bin/bash -c "sudo usermod -aG docker ${OPI_USERNAME}"
+
+	run_on_sdcard "systemctl --no-reload disable docker.service >/dev/null 2>&1"
+}
 
 
 #function run_after_build()

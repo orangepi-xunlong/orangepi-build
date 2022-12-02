@@ -1,0 +1,1 @@
+SUBSYSTEM=="drm", ACTION=="change", ENV{HOTPLUG}=="1", RUN+="/sbin/start-stop-daemon -Sbox /usr/local/bin/drm-hotplug.sh"

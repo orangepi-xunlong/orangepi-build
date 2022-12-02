@@ -42,7 +42,7 @@ else
 	DEST="${SRC}"/output
 fi
 
-REVISION="3.0.8"
+[[ -z $REVISION ]] && REVISION="3.0.8"
 
 [[ $DOWNLOAD_MIRROR == "china" ]] && NTP_SERVER="cn.pool.ntp.org"
 
@@ -230,6 +230,7 @@ if [[ -z $BOARD ]]; then
 	options+=("orangepi4"                   "Rockchip  RK3399 hexa core 4GB RAM GBE eMMC USB3 USB-C WiFi/BT")
 	options+=("orangepi4-lts"                 "Rockchip  RK3399 hexa core 4GB RAM GBE eMMC USB3 USB-C WiFi/BT")
 	options+=("orangepi800"                 "Rockchip  RK3399 hexa core 4GB RAM GBE eMMC USB3 USB-C WiFi/BT VGA")
+	options+=("orangepi5"                 "Rockchip  RK3588S octa core 4-16GB RAM GBE USB3 USB-C NvME")
 	#options+=("orangepir1plus"              "Rockchip  RK3328 quad core 1GB RAM 2xGBE USB2 SPI")
 
 	menustr="Please choose a Board."
@@ -438,6 +439,12 @@ if [[ ${IGNORE_UPDATES} != yes ]]; then
 	if [[ ${BOARD} =~ orangepi4|orangepi4-lts|orangepi800 && $RELEASE =~ focal|buster|bullseye|bookworm ]]; then
 
 		[[ ${BUILD_OPT} == image ]] && fetch_from_repo "https://github.com/orangepi-xunlong/rk-rootfs-build.git" "${EXTER}/cache/sources/rk-rootfs-build-${RELEASE}" "branch:rk-rootfs-build-${RELEASE}"
+
+	fi
+
+	if [[ ${BOARD} =~ orangepi5 && $RELEASE =~ bullseye ]]; then
+
+		[[ ${BUILD_OPT} == image ]] && fetch_from_repo "https://github.com/orangepi-xunlong/rk-rootfs-build.git" "${EXTER}/cache/sources/rk3588_packages" "branch:rk3588_packages"
 
 	fi
 

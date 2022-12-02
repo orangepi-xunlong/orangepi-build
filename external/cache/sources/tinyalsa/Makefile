@@ -4,8 +4,8 @@ OBJECTS = mixer.o pcm.o
 LIB = libtinyalsa.so
 CC=gcc
 
-all: $(LIB) tinyplay tinycap tinymix
-	 cp tinyplay tinycap tinymix /usr/local/bin
+all: $(LIB) tinyplay tinycap tinymix tinypcminfo
+	 cp tinyplay tinycap tinymix tinypcminfo /usr/local/bin
 	 cp libtinyalsa.so /usr/lib/
 
 tinyplay: $(LIB) tinyplay.o

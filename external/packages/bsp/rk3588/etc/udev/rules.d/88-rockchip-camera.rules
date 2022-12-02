@@ -1,0 +1,1 @@
+ACTION=="add", SUBSYSTEM=="video4linux", ENV{ID_V4L_PRODUCT}=="*_mainpath", SYMLINK+="video-camera0"

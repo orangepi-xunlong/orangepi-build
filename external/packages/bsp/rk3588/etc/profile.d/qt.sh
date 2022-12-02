@@ -1,0 +1,1 @@
+export QT_XCB_GL_INTEGRATION=xcb_egl

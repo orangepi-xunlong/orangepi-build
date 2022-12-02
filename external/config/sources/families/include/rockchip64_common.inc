@@ -1,4 +1,5 @@
 source "${BASH_SOURCE%/*}/rk3399_gpu_vpu.inc"
+source "${BASH_SOURCE%/*}/rk3588_gpu_vpu.inc"
 
 enable_extension "rkbin-tools"
 ARCH=arm64
@@ -12,7 +13,7 @@ OVERLAY_PREFIX='rockchip'
 SERIALCON=${SERIALCON:=$([ $BRANCH == "legacy" ] && echo "ttyFIQ0:1500000" || echo "ttyS2:1500000")}
 GOVERNOR="ondemand"
 BOOTBRANCH="branch:v2020.10-rockchip64"
-PACKAGE_LIST_FAMILY="ethtool"
+PACKAGE_LIST_FAMILY="ethtool can-utils"
 
 if [[ $RELEASE == "jammy" ]]; then
 	PACKAGE_LIST_DESKTOP_FAMILY="fcitx fonts-wqy-zenhei xfce4-volumed"
@@ -56,6 +57,11 @@ if [[ $BOARD =~ orangepir1plus|orangepir1plus-lts ]]; then
 	MINILOADER_BLOB='rk33/rk322xh_miniloader_v2.50.bin'
 	BL31_BLOB='rk33/rk322xh_bl31_v1.44.elf'
 
+elif [[ $BOARD == orangepi5 ]]; then
+
+        BOOT_SCENARIO="${BOOT_SCENARIO:=spl-blobs}"
+        DDR_BLOB="${DDR_BLOB:=rk35/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.08.bin}"
+        BL31_BLOB='rk35/rk3588_bl31_v1.28.elf'
 else
 
 	ATFPATCHDIR='atf-rk3399'
@@ -82,6 +88,12 @@ prepare_boot_configuration()
 		ATFSOURCE=''
 		ATF_COMPILE='no'
 
+	elif [[ $BOOT_SCENARIO == "spl-blobs" ]]; then
+
+		UBOOT_TARGET_MAP="BL31=$RKBIN_DIR/$BL31_BLOB spl/u-boot-spl.bin u-boot.dtb u-boot.itb;;idbloader.img u-boot.itb"
+		ATFSOURCE=''
+		ATF_COMPILE='no'
+
 	elif [[ $BOOT_USE_BLOBS == yes ]]; then
 
 		UBOOT_TARGET_MAP="u-boot-dtb.bin;;idbloader.bin uboot.img trust.bin"
@@ -91,13 +103,33 @@ prepare_boot_configuration()
 
 	if [[ $BOOT_SUPPORT_SPI == yes ]]; then
 
-		UBOOT_TARGET_MAP+=" rkspi_loader.img"
+		UBOOT_TARGET_MAP="${UBOOT_TARGET_MAP} rkspi_loader.img"
 
 	fi
 }
 
 uboot_custom_postprocess()
 {
+
+	if [[ $BOOT_SUPPORT_SPI == yes ]]; then
+
+		if [[ $BOARD == "orangepi5" ]]; then
+
+			tools/mkimage -n rk3588 -T rksd -d $RKBIN_DIR/$DDR_BLOB:spl/u-boot-spl.bin idbloader.img
+			dd if=/dev/zero of=rkspi_loader.img bs=1M count=0 seek=16
+			/sbin/parted -s rkspi_loader.img mklabel gpt
+			/sbin/parted -s rkspi_loader.img unit s mkpart idbloader 64 7167
+			/sbin/parted -s rkspi_loader.img unit s mkpart vnvm 7168 7679
+			/sbin/parted -s rkspi_loader.img unit s mkpart reserved_space 7680 8063
+			/sbin/parted -s rkspi_loader.img unit s mkpart reserved1 8064 8127
+			/sbin/parted -s rkspi_loader.img unit s mkpart uboot_env 8128 8191
+			/sbin/parted -s rkspi_loader.img unit s mkpart reserved2 8192 16383
+			/sbin/parted -s rkspi_loader.img unit s mkpart uboot 16384 32734
+			dd if=idbloader.img of=rkspi_loader.img seek=64 conv=notrunc
+			dd if=u-boot.itb of=rkspi_loader.img seek=16384 conv=notrunc
+
+		fi
+	fi
 
 	if [[ $BOOT_USE_MAINLINE_ATF == yes || $BOOT_USE_TPL_SPL_BLOB == yes ]]; then
 
@@ -116,9 +148,14 @@ uboot_custom_postprocess()
 		loaderimage --pack --uboot ./u-boot-dtb.bin uboot.img 0x200000
 		trust_merger --replace bl31.elf $RKBIN_DIR/$BL31_BLOB trust.ini
 
+        elif [[ $BOOT_SCENARIO == "spl-blobs" || $BOOT_SCENARIO == "tpl-blob-atf-mainline" ]]; then
+
+		:
+
 	else
-		echo "Unsupported u-boot processing configuration!"
+		echo "[uboot_custom_postprocess]: Unsupported u-boot processing configuration!"
 		exit 1
+
 	fi
 
 	if [[ ${MERGE_UBOOT} ]]; then
@@ -152,7 +189,7 @@ write_uboot_platform()
 		dd if=$1/trust.bin of=$2 seek=24576 conv=notrunc status=none >/dev/null 2>&1
 
 	else
-		echo "Unsupported u-boot processing configuration!"
+		echo "[write_uboot_platform]: Unsupported u-boot processing configuration!"
 		exit 1
 
 	fi
@@ -204,6 +241,7 @@ family_tweaks()
 	[[ $(type -t family_tweaks_s) == function ]] && family_tweaks_s
 
 	[[ "$BRANCH" =~ legacy|current ]] && rk3399_gpu_vpu_tweaks
+	[[ "$BRANCH" =~ legacy && "$BOARD" =~ orangepi5 ]] && rk3588_gpu_vpu_tweaks
 
 	#if [[ ${BOARD} == orangepi800 && ${SELECTED_CONFIGURATION} == desktop && ${RELEASE} =~ bullseye|bookworm ]]; then
 

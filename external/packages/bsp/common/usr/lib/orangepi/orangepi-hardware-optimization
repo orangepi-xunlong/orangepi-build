@@ -97,6 +97,33 @@ prepare_board() {
 		rockpro64|renegade-elite|pinebook-pro|station-p1)
 			BOARDFAMILY=rk3399
 			;;
+		orangepi5)
+			echo host > /sys/kernel/debug/usb/fc000000.usb/mode
+
+			if [[ -c /dev/mpp_service ]]; then
+				chmod 666 /dev/mpp_service
+
+				# Create dummy video node for chromium V4L2 VDA/VEA with rkmpp plugin
+				echo dec > /dev/video-dec0
+				echo enc > /dev/video-enc0
+				chmod 660 /dev/video-*
+				chown root.video /dev/video-*
+			fi
+
+			if [[ ${DISTRIBUTION_CODENAME} == "bullseye" ]]; then
+				for p in $(modetest|grep "^Planes:" -A 9999|grep -o "^[0-9]*");
+				do
+					modetest -M rockchip -aw $p:ASYNC_COMMIT:1 &>/dev/null
+				done
+			fi
+
+			bt_status=$(cat /proc/device-tree/wireless-bluetooth/status)
+			if [[ ${bt_status} == "okay" ]]; then
+				rfkill unblock all
+				brcm_patchram_plus --bd_addr_rand --enable_hci --no2bytes --use_baudrate_for_download --tosleep 200000 \
+					--baudrate 1500000 --patchram /lib/firmware/ap6275p/BCM4362A2.hcd /dev/ttyS9 &
+			fi
+			;;
 		orangepi3-lts)
 			#aplay /usr/share/sounds/alsa/audio.wav -D hw:0,0 > /dev/null 2>&1
 			rfkill unblock all
@@ -164,7 +191,7 @@ prepare_board() {
 
 			rfkill unblock all
 			/usr/bin/brcm_patchram_plus -d --enable_hci --no2bytes --use_baudrate_for_download --tosleep 200000 \
-				--baudrate 1500000 --patchram /lib/firmware/brcm/BCM4345C5.hcd /dev/ttyS0
+				--baudrate 1500000 --patchram /lib/firmware/brcm/BCM4345C5.hcd /dev/ttyS0 &
 			;;
 		orangepi4-lts)
 			# RK3399 - 1.8GHz

@@ -63,7 +63,6 @@ PRE_INSTALL_DISTRIBUTION_SPECIFIC
 	# install locally built packages or install pre-built packages from orangepi
 	[[ $EXTERNAL_NEW == compile || $EXTERNAL_NEW == prebuilt ]] && chroot_installpackages_local
 
-	## install from apt.armbian.com
 	#[[ $EXTERNAL_NEW == prebuilt ]] && chroot_installpackages "yes"
 
 	# stage: user customization script
@@ -138,7 +137,7 @@ create_rootfs_cache()
 			local apt_extra="-o Acquire::http::Proxy=\"http://${APT_PROXY_ADDR:-localhost:3142}\""
 			local apt_mirror="http://${APT_PROXY_ADDR:-localhost:3142}/$APT_MIRROR"
 		else
-			local apt_mirror="http://$APT_MIRROR"
+			local apt_mirror="https://$APT_MIRROR"
 		fi
 
 		# fancy progress bars
@@ -365,8 +364,7 @@ create_rootfs_cache()
 # and mounts it to local dir
 # FS-dependent stuff (boot and root fs partition types) happens here
 #
-prepare_partitions()
-{
+prepare_partitions() {
 	display_alert "Preparing image file for rootfs" "$BOARD $RELEASE" "info"
 
 	# possible partition combinations
@@ -378,7 +376,7 @@ prepare_partitions()
 
 	# array copying in old bash versions is tricky, so having filesystems as arrays
 	# with attributes as keys is not a good idea
-	declare -A parttype mkopts mkfs mountopts
+	declare -A parttype mkopts mkopts_label mkfs mountopts
 
 	parttype[ext4]=ext4
 	parttype[ext2]=ext2
@@ -389,20 +387,23 @@ prepare_partitions()
 	# parttype[nfs] is empty
 
 	# metadata_csum and 64bit may need to be disabled explicitly when migrating to newer supported host OS releases
-	# add -N number of inodes to keep mount from running out
-	# create bigger number for desktop builds
-	if [[ $BUILD_DESKTOP == yes ]]; then local node_number=4096; else local node_number=1024; fi
-	if [[ $HOSTRELEASE =~ bionic|buster|bullseye|bookworm|cosmic|focal|hirsute|impish|jammy|sid ]]; then
-		mkopts[ext4]="-q -m 2 -O ^64bit,^metadata_csum -N $((128*${node_number}))"
-	elif [[ $HOSTRELEASE == xenial ]]; then
-		mkopts[ext4]="-q -m 2 -N $((128*${node_number}))"
+	if [[ $HOSTRELEASE =~ buster|bullseye|bookworm|bionic|focal|jammy|kinetic|sid ]]; then
+		mkopts[ext4]="-q -m 2 -O ^64bit,^metadata_csum"
 	fi
-	mkopts[fat]='-n BOOT'
+	# mkopts[fat] is empty
 	mkopts[ext2]='-q'
 	# mkopts[f2fs] is empty
 	mkopts[btrfs]='-m dup'
 	# mkopts[xfs] is empty
 	# mkopts[nfs] is empty
+
+	mkopts_label[ext4]='-L '
+	mkopts_label[ext2]='-L '
+	mkopts_label[fat]='-n '
+	mkopts_label[f2fs]='-l '
+	mkopts_label[btrfs]='-L '
+	mkopts_label[xfs]='-L '
+	# mkopts_label[nfs] is empty
 
 	mkfs[ext4]=ext4
 	mkfs[ext2]=ext2
@@ -421,57 +422,39 @@ prepare_partitions()
 	# mountopts[nfs] is empty
 
 	# default BOOTSIZE to use if not specified
-	DEFAULT_BOOTSIZE=256	# MiB
+	DEFAULT_BOOTSIZE=256 # MiB
 	# size of UEFI partition. 0 for no UEFI. Don't mix UEFISIZE>0 and BOOTSIZE>0
 	UEFISIZE=${UEFISIZE:-0}
 	BIOSSIZE=${BIOSSIZE:-0}
 	UEFI_MOUNT_POINT=${UEFI_MOUNT_POINT:-/boot/efi}
-	UEFI_FS_LABEL="${UEFI_FS_LABEL:-armbiefi}"
+	UEFI_FS_LABEL="${UEFI_FS_LABEL:-opi_efi}"
+	ROOT_FS_LABEL="${ROOT_FS_LABEL:-opi_root}"
+	BOOT_FS_LABEL="${BOOT_FS_LABEL:-opi_boot}"
 
-	call_extension_method "pre_prepare_partitions" "prepare_partitions_custom" <<'PRE_PREPARE_PARTITIONS'
+	call_extension_method "pre_prepare_partitions" "prepare_partitions_custom" << 'PRE_PREPARE_PARTITIONS'
 *allow custom options for mkfs*
 Good time to change stuff like mkfs opts, types etc.
 PRE_PREPARE_PARTITIONS
 
 	# stage: determine partition configuration
-	if [[ -n $BOOTFS_TYPE ]]; then
-		# 2 partition setup with forced /boot type
-		local bootfs=$BOOTFS_TYPE
-		local bootpart=1
-		local rootpart=2
+	local next=1
+	# Check if we need UEFI partition
+	if [[ $UEFISIZE -gt 0 ]]; then
+		# Check if we need BIOS partition
+		[[ $BIOSSIZE -gt 0 ]] && local biospart=$((next++))
+		local uefipart=$((next++))
+	fi
+	# Check if we need boot partition
+	if [[ -n $BOOTFS_TYPE || $ROOTFS_TYPE != ext4 || $CRYPTROOT_ENABLE == yes ]]; then
+		local bootpart=$((next++))
+		local bootfs=${BOOTFS_TYPE:-ext4}
 		[[ -z $BOOTSIZE || $BOOTSIZE -le 8 ]] && BOOTSIZE=${DEFAULT_BOOTSIZE}
-	elif [[ $ROOTFS_TYPE != ext4 && $ROOTFS_TYPE != nfs ]]; then
-		# 2 partition setup for non-ext4 local root
-		local bootfs=ext4
-		local bootpart=1
-		local rootpart=2
-		[[ -z $BOOTSIZE || $BOOTSIZE -le 8 ]] && BOOTSIZE=${DEFAULT_BOOTSIZE}
-	elif [[ $ROOTFS_TYPE == nfs ]]; then
-		# single partition ext4 /boot, no root
-		local bootfs=ext4
-		local bootpart=1
-		[[ -z $BOOTSIZE || $BOOTSIZE -le 8 ]] && BOOTSIZE=${DEFAULT_BOOTSIZE} # For cleanup processing only
-	elif [[ $CRYPTROOT_ENABLE == yes ]]; then
-		# 2 partition setup for encrypted /root and non-encrypted /boot
-		local bootfs=ext4
-		local bootpart=1
-		local rootpart=2
-		[[ -z $BOOTSIZE || $BOOTSIZE -le 8 ]] && BOOTSIZE=${DEFAULT_BOOTSIZE}
-	elif [[ $UEFISIZE -gt 0 ]]; then
-		if [[ "${IMAGE_PARTITION_TABLE}" == "gpt" ]]; then
-			# efi partition and ext4 root. some juggling is done by parted/sgdisk
-			local uefipart=15
-			local rootpart=1
-		else
-			# efi partition and ext4 root.
-			local uefipart=1
-			local rootpart=2
-		fi
 	else
-		# single partition ext4 root
-		local rootpart=1
 		BOOTSIZE=0
 	fi
+	# Check if we need root partition
+	[[ $ROOTFS_TYPE != nfs ]] &&
+		local rootpart=$((next++))
 
 	# stage: calculate rootfs size
 	export rootfs_size=$(du -sm $SDCARD/ | cut -f1) # MiB
@@ -493,13 +476,13 @@ PREPARE_IMAGE_SIZE
 			exit_with_error "User defined image size is too small" "$sdsize <= $rootfs_size"
 		fi
 	else
-		local imagesize=$(( $rootfs_size + $OFFSET + $BOOTSIZE + $UEFISIZE + $EXTRA_ROOTFS_MIB_SIZE)) # MiB
+		local imagesize=$(($rootfs_size + $OFFSET + $BOOTSIZE + $UEFISIZE + $EXTRA_ROOTFS_MIB_SIZE)) # MiB
 		# Hardcoded overhead +25% is needed for desktop images,
 		# for CLI it could be lower. Align the size up to 4MiB
 		if [[ $BUILD_DESKTOP == yes ]]; then
-			local sdsize=$(bc -l <<< "scale=0; ((($imagesize * 1.30) / 1 + 0) / 4 + 1) * 4")
+			local sdsize=$(bc -l <<< "scale=0; ((($imagesize * 1.35) / 1 + 0) / 4 + 1) * 4")
 		else
-			local sdsize=$(bc -l <<< "scale=0; ((($imagesize * 1.25) / 1 + 0) / 4 + 1) * 4")
+			local sdsize=$(bc -l <<< "scale=0; ((($imagesize * 1.30) / 1 + 0) / 4 + 1) * 4")
 		fi
 	fi
 
@@ -509,78 +492,79 @@ PREPARE_IMAGE_SIZE
 		truncate --size=${sdsize}M ${SDCARD}.raw # sometimes results in fs corruption, revert to previous know to work solution
 		sync
 	else
-		dd if=/dev/zero bs=1M status=none count=$sdsize | pv -p -b -r -s $(( $sdsize * 1024 * 1024 )) -N "[ .... ] dd" | dd status=none of=${SDCARD}.raw
+		dd if=/dev/zero bs=1M status=none count=$sdsize | pv -p -b -r -s $(($sdsize * 1024 * 1024)) -N "[ .... ] dd" | dd status=none of=${SDCARD}.raw
 	fi
-
-	# stage: calculate boot partition size
-	local bootstart=$(($OFFSET * 2048))
-	local rootstart=$(($bootstart + ($BOOTSIZE * 2048) + ($UEFISIZE * 2048)))
-	local bootend=$(($rootstart - 1))
 
 	# stage: create partition table
 	display_alert "Creating partitions" "${bootfs:+/boot: $bootfs }root: $ROOTFS_TYPE" "info"
-	parted -s ${SDCARD}.raw -- mklabel ${IMAGE_PARTITION_TABLE}
 	if [[ "${USE_HOOK_FOR_PARTITION}" == "yes" ]]; then
+		{
+			[[ "$IMAGE_PARTITION_TABLE" == "msdos" ]] &&
+				echo "label: dos" ||
+				echo "label: $IMAGE_PARTITION_TABLE"
+		} | sfdisk ${SDCARD}.raw >> "${DEST}/${LOG_SUBPATH}/install.log" 2>&1 ||
+			exit_with_error "Create partition table fail. Please check" "${DEST}/${LOG_SUBPATH}/install.log"
+
 		call_extension_method "create_partition_table" <<- 'CREATE_PARTITION_TABLE'
-		*only called when USE_HOOK_FOR_PARTITION=yes to create the complete partition table*
-		Finally, we can get our own partition table. You have to partition ${SDCARD}.raw
-		yourself. Good luck.
+			*only called when USE_HOOK_FOR_PARTITION=yes to create the complete partition table*
+			Finally, we can get our own partition table. You have to partition ${SDCARD}.raw
+			yourself. Good luck.
 		CREATE_PARTITION_TABLE
-	elif [[ $ROOTFS_TYPE == nfs ]]; then
-		# single /boot partition
-		parted -s ${SDCARD}.raw -- mkpart primary ${parttype[$bootfs]} ${bootstart}s "100%"
-	elif [[ $UEFISIZE -gt 0 ]]; then
-		# uefi partition + root partition
-		if [[ "${IMAGE_PARTITION_TABLE}" == "gpt" ]]; then
-			if [[ ${BIOSSIZE} -gt 0 ]]; then
-				display_alert "Creating partitions" "BIOS+UEFI+rootfs" "info"
-				# UEFI + GPT automatically get a BIOS partition at 14, EFI at 15
-				local biosstart=$(($OFFSET * 2048))
-				local uefistart=$(($OFFSET * 2048 + ($BIOSSIZE * 2048)))
-				local rootstart=$(($uefistart + ($UEFISIZE * 2048) ))
-				local biosend=$(($uefistart - 1))
-				local uefiend=$(($rootstart - 1))
-				parted -s ${SDCARD}.raw -- mkpart bios fat32 ${biosstart}s ${biosend}s
-				parted -s ${SDCARD}.raw -- mkpart efi fat32 ${uefistart}s ${uefiend}s
-				parted -s ${SDCARD}.raw -- mkpart rootfs ${parttype[$ROOTFS_TYPE]} ${rootstart}s "100%"
-				# transpose so BIOS is in sda14; EFI is in sda15 and root in sda1; requires sgdisk, parted cant do numbers
-				sgdisk --transpose 1:14 ${SDCARD}.raw &> /dev/null || echo "*** TRANSPOSE 1:14 FAILED"
-				sgdisk --transpose 2:15 ${SDCARD}.raw &> /dev/null || echo "*** TRANSPOSE 2:15 FAILED"
-				sgdisk --transpose 3:1 ${SDCARD}.raw &> /dev/null || echo "*** TRANSPOSE 3:1 FAILED"
-				# set the ESP (efi) flag on 15
-				parted -s ${SDCARD}.raw -- set 14 bios_grub on || echo "*** SETTING bios_grub ON 14 FAILED"
-				parted -s ${SDCARD}.raw -- set 15 esp on || echo "*** SETTING ESP ON 15 FAILED"
-			else
-				display_alert "Creating partitions" "UEFI+rootfs (no BIOS)" "info"
-				# Simple EFI + root partition on GPT, no BIOS.
-				parted -s ${SDCARD}.raw -- mkpart efi fat32 ${bootstart}s ${bootend}s
-				parted -s ${SDCARD}.raw -- mkpart rootfs ${parttype[$ROOTFS_TYPE]} ${rootstart}s "100%"
-				# transpose so EFI is in sda15 and root in sda1; requires sgdisk, parted cant do numbers
-				sgdisk --transpose 1:15 ${SDCARD}.raw &> /dev/null || echo "*** TRANSPOSE 1:15 FAILED"
-				sgdisk --transpose 2:1 ${SDCARD}.raw &> /dev/null || echo "*** TRANSPOSE 2:1 FAILED"
-				# set the ESP (efi) flag on 15
-				parted -s ${SDCARD}.raw -- set 15 esp on || echo "*** SETTING ESP ON 15 FAILED"
-			fi
-		else
-			parted -s ${SDCARD}.raw -- mkpart primary fat32 ${bootstart}s ${bootend}s
-			parted -s ${SDCARD}.raw -- mkpart primary ${parttype[$ROOTFS_TYPE]} ${rootstart}s "100%"
-		fi
-	elif [[ $BOOTSIZE == 0 ]]; then
-		# single root partition
-		parted -s ${SDCARD}.raw -- mkpart primary ${parttype[$ROOTFS_TYPE]} ${rootstart}s "100%"
 	else
-		# /boot partition + root partition
-		parted -s ${SDCARD}.raw -- mkpart primary ${parttype[$bootfs]} ${bootstart}s ${bootend}s
-		parted -s ${SDCARD}.raw -- mkpart primary ${parttype[$ROOTFS_TYPE]} ${rootstart}s "100%"
+		{
+			[[ "$IMAGE_PARTITION_TABLE" == "msdos" ]] &&
+				echo "label: dos" ||
+				echo "label: $IMAGE_PARTITION_TABLE"
+
+			local next=$OFFSET
+			if [[ -n "$biospart" ]]; then
+				# gpt: BIOS boot
+				local type="21686148-6449-6E6F-744E-656564454649"
+				echo "$biospart : name=\"bios\", start=${next}MiB, size=${BIOSSIZE}MiB, type=${type}"
+				local next=$(($next + $BIOSSIZE))
+			fi
+			if [[ -n "$uefipart" ]]; then
+				# dos: EFI (FAT-12/16/32)
+				# gpt: EFI System
+				[[ "$IMAGE_PARTITION_TABLE" != "gpt" ]] &&
+					local type="ef" ||
+					local type="C12A7328-F81F-11D2-BA4B-00A0C93EC93B"
+				echo "$uefipart : name=\"efi\", start=${next}MiB, size=${UEFISIZE}MiB, type=${type}"
+				local next=$(($next + $UEFISIZE))
+			fi
+			if [[ -n "$bootpart" ]]; then
+				# Linux extended boot
+				[[ "$IMAGE_PARTITION_TABLE" != "gpt" ]] &&
+					local type="ea" ||
+					local type="BC13C2FF-59E6-4262-A352-B275FD6F7172"
+				if [[ -n "$rootpart" ]]; then
+					echo "$bootpart : name=\"bootfs\", start=${next}MiB, size=${BOOTSIZE}MiB, type=${type}"
+					local next=$(($next + $BOOTSIZE))
+				else
+					# no `size` argument mean "as much as possible"
+					echo "$bootpart : name=\"bootfs\", start=${next}MiB, type=${type}"
+				fi
+			fi
+			if [[ -n "$rootpart" ]]; then
+				# dos: Linux
+				# gpt: Linux filesystem
+				[[ "$IMAGE_PARTITION_TABLE" != "gpt" ]] &&
+					local type="83" ||
+					local type="0FC63DAF-8483-4772-8E79-3D69D8477DE4"
+				# no `size` argument mean "as much as possible"
+				echo "$rootpart : name=\"rootfs\", start=${next}MiB, type=${type}"
+			fi
+		} | sfdisk ${SDCARD}.raw >> "${DEST}/${LOG_SUBPATH}/install.log" 2>&1 ||
+			exit_with_error "Partition fail. Please check" "${DEST}/${LOG_SUBPATH}/install.log"
 	fi
 
 	call_extension_method "post_create_partitions" <<- 'POST_CREATE_PARTITIONS'
-	*called after all partitions are created, but not yet formatted*
+		*called after all partitions are created, but not yet formatted*
 	POST_CREATE_PARTITIONS
 
 	# stage: mount image
 	# lock access to loop devices
-	exec {FD}>/var/lock/orangepi-debootstrap-losetup
+	exec {FD}> /var/lock/orangepi-debootstrap-losetup
 	flock -x $FD
 
 	LOOP=$(losetup -f)
@@ -611,7 +595,7 @@ PREPARE_IMAGE_SIZE
 
 		check_loop_device "$rootdevice"
 		display_alert "Creating rootfs" "$ROOTFS_TYPE on $rootdevice"
-		mkfs.${mkfs[$ROOTFS_TYPE]} ${mkopts[$ROOTFS_TYPE]} $rootdevice >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
+		mkfs.${mkfs[$ROOTFS_TYPE]} ${mkopts[$ROOTFS_TYPE]} ${mkopts_label[$ROOTFS_TYPE]:+${mkopts_label[$ROOTFS_TYPE]}"$ROOT_FS_LABEL"} $rootdevice >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
 		[[ $ROOTFS_TYPE == ext4 ]] && tune2fs -o journal_data_writeback $rootdevice > /dev/null
 		if [[ $ROOTFS_TYPE == btrfs && $BTRFS_COMPRESSION != none ]]; then
 			local fscreateopt="-o compress-force=${BTRFS_COMPRESSION}"
@@ -626,11 +610,15 @@ PREPARE_IMAGE_SIZE
 			local rootfs="UUID=$(blkid -s UUID -o value $rootdevice)"
 		fi
 		echo "$rootfs / ${mkfs[$ROOTFS_TYPE]} defaults,noatime${mountopts[$ROOTFS_TYPE]} 0 1" >> $SDCARD/etc/fstab
+	else
+		# update_initramfs will fail if /lib/modules/ doesn't exist
+		mount --bind --make-private $SDCARD $MOUNT/
+		echo "/dev/nfs / nfs defaults 0 0" >> $SDCARD/etc/fstab
 	fi
 	if [[ -n $bootpart ]]; then
 		display_alert "Creating /boot" "$bootfs on ${LOOP}p${bootpart}"
 		check_loop_device "${LOOP}p${bootpart}"
-		mkfs.${mkfs[$bootfs]} ${mkopts[$bootfs]} ${LOOP}p${bootpart} >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
+		mkfs.${mkfs[$bootfs]} ${mkopts[$bootfs]} ${mkopts_label[$bootfs]:+${mkopts_label[$bootfs]}"$BOOT_FS_LABEL"} ${LOOP}p${bootpart} >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
 		mkdir -p $MOUNT/boot/
 		mount ${LOOP}p${bootpart} $MOUNT/boot/
 		echo "UUID=$(blkid -s UUID -o value ${LOOP}p${bootpart}) /boot ${mkfs[$bootfs]} defaults${mountopts[$bootfs]} 0 2" >> $SDCARD/etc/fstab
@@ -638,17 +626,16 @@ PREPARE_IMAGE_SIZE
 	if [[ -n $uefipart ]]; then
 		display_alert "Creating EFI partition" "FAT32 ${UEFI_MOUNT_POINT} on ${LOOP}p${uefipart} label ${UEFI_FS_LABEL}"
 		check_loop_device "${LOOP}p${uefipart}"
-		mkfs.fat -F32 -n "${UEFI_FS_LABEL}" ${LOOP}p${uefipart} >>"${DEST}"/debug/install.log 2>&1
+		mkfs.fat -F32 -n "${UEFI_FS_LABEL}" ${LOOP}p${uefipart} >> "${DEST}"/debug/install.log 2>&1
 		mkdir -p "${MOUNT}${UEFI_MOUNT_POINT}"
 		mount ${LOOP}p${uefipart} "${MOUNT}${UEFI_MOUNT_POINT}"
-		echo "UUID=$(blkid -s UUID -o value ${LOOP}p${uefipart}) ${UEFI_MOUNT_POINT} vfat defaults 0 2" >>$SDCARD/etc/fstab
+		echo "UUID=$(blkid -s UUID -o value ${LOOP}p${uefipart}) ${UEFI_MOUNT_POINT} vfat defaults 0 2" >> $SDCARD/etc/fstab
 	fi
-	[[ $ROOTFS_TYPE == nfs ]] && echo "/dev/nfs / nfs defaults 0 0" >> $SDCARD/etc/fstab
 	echo "tmpfs /tmp tmpfs defaults,nosuid 0 0" >> $SDCARD/etc/fstab
 
 	call_extension_method "format_partitions" <<- 'FORMAT_PARTITIONS'
-	*if you created your own partitions, this would be a good time to format them*
-	The loop device is mounted, so ${LOOP}p1 is it's first partition etc.
+		*if you created your own partitions, this would be a good time to format them*
+		The loop device is mounted, so ${LOOP}p1 is it's first partition etc.
 	FORMAT_PARTITIONS
 
 	# stage: adjust boot script or boot environment
@@ -659,7 +646,7 @@ PREPARE_IMAGE_SIZE
 			echo "rootdev=$rootfs" >> $SDCARD/boot/orangepiEnv.txt
 		fi
 		echo "rootfstype=$ROOTFS_TYPE" >> $SDCARD/boot/orangepiEnv.txt
-	elif [[ $rootpart != 1 ]]; then
+	elif [[ $rootpart != 1 ]] && [[ $SRC_EXTLINUX != yes ]]; then
 		local bootscript_dst=${BOOTSCRIPT##*:}
 		sed -i 's/mmcblk0p1/mmcblk0p2/' $SDCARD/boot/$bootscript_dst
 		sed -i -e "s/rootfstype=ext4/rootfstype=$ROOTFS_TYPE/" \
@@ -675,21 +662,26 @@ PREPARE_IMAGE_SIZE
 		else
 			sed -i 's/^setenv rootdev .*/setenv rootdev "'$rootfs'"/' $SDCARD/boot/boot.ini
 		fi
-		[[ -f $SDCARD/boot/orangepiEnv.txt ]] && rm $SDCARD/boot/orangepiEnv.txt
+		if [[ $LINUXFAMILY != meson64 ]]; then
+			[[ -f $SDCARD/boot/orangepiEnv.txt ]] && rm $SDCARD/boot/orangepiEnv.txt
+		fi
 	fi
 
 	# if we have a headless device, set console to DEFAULT_CONSOLE
 	if [[ -n $DEFAULT_CONSOLE && -f $SDCARD/boot/orangepiEnv.txt ]]; then
 		if grep -lq "^console=" $SDCARD/boot/orangepiEnv.txt; then
-			sed -i "s/console=.*/console=$DEFAULT_CONSOLE/" $SDCARD/boot/orangepiEnv.txt
+			sed -i "s/^console=.*/console=$DEFAULT_CONSOLE/" $SDCARD/boot/orangepiEnv.txt
 		else
 			echo "console=$DEFAULT_CONSOLE" >> $SDCARD/boot/orangepiEnv.txt
-	        fi
+		fi
 	fi
 
 	# recompile .cmd to .scr if boot.cmd exists
-	[[ -f $SDCARD/boot/boot.cmd ]] && \
-		mkimage -C none -A arm -T script -d $SDCARD/boot/boot.cmd $SDCARD/boot/boot.scr > /dev/null 2>&1
+
+	if [[ -f $SDCARD/boot/boot.cmd ]]; then
+		if [ -z $BOOTSCRIPT_OUTPUT ]; then BOOTSCRIPT_OUTPUT=boot.scr; fi
+		mkimage -C none -A arm -T script -d $SDCARD/boot/boot.cmd $SDCARD/boot/$BOOTSCRIPT_OUTPUT > /dev/null 2>&1
+	fi
 
 	# create extlinux config
 	if [[ -f $SDCARD/boot/extlinux/extlinux.conf ]]; then
@@ -697,7 +689,7 @@ PREPARE_IMAGE_SIZE
 		[[ -f $SDCARD/boot/orangepiEnv.txt ]] && rm $SDCARD/boot/orangepiEnv.txt
 	fi
 
-} #############################################################################
+}
 
 # update_initramfs
 #
@@ -711,7 +703,6 @@ PREPARE_IMAGE_SIZE
 #
 # since Debian buster, it has to be called within create_image() on the $MOUNT
 # path instead of $SDCARD (which can be a tmpfs and breaks cryptsetup-initramfs).
-# see: https://github.com/armbian/build/issues/1584
 #
 update_initramfs()
 {
@@ -788,12 +779,12 @@ create_image()
 		# fat32
 		rsync -rLtWh \
 			  --info=progress0,stats1 \
-			  --log-file="${DEST}"/${LOG_SUBPATH}/install.log $SDCARD/boot $MOUNT
+			  --log-file="${DEST}"/${LOG_SUBPATH}/install.log $SDCARD/boot $MOUNT >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
 	else
 		# ext4
 		rsync -aHWXh \
 			  --info=progress0,stats1 \
-			  --log-file="${DEST}"/${LOG_SUBPATH}/install.log $SDCARD/boot $MOUNT
+			  --log-file="${DEST}"/${LOG_SUBPATH}/install.log $SDCARD/boot $MOUNT >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
 	fi
 
 	call_extension_method "pre_update_initramfs" "config_pre_update_initramfs" << 'PRE_UPDATE_INITRAMFS'
@@ -902,8 +893,8 @@ POST_UMOUNT_FINAL_IMAGE
 				display_alert "GPG signing" "${version}.img${compression_type}" "info"
 				[[ -n ${SUDO_USER} ]] && sudo chown -R ${SUDO_USER}:${SUDO_USER} "${DESTIMG}"/
 				echo "${GPG_PASS}" | sudo -H -u ${SUDO_USER} bash -c "gpg --passphrase-fd 0 --armor --detach-sign --pinentry-mode loopback --batch --yes ${DESTIMG}/${version}.img${compression_type}" || exit 1
-			else
-				display_alert "GPG signing skipped - no GPG_PASS" "${version}.img" "wrn"
+			#else
+			#	display_alert "GPG signing skipped - no GPG_PASS" "${version}.img" "wrn"
 			fi
 		fi
 

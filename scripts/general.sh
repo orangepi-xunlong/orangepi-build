@@ -1816,8 +1816,10 @@ show_checklist_variables ()
 
 install_docker() {
 
-	display_alert "Install Docker" "/etc/apt/sources.list.d/docker.list" "info"
-	chroot "${SDCARD}" /bin/bash -c "apt-get install -y -qq apt-transport-https ca-certificates curl gnupg lsb-release >/dev/null 2>&1"
+	[[ $install_docker != yes ]] && return
+
+	display_alert "Installing" "docker" "info"
+	chroot "${SDCARD}" /bin/bash -c "apt-get install -y -qq apt-transport-https ca-certificates curl gnupg2 software-properties-common >/dev/null 2>&1"
 
 	case ${RELEASE} in
 		buster|bullseye|bookworm)
@@ -1828,14 +1830,15 @@ install_docker() {
 		;;
 	esac
 
-	chroot "${SDCARD}" /bin/bash -c "curl -fsSL https://repo.huaweicloud.com/docker-ce/linux/${distributor_id}/gpg | sudo apt-key add -"
-	echo "deb [arch=${ARCH} signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://repo.huaweicloud.com/docker-ce/linux/${distributor_id} ${RELEASE} stable" > "${SDCARD}"/etc/apt/sources.list.d/docker.list
+	chroot "${SDCARD}" /bin/bash -c "curl -fsSL https://repo.huaweicloud.com/docker-ce/linux/${distributor_id}/gpg | apt-key add - > /dev/null 2>&1"
+	echo "deb [arch=${ARCH}] https://repo.huaweicloud.com/docker-ce/linux/${distributor_id} ${RELEASE} stable" > "${SDCARD}"/etc/apt/sources.list.d/docker.list
 
-	chroot "${SDCARD}" /bin/bash -c "apt-get update >/dev/null 2>&1"
-	chroot "${SDCARD}" /bin/bash -c "apt-get install -y -qq docker-ce docker-ce-cli containerd.io >/dev/null 2>&1"
+	chroot "${SDCARD}" /bin/bash -c "apt-get update > /dev/null 2>&1"
+	chroot "${SDCARD}" /bin/bash -c "apt-get install -y -qq docker-ce docker-ce-cli containerd.io > /dev/null 2>&1"
+	chroot "${SDCARD}" /bin/bash -c "sudo groupadd docker > /dev/null 2>&1"
 	chroot "${SDCARD}" /bin/bash -c "sudo usermod -aG docker ${OPI_USERNAME}"
 
-	run_on_sdcard "systemctl --no-reload disable docker.service >/dev/null 2>&1"
+	run_on_sdcard "systemctl --no-reload disable docker.service > /dev/null 2>&1"
 }
 
 

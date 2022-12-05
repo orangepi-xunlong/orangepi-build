@@ -20,7 +20,7 @@ HOSTRELEASE=$(cat /etc/os-release | grep VERSION_CODENAME | cut -d"=" -f2)
 [[ -z $HOSTRELEASE ]] && HOSTRELEASE=$(cut -d'/' -f1 /etc/debian_version)
 [[ -z $EXIT_PATCHING_ERROR ]] && EXIT_PATCHING_ERROR="" # exit patching if failed
 [[ -z $HOST ]] && HOST="$BOARD" # set hostname to the board
-[[ -z $CHINA_DOWNLOAD_MIRROR ]] && CHINA_DOWNLOAD_MIRROR=tsinghua
+[[ -z $CHINA_DOWNLOAD_MIRROR ]] && CHINA_DOWNLOAD_MIRROR=huawei
 cd "${SRC}" || exit
 [[ -z "${ROOTFSCACHE_VERSION}" ]] && ROOTFSCACHE_VERSION=11
 [[ -z "${CHROOT_CACHE_VERSION}" ]] && CHROOT_CACHE_VERSION=7
@@ -583,7 +583,7 @@ if [[ $DOWNLOAD_MIRROR == "china" ]] ; then
 		UBUNTU_MIRROR='mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/'
 	fi
 
-	if [[ ${CHINA_DOWNLOAD_MIRROR} == huawai ]]; then
+	if [[ ${CHINA_DOWNLOAD_MIRROR} == huawei ]]; then
 		DEBIAN_MIRROR='repo.huaweicloud.com/debian'
 		DEBIAN_SECURTY='repo.huaweicloud.com/debian-security'
 		UBUNTU_MIRROR='repo.huaweicloud.com/ubuntu-ports/'

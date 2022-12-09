@@ -1813,6 +1813,11 @@ show_checklist_variables ()
 	done
 }
 
+install_wiringop()
+{
+        install_deb_chroot "$EXTER/cache/debs/arm64/wiringpi_2.46.deb" >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
+        chroot "${SDCARD}" /bin/bash -c "apt-mark hold wiringpi" >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
+}
 
 install_docker() {
 

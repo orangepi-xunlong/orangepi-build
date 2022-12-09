@@ -110,12 +110,10 @@ prepare_board() {
 				chown root.video /dev/video-*
 			fi
 
-			if [[ ${DISTRIBUTION_CODENAME} == "bullseye" ]]; then
-				for p in $(modetest|grep "^Planes:" -A 9999|grep -o "^[0-9]*");
-				do
-					modetest -M rockchip -aw $p:ASYNC_COMMIT:1 &>/dev/null
-				done
-			fi
+			for p in $(modetest|grep "^Planes:" -A 9999|grep -o "^[0-9]*");
+			do
+				modetest -M rockchip -aw $p:ASYNC_COMMIT:1 &>/dev/null
+			done
 
 			bt_status=$(cat /proc/device-tree/wireless-bluetooth/status)
 			if [[ ${bt_status} == "okay" ]]; then

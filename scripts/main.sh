@@ -442,9 +442,9 @@ if [[ ${IGNORE_UPDATES} != yes ]]; then
 
 	fi
 
-	if [[ ${BOARD} =~ orangepi5 && $RELEASE =~ bullseye ]]; then
+	if [[ ${BOARD} =~ orangepi5 && $RELEASE =~ bullseye|jammy ]]; then
 
-		[[ ${BUILD_OPT} == image ]] && fetch_from_repo "https://github.com/orangepi-xunlong/rk-rootfs-build.git" "${EXTER}/cache/sources/rk3588_packages" "branch:rk3588_packages"
+		[[ ${BUILD_OPT} == image ]] && fetch_from_repo "https://github.com/orangepi-xunlong/rk-rootfs-build.git" "${EXTER}/cache/sources/rk3588_packages_${RELEASE}" "branch:rk3588_packages_${RELEASE}"
 
 	fi
 

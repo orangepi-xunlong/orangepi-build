@@ -15,3 +15,5 @@ EOF
 
 chmod +x ~/.vnc/xstartup
 vncserver
+
+sync

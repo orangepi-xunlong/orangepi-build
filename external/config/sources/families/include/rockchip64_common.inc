@@ -279,8 +279,8 @@ family_tweaks()
 
 	if [[ $RELEASE == jammy && $BUILD_DESKTOP == yes && $install_chromium == yes ]]; then
 
-		chromium_name="chromium-browser_101.0.4951.15-0ubuntu1~ppa1~22.04.1_arm64.deb"
-		chromium_extra_name="chromium-codecs-ffmpeg-extra_101.0.4951.15-0ubuntu1~ppa1~22.04.1_arm64.deb"
+		chromium_name="chromium-browser_107.0.5304.62-0ubuntu1~ppa1~22.04.1_arm64.deb"
+		chromium_extra_name="chromium-codecs-ffmpeg-extra_107.0.5304.62-0ubuntu1~ppa1~22.04.1_arm64.deb"
 		chromium_url="http://ppa.launchpadcontent.net/saiarcot895/chromium-beta/ubuntu/pool/main/c/chromium-browser"
 		chromium=${EXTER}/cache/debs/arm64/${chromium_name}
 		chromium_extra=${EXTER}/cache/debs/arm64/${chromium_extra_name}
@@ -297,7 +297,7 @@ family_tweaks()
 
 	if [[ $RELEASE == jammy && $BUILD_DESKTOP == yes && $install_firefox == yes ]]; then
 
-		firefox_name="firefox-esr_102.1.0esr+build1-0ubuntu0.22.04.1_arm64.deb"
+		firefox_name="firefox-esr_102.6.0esr+build1-0ubuntu0.22.04.1_arm64.deb"
 		firefox_url="https://ppa.launchpadcontent.net/mozillateam/ppa/ubuntu/pool/main/f/firefox-esr/"
 		firefox=${EXTER}/cache/debs/arm64/${firefox_name}
 

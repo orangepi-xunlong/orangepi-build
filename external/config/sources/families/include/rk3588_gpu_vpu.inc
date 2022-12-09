@@ -230,6 +230,7 @@ rk3588_gpu_vpu_tweaks()
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/mpv/libmpv1_0.34.1-1ubuntu3_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/mpv/libmpv-dev_0.34.1-1ubuntu3_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/mpv/mpv_0.34.1-1ubuntu3_arm64.deb"
+		cp ${EXTER}/packages/bsp/rk3588/etc/mpv/mpv.conf $SDCARD/etc/mpv/
 
 		chroot $SDCARD /bin/bash -c "sed -i '5aexport LD_PRELOAD=libdrm-cursor.so.1' /usr/bin/X"
 

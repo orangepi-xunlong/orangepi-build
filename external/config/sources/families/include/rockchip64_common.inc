@@ -281,17 +281,21 @@ family_tweaks()
 
 		chromium_name="chromium-browser_107.0.5304.62-0ubuntu1~ppa1~22.04.1_arm64.deb"
 		chromium_extra_name="chromium-codecs-ffmpeg-extra_107.0.5304.62-0ubuntu1~ppa1~22.04.1_arm64.deb"
+		chromium_browser_l10n_name="chromium-browser-l10n_107.0.5304.62-0ubuntu1~ppa1~22.04.1_all.deb"
 		chromium_url="http://ppa.launchpadcontent.net/saiarcot895/chromium-beta/ubuntu/pool/main/c/chromium-browser"
 		chromium=${EXTER}/cache/debs/arm64/${chromium_name}
 		chromium_extra=${EXTER}/cache/debs/arm64/${chromium_extra_name}
+		chromium_browser_l10n=${EXTER}/cache/debs/arm64/${chromium_browser_l10n_name}
 
 		if [[ ! -f $chromium_extra ]]; then
 			wget -P ${EXTER}/cache/debs/arm64 ${chromium_url}/${chromium_name}
 			wget -P ${EXTER}/cache/debs/arm64 ${chromium_url}/${chromium_extra_name}
+			wget -P ${EXTER}/cache/debs/arm64 ${chromium_url}/${chromium_browser_l10n_name}
 		fi
 
 		install_deb_chroot $chromium_extra
 		install_deb_chroot $chromium
+		install_deb_chroot $chromium_browser_l10n
 
 	fi
 

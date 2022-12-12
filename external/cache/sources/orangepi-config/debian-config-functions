@@ -59,6 +59,7 @@ function main(){
 	[[ "$LINUXFAMILY" == "sunxi64" ]] && OVERLAYDIR="/boot/dtb/allwinner/overlay";
 	[[ "$LINUXFAMILY" == "meson64" ]] && OVERLAYDIR="/boot/dtb/amlogic/overlay";
 	[[ "$LINUXFAMILY" == "rockchip64" ]] && OVERLAYDIR="/boot/dtb/rockchip/overlay";
+	[[ "$LINUXFAMILY" == "rockchip-rk3588" ]] && OVERLAYDIR="/boot/dtb/rockchip/overlay";
 	# detect desktop
 	check_desktop
 	dialog --backtitle "$BACKTITLE" --title "Please wait" --infobox "\nLoading Orange Pi configuration utility ... " 5 45

@@ -1835,15 +1835,18 @@ install_docker() {
 		;;
 	esac
 
-	chroot "${SDCARD}" /bin/bash -c "curl -fsSL https://repo.huaweicloud.com/docker-ce/linux/${distributor_id}/gpg | apt-key add - > /dev/null 2>&1"
-	echo "deb [arch=${ARCH}] https://repo.huaweicloud.com/docker-ce/linux/${distributor_id} ${RELEASE} stable" > "${SDCARD}"/etc/apt/sources.list.d/docker.list
+	#mirror_url=https://mirrors.aliyun.com
+	mirror_url=https://repo.huaweicloud.com
 
-	chroot "${SDCARD}" /bin/bash -c "apt-get update > /dev/null 2>&1"
-	chroot "${SDCARD}" /bin/bash -c "apt-get install -y -qq docker-ce docker-ce-cli containerd.io > /dev/null 2>&1"
-	chroot "${SDCARD}" /bin/bash -c "sudo groupadd docker > /dev/null 2>&1"
+	chroot "${SDCARD}" /bin/bash -c "curl -fsSL ${mirror_url}/docker-ce/linux/${distributor_id}/gpg | apt-key add -"
+	echo "deb [arch=${ARCH}] ${mirror_url}/docker-ce/linux/${distributor_id} ${RELEASE} stable" > "${SDCARD}"/etc/apt/sources.list.d/docker.list
+
+	chroot "${SDCARD}" /bin/bash -c "apt-get update"
+	chroot "${SDCARD}" /bin/bash -c "apt-get install -y -qq docker-ce docker-ce-cli containerd.io"
+	chroot "${SDCARD}" /bin/bash -c "sudo groupadd docker"
 	chroot "${SDCARD}" /bin/bash -c "sudo usermod -aG docker ${OPI_USERNAME}"
 
-	run_on_sdcard "systemctl --no-reload disable docker.service > /dev/null 2>&1"
+	run_on_sdcard "systemctl --no-reload disable docker.service"
 }
 
 

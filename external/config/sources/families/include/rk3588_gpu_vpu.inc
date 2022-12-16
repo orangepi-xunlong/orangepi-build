@@ -7,8 +7,8 @@ rk3588_gpu_vpu_tweaks()
 		#chroot $SDCARD /bin/bash -c "apt-get update"
 		#chroot $SDCARD /bin/bash -c "apt-get upgrade -y"
 
-		# RK GPU VPU
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_${RELEASE}/rkaiq/camera-engine-rkaiq_rk3588_arm64.deb"
+		cp "$EXTER/cache/sources/rk3588_packages_${RELEASE}/rkaiq/rkaiq_3A_server" $SDCARD/usr/bin/ -f
 
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_${RELEASE}/rga2/librga2_2.2.0-1_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_${RELEASE}/rga2/librga-dev_2.2.0-1_arm64.deb"
@@ -133,8 +133,8 @@ rk3588_gpu_vpu_tweaks()
 		#chroot $SDCARD /bin/bash -c "apt-get upgrade -y" > /dev/null
 		chroot $SDCARD /bin/bash -c "apt-get install -y libgraphene-1.0-0" > /dev/null
 
-		# RK GPU VPU
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/rkaiq/camera-engine-rkaiq_rk3588_arm64.deb"
+		cp "$EXTER/cache/sources/rk3588_packages_${RELEASE}/rkaiq/rkaiq_3A_server" $SDCARD/usr/bin/ -f
 
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/rga2/librga2_2.2.0-1_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/rga2/librga-dev_2.2.0-1_arm64.deb"
@@ -251,4 +251,115 @@ rk3588_gpu_vpu_tweaks()
 		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/mesa/libglx-mesa0_23.0~panfork~csf~git221206.c0a7a787026~j_arm64.deb"
 
 	fi
+
+	if [[ ${BOARD} =~ orangepi5 && ${SELECTED_CONFIGURATION} == desktop && ${RELEASE} == focal ]]; then
+
+		chroot $SDCARD /bin/bash -c "chmod o+x /usr/lib/dbus-1.0/dbus-daemon-launch-helper"
+
+		#chroot $SDCARD /bin/bash -c "apt-get update"
+		#chroot $SDCARD /bin/bash -c "apt-get upgrade -y" > /dev/null
+		#chroot $SDCARD /bin/bash -c "apt-get install -y " > /dev/null
+
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/rkaiq/camera-engine-rkaiq_arm64.deb"
+		cp "$EXTER/cache/sources/rk3588_packages_${RELEASE}/rkaiq/rkaiq_3A_server" $SDCARD/usr/bin/ -f
+
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/rga/librga2_2.2.0-1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/rga/librga-dev_2.2.0-1_arm64.deb"
+
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/mpp/librockchip-mpp1_1.5.0-1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/mpp/librockchip-mpp-dev_1.5.0-1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/mpp/librockchip-vpu0_1.5.0-1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/mpp/rockchip-mpp-demos_1.5.0-1_arm64.deb"
+
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-rkmpp/gstreamer1.0-rockchip1_1.14-4_arm64.deb"
+
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gstreamer/libgstreamer1.0-0_1.18.5-1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gstreamer/libgstreamer1.0-dev_1.18.5-1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gstreamer/gir1.2-gstreamer-1.0_1.18.5-1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gstreamer/gstreamer1.0-tools_1.18.5-1_arm64.deb"
+
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-base1.0/libgstreamer-gl1.0-0_1.18.5-1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-base1.0/gir1.2-gst-plugins-base-1.0_1.18.5-1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-base1.0/gstreamer1.0-alsa_1.18.5-1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-base1.0/gstreamer1.0-plugins-base_1.18.5-1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-base1.0/gstreamer1.0-plugins-base-apps_1.18.5-1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-base1.0/gstreamer1.0-x_1.18.5-1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-base1.0/libgstreamer-gl1.0-0_1.18.5-1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-base1.0/libgstreamer-plugins-base1.0-0_1.18.5-1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-base1.0/libgstreamer-plugins-base1.0-dev_1.18.5-1_arm64.deb"
+
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-bad1.0/gstreamer1.0-plugins-bad_1.18.5-1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-bad1.0/libgstreamer-plugins-bad1.0-0_1.18.5-1_arm64.deb"
+
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-good1.0/gstreamer1.0-plugins-good_1.18.5-1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-good1.0/gstreamer1.0-pulseaudio_1.18.5-1_arm64.deb"
+
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/libv4l/libdvbv5-0_1.18.0-2build1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/libv4l/dvb-tools_1.18.0-2build1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/libv4l/ir-keytable_1.18.0-2build1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/libv4l/libdvbv5-dev_1.18.0-2build1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/libv4l/libdvbv5-doc_1.18.0-2build1_all.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/libv4l/libv4l-0_1.18.0-2build1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/libv4l/libv4l2rds0_1.18.0-2build1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/libv4l/libv4lconvert0_1.18.0-2build1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/libv4l/libv4l-dev_1.18.0-2build1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/libv4l/libv4l-rkmpp_1.4.0-1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/libv4l/v4l-utils_1.18.0-2build1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/libv4l/qv4l2_1.18.0-2build1_arm64.deb"
+
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/xserver/xserver-xorg-core_1.20.13-1ubuntu1~20.04.2_arm64.deb"
+
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/chromium/chromium-x11_91.0.4472.164_arm64.deb"
+		cp ${EXTER}/cache/sources/rk3588_packages_focal/chromium/libjpeg.so.62 $SDCARD/usr/lib/aarch64-linux-gnu/
+
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/libdrm/libdrm2_2.4.107-8ubuntu1~20.04.2_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/libdrm/libdrm-common_2.4.107-8ubuntu1~20.04.2_all.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/libdrm/libdrm-dev_2.4.107-8ubuntu1~20.04.2_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/libdrm/libkms1_2.4.107-8ubuntu1~20.04.2_arm64.deb"
+
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/libdrm-cursor/libdrm-cursor_1.3.0-1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/libdrm-cursor/libdrm-cursor-dev_1.3.0-1_arm64.deb"
+		#chroot $SDCARD /bin/bash -c "sed -i '5aexport LD_PRELOAD=libdrm-cursor.so.1' /usr/bin/X"
+
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/rktoolkit/rktoolkit_1.0.0-1_arm64.deb"
+
+		install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/libmali/libmali-valhall-g610-g6p0-x11_1.9-1_arm64.deb"
+
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gl4es/gl4es_1.1.5-0armbian1_arm64.deb"
+
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/ffmpeg/libavutil56_4.2.7-0ubuntu0.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/ffmpeg/libavutil-dev_4.2.7-0ubuntu0.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/ffmpeg/libpostproc55_4.2.7-0ubuntu0.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/ffmpeg/libpostproc-dev_4.2.7-0ubuntu0.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/ffmpeg/libswresample3_4.2.7-0ubuntu0.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/ffmpeg/libswresample-dev_4.2.7-0ubuntu0.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/ffmpeg/libswscale5_4.2.7-0ubuntu0.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/ffmpeg/libswscale-dev_4.2.7-0ubuntu0.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/ffmpeg/libavcodec58_4.2.7-0ubuntu0.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/ffmpeg/libavcodec-dev_4.2.7-0ubuntu0.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/ffmpeg/libavformat58_4.2.7-0ubuntu0.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/ffmpeg/libavformat-dev_4.2.7-0ubuntu0.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/ffmpeg/libavfilter7_4.2.7-0ubuntu0.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/ffmpeg/libavfilter-dev_4.2.7-0ubuntu0.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/ffmpeg/libavdevice58_4.2.7-0ubuntu0.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/ffmpeg/libavdevice-dev_4.2.7-0ubuntu0.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/ffmpeg/libavresample4_4.2.7-0ubuntu0.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/ffmpeg/libavresample-dev_4.2.7-0ubuntu0.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/ffmpeg/ffmpeg_4.2.7-0ubuntu0.1_arm64.deb"
+
+		chroot $SDCARD /bin/bash -c "rm /etc/mpv/mpv.conf"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/mpv/libmpv1_0.32.0-1ubuntu1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/mpv/libmpv-dev_0.32.0-1ubuntu1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/mpv/mpv_0.32.0-1ubuntu1_arm64.deb"
+		cp ${EXTER}/packages/bsp/rk3588/etc/mpv/mpv.conf $SDCARD/etc/mpv/
+
+		## The chromium using fixed pathes for libv4l2.so
+		chroot $SDCARD /bin/bash -c "ln -rsf /usr/lib/*/libv4l2.so /usr/lib/"
+		chroot $SDCARD /bin/bash -c "[ -e /usr/lib/aarch64-linux-gnu/ ] && ln -Tsf lib /usr/lib64"
+
+		chroot $SDCARD /bin/bash -c "cd /usr/lib/aarch64-linux-gnu/dri/;cp kms_swrast_dri.so swrast_dri.so rockchip_dri.so /"
+		chroot $SDCARD /bin/bash -c "rm /usr/lib/aarch64-linux-gnu/dri/*.so;mv /*.so /usr/lib/aarch64-linux-gnu/dri/"
+
+	fi
 }
+

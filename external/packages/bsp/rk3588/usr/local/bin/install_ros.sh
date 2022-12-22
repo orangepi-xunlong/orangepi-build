@@ -3,7 +3,7 @@
 #mirror_url=http://mirrors.ustc.edu.cn
 mirror_url=https://repo.huaweicloud.com
 
-if [[ -n $1 ]]; then
+if [[ -n $1 && $1 =~ ros1|ros2 ]]; then
 	version=$1
 else
 	echo "usage: install_ros.sh ros1/ros2"

@@ -271,28 +271,36 @@ rk3588_gpu_vpu_tweaks()
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/mpp/librockchip-vpu0_1.5.0-1_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/mpp/rockchip-mpp-demos_1.5.0-1_arm64.deb"
 
+		install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/libmali/libmali-valhall-g610-g6p0-x11_1.9-1_arm64.deb"
+
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-rkmpp/gstreamer1.0-rockchip1_1.14-4_arm64.deb"
 
-		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gstreamer/libgstreamer1.0-0_1.18.5-1_arm64.deb"
-		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gstreamer/libgstreamer1.0-dev_1.18.5-1_arm64.deb"
-		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gstreamer/gir1.2-gstreamer-1.0_1.18.5-1_arm64.deb"
-		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gstreamer/gstreamer1.0-tools_1.18.5-1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gstreamer/libgstreamer1.0-0_1.16.3-0ubuntu1.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gstreamer/libgstreamer1.0-dev_1.16.3-0ubuntu1.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gstreamer/gir1.2-gstreamer-1.0_1.16.3-0ubuntu1.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gstreamer/gstreamer1.0-tools_1.16.3-0ubuntu1.1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gstreamer/gstreamer1.0-doc_1.16.3-0ubuntu1.1_all.deb"
 
-		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-base1.0/libgstreamer-gl1.0-0_1.18.5-1_arm64.deb"
-		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-base1.0/gir1.2-gst-plugins-base-1.0_1.18.5-1_arm64.deb"
-		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-base1.0/gstreamer1.0-alsa_1.18.5-1_arm64.deb"
-		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-base1.0/gstreamer1.0-plugins-base_1.18.5-1_arm64.deb"
-		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-base1.0/gstreamer1.0-plugins-base-apps_1.18.5-1_arm64.deb"
-		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-base1.0/gstreamer1.0-x_1.18.5-1_arm64.deb"
-		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-base1.0/libgstreamer-gl1.0-0_1.18.5-1_arm64.deb"
-		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-base1.0/libgstreamer-plugins-base1.0-0_1.18.5-1_arm64.deb"
-		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-base1.0/libgstreamer-plugins-base1.0-dev_1.18.5-1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-base1.0/libgstreamer-gl1.0-0_1.16.3-0ubuntu1.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-base1.0/gir1.2-gst-plugins-base-1.0_1.16.3-0ubuntu1.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-base1.0/gstreamer1.0-alsa_1.16.3-0ubuntu1.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-base1.0/gstreamer1.0-plugins-base_1.16.3-0ubuntu1.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-base1.0/gstreamer1.0-plugins-base-apps_1.16.3-0ubuntu1.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-base1.0/gstreamer1.0-x_1.16.3-0ubuntu1.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-base1.0/gstreamer1.0-gl_1.16.3-0ubuntu1.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-base1.0/libgstreamer-plugins-base1.0-0_1.16.3-0ubuntu1.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-base1.0/libgstreamer-plugins-base1.0-dev_1.16.3-0ubuntu1.1_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-base1.0/gstreamer1.0-plugins-base-doc_1.16.3-0ubuntu1.1_all.deb"
+
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-good1.0/gstreamer1.0-plugins-good_1.16.3-0ubuntu1.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-good1.0/gstreamer1.0-pulseaudio_1.16.3-0ubuntu1.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-good1.0/gstreamer1.0-gtk3_1.16.3-0ubuntu1.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-good1.0/gstreamer1.0-qt5_1.16.3-0ubuntu1.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-good1.0/libgstreamer-plugins-good1.0-0_1.16.3-0ubuntu1.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-good1.0/libgstreamer-plugins-good1.0-dev_1.16.3-0ubuntu1.1_arm64.deb"
 
 		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-bad1.0/gstreamer1.0-plugins-bad_1.18.5-1_arm64.deb"
 		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-bad1.0/libgstreamer-plugins-bad1.0-0_1.18.5-1_arm64.deb"
-
-		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-good1.0/gstreamer1.0-plugins-good_1.18.5-1_arm64.deb"
-		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gst-plugins-good1.0/gstreamer1.0-pulseaudio_1.18.5-1_arm64.deb"
 
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/libv4l/libdvbv5-0_1.18.0-2build1_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/libv4l/dvb-tools_1.18.0-2build1_arm64.deb"
@@ -314,7 +322,7 @@ rk3588_gpu_vpu_tweaks()
 
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/libdrm/libdrm2_2.4.107-8ubuntu1~20.04.2_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/libdrm/libdrm-common_2.4.107-8ubuntu1~20.04.2_all.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/libdrm/libdrm-dev_2.4.107-8ubuntu1~20.04.2_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/libdrm/libdrm-dev_2.4.107-8ubuntu1~20.04.2_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/libdrm/libkms1_2.4.107-8ubuntu1~20.04.2_arm64.deb"
 
 		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/libdrm-cursor/libdrm-cursor_1.3.0-1_arm64.deb"
@@ -322,8 +330,6 @@ rk3588_gpu_vpu_tweaks()
 		#chroot $SDCARD /bin/bash -c "sed -i '5aexport LD_PRELOAD=libdrm-cursor.so.1' /usr/bin/X"
 
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/rktoolkit/rktoolkit_1.0.0-1_arm64.deb"
-
-		install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/libmali/libmali-valhall-g610-g6p0-x11_1.9-1_arm64.deb"
 
 		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_focal/gl4es/gl4es_1.1.5-0armbian1_arm64.deb"
 

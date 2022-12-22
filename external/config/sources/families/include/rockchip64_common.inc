@@ -16,7 +16,7 @@ BOOTBRANCH="branch:v2020.10-rockchip64"
 PACKAGE_LIST_FAMILY="ethtool can-utils"
 
 if [[ $RELEASE == "jammy" ]]; then
-	PACKAGE_LIST_DESKTOP_FAMILY="fcitx fonts-wqy-zenhei xfce4-volumed"
+	PACKAGE_LIST_DESKTOP_FAMILY="fcitx5 fonts-wqy-zenhei xfce4-volumed"
 else
 	PACKAGE_LIST_DESKTOP_FAMILY="fcitx fonts-wqy-zenhei"
 fi

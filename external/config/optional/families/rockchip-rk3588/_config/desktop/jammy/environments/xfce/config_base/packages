@@ -256,3 +256,18 @@ python2
 clinfo
 fonts-noto-cjk
 gnome-user-docs-zh-hans
+dkms
+fakeroot
+debhelper
+fcitx5-frontend-gtk2
+fcitx5-frontend-qt5
+fcitx5-frontend-gtk4
+fcitx5-chinese-addons
+fcitx5-module-cloudpinyin
+language-pack-gnome-zh-hans
+fcitx5 fonts-noto-cjk-extra
+fcitx5-frontend-gtk3
+language-pack-zh-hans
+fcitx5-data
+fcitx5-config-qt
+xinput

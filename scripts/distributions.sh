@@ -334,7 +334,7 @@ POST_INSTALL_KERNEL_DEBS
 
 	# install board support packages
 	if [[ "${REPOSITORY_INSTALL}" != *bsp* ]]; then
-		install_deb_chroot "${DEB_STORAGE}/$RELEASE/${BSP_CLI_PACKAGE_FULLNAME}.deb" | tee "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
+		install_deb_chroot "${DEB_STORAGE}/$RELEASE/${BSP_CLI_PACKAGE_FULLNAME}.deb"
 	else
 		install_deb_chroot "${DEB_ORANGEPI}/$RELEASE/${CHOSEN_ROOTFS}_${BSP_CLI_PACKAGE_FULLNAME}.deb" "orangepi"
 	fi

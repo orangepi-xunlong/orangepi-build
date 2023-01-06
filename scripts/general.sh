@@ -54,6 +54,7 @@ cleaning()
 			find "${DEB_STORAGE}" -name "${CHOSEN_UBOOT}_*.deb" -delete
 			find "${DEB_STORAGE}" \( -name "${CHOSEN_KERNEL}_*.deb" -o \
 				-name "orangepi-*.deb" -o \
+				-name "plymouth-theme-orangepi_*.deb" -o \
 				-name "${CHOSEN_KERNEL/image/dtb}_*.deb" -o \
 				-name "${CHOSEN_KERNEL/image/headers}_*.deb" -o \
 				-name "${CHOSEN_KERNEL/image/source}_*.deb" -o \
@@ -1493,7 +1494,7 @@ prepare_host()
 	fi
 	mkdir -p $DEST/debs/{extra,u-boot}  $DEST/{config,debug,patch,images} $USERPATCHES_PATH/overlay $EXTER/cache/{debs,sources,hash} $SRC/toolchains  $SRC/.tmp
 
-# build aarch64
+	# build aarch64
 	if [[ $(dpkg --print-architecture) == amd64 ]]; then
 		if [[ "${SKIP_EXTERNAL_TOOLCHAINS}" != "yes" ]]; then
 
@@ -1835,8 +1836,11 @@ install_docker() {
 		;;
 	esac
 
-	#mirror_url=https://mirrors.aliyun.com
-	mirror_url=https://repo.huaweicloud.com
+	if [[ ${SELECTED_CONFIGURATION} == desktop ]]; then
+		mirror_url=https://repo.huaweicloud.com
+	else
+		mirror_url=https://mirrors.aliyun.com
+	fi
 
 	chroot "${SDCARD}" /bin/bash -c "curl -fsSL ${mirror_url}/docker-ce/linux/${distributor_id}/gpg | apt-key add -"
 	echo "deb [arch=${ARCH}] ${mirror_url}/docker-ce/linux/${distributor_id} ${RELEASE} stable" > "${SDCARD}"/etc/apt/sources.list.d/docker.list

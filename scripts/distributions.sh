@@ -392,6 +392,15 @@ POST_INSTALL_KERNEL_DEBS
 		fi
 	fi
 
+	# install plymouth-theme-orangepi
+	if [[ $PLYMOUTH == yes ]]; then
+		if [[ "${REPOSITORY_INSTALL}" != *plymouth-theme-orangepi* ]]; then
+			install_deb_chroot "${DEB_STORAGE}/orangepi-plymouth-theme_${REVISION}_all.deb"
+		else
+			install_deb_chroot "orangepi-plymouth-theme" "remote"
+		fi
+	fi
+
 	# install kernel sources
 	if [[ -f ${DEB_STORAGE}/${CHOSEN_KSRC}_${REVISION}_all.deb && $INSTALL_KSRC == yes ]]; then
 		install_deb_chroot "${DEB_STORAGE}/${CHOSEN_KSRC}_${REVISION}_all.deb"

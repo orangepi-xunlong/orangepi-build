@@ -43,23 +43,23 @@ compile_atf()
 
 	display_alert "Compiling ATF" "" "info"
 
-# build aarch64
-  if [[ $(dpkg --print-architecture) == amd64 ]]; then
+	# build aarch64
+	if [[ $(dpkg --print-architecture) == amd64 ]]; then
 
-	local toolchain
-	toolchain=$(find_toolchain "$ATF_COMPILER" "$ATF_USE_GCC")
-	[[ -z $toolchain ]] && exit_with_error "Could not find required toolchain" "${ATF_COMPILER}gcc $ATF_USE_GCC"
+		local toolchain
+		toolchain=$(find_toolchain "$ATF_COMPILER" "$ATF_USE_GCC")
+		[[ -z $toolchain ]] && exit_with_error "Could not find required toolchain" "${ATF_COMPILER}gcc $ATF_USE_GCC"
 
-	if [[ -n $ATF_TOOLCHAIN2 ]]; then
-		local toolchain2_type toolchain2_ver toolchain2
-		toolchain2_type=$(cut -d':' -f1 <<< "${ATF_TOOLCHAIN2}")
-		toolchain2_ver=$(cut -d':' -f2 <<< "${ATF_TOOLCHAIN2}")
-		toolchain2=$(find_toolchain "$toolchain2_type" "$toolchain2_ver")
-		[[ -z $toolchain2 ]] && exit_with_error "Could not find required toolchain" "${toolchain2_type}gcc $toolchain2_ver"
+		if [[ -n $ATF_TOOLCHAIN2 ]]; then
+			local toolchain2_type toolchain2_ver toolchain2
+			toolchain2_type=$(cut -d':' -f1 <<< "${ATF_TOOLCHAIN2}")
+			toolchain2_ver=$(cut -d':' -f2 <<< "${ATF_TOOLCHAIN2}")
+			toolchain2=$(find_toolchain "$toolchain2_type" "$toolchain2_ver")
+			[[ -z $toolchain2 ]] && exit_with_error "Could not find required toolchain" "${toolchain2_type}gcc $toolchain2_ver"
+		fi
+
+		# build aarch64
 	fi
-
-# build aarch64
-  fi
 
 	display_alert "Compiler version" "${ATF_COMPILER}gcc $(eval env PATH="${toolchain}:${PATH}" "${ATF_COMPILER}gcc" -dumpversion)" "info"
 
@@ -110,9 +110,6 @@ compile_atf()
 	[[ -f license.md ]] && cp license.md "${atftempdir}"/
 }
 
-
-
-
 compile_uboot()
 {
 	# not optimal, but extra cleaning before overlayfs_wrapper should keep sources directory clean
@@ -136,23 +133,23 @@ compile_uboot()
 
 	display_alert "Compiling u-boot" "v$version" "info"
 
-# build aarch64
-  if [[ $(dpkg --print-architecture) == amd64 ]]; then
+	# build aarch64
+	if [[ $(dpkg --print-architecture) == amd64 ]]; then
 
-	local toolchain
-	toolchain=$(find_toolchain "$UBOOT_COMPILER" "$UBOOT_USE_GCC")
-	[[ -z $toolchain ]] && exit_with_error "Could not find required toolchain" "${UBOOT_COMPILER}gcc $UBOOT_USE_GCC"
+		local toolchain
+		toolchain=$(find_toolchain "$UBOOT_COMPILER" "$UBOOT_USE_GCC")
+		[[ -z $toolchain ]] && exit_with_error "Could not find required toolchain" "${UBOOT_COMPILER}gcc $UBOOT_USE_GCC"
 
-	if [[ -n $UBOOT_TOOLCHAIN2 ]]; then
-		local toolchain2_type toolchain2_ver toolchain2
-		toolchain2_type=$(cut -d':' -f1 <<< "${UBOOT_TOOLCHAIN2}")
-		toolchain2_ver=$(cut -d':' -f2 <<< "${UBOOT_TOOLCHAIN2}")
-		toolchain2=$(find_toolchain "$toolchain2_type" "$toolchain2_ver")
-		[[ -z $toolchain2 ]] && exit_with_error "Could not find required toolchain" "${toolchain2_type}gcc $toolchain2_ver"
+		if [[ -n $UBOOT_TOOLCHAIN2 ]]; then
+			local toolchain2_type toolchain2_ver toolchain2
+			toolchain2_type=$(cut -d':' -f1 <<< "${UBOOT_TOOLCHAIN2}")
+			toolchain2_ver=$(cut -d':' -f2 <<< "${UBOOT_TOOLCHAIN2}")
+			toolchain2=$(find_toolchain "$toolchain2_type" "$toolchain2_ver")
+			[[ -z $toolchain2 ]] && exit_with_error "Could not find required toolchain" "${toolchain2_type}gcc $toolchain2_ver"
+		fi
+
+		# build aarch64
 	fi
-
-# build aarch64
-  fi
 
 	display_alert "Compiler version" "${UBOOT_COMPILER}gcc $(eval env PATH="${toolchain}:${toolchain2}:${PATH}" "${UBOOT_COMPILER}gcc" -dumpversion)" "info"
 	[[ -n $toolchain2 ]] && display_alert "Additional compiler version" "${toolchain2_type}gcc $(eval env PATH="${toolchain}:${toolchain2}:${PATH}" "${toolchain2_type}gcc" -dumpversion)" "info"
@@ -706,6 +703,59 @@ compile_orangepi-zsh()
 
 
 
+compile_plymouth-theme-orangepi()
+{
+
+	local tmp_dir work_dir
+	tmp_dir=$(mktemp -d)
+	chmod 700 ${tmp_dir}
+	trap "ret=\$?; rm -rf \"${tmp_dir}\" ; exit \$ret" 0 1 2 3 15
+	plymouth_theme_orangepi_dir=orangepi-plymouth-theme_${REVISION}_all
+	display_alert "Building deb" "orangepi-plymouth-theme" "info"
+
+	mkdir -p "${tmp_dir}/${plymouth_theme_orangepi_dir}"/{DEBIAN,usr/share/plymouth/themes/orangepi}
+
+        # set up control file
+	cat <<- END > "${tmp_dir}/${plymouth_theme_orangepi_dir}"/DEBIAN/control
+		Package: orangepi-plymouth-theme
+		Version: $REVISION
+		Architecture: all
+		Maintainer: $MAINTAINER <$MAINTAINERMAIL>
+		Depends: plymouth, plymouth-themes
+		Section: universe/x11
+		Priority: optional
+		Description: boot animation, logger and I/O multiplexer - orangepi theme
+	END
+
+	cp "${EXTER}"/packages/plymouth-theme-orangepi/debian/{postinst,prerm,postrm} \
+		"${tmp_dir}/${plymouth_theme_orangepi_dir}"/DEBIAN/
+	chmod 755 "${tmp_dir}/${plymouth_theme_orangepi_dir}"/DEBIAN/{postinst,prerm,postrm}
+
+	#convert -resize 256x256 \
+	#	"${EXTER}"/packages/plymouth-theme-orangepi/orangepi-logo.png \
+	#	"${tmp_dir}/${plymouth_theme_orangepi_dir}"/usr/share/plymouth/themes/orangepi/bgrt-fallback.png
+
+	# convert -resize 52x52 \
+	#       "${EXTER}"/packages/plymouth-theme-orangepi/spinner.gif \
+	#       "${tmp_dir}/${plymouth_theme_orangepi_dir}"/usr/share/plymouth/themes/orangepi/animation-%04d.png
+
+	convert -resize 52x52 \
+		"${EXTER}"/packages/plymouth-theme-orangepi/spinner.gif \
+		"${tmp_dir}/${plymouth_theme_orangepi_dir}"/usr/share/plymouth/themes/orangepi/throbber-%04d.png
+
+	cp "${EXTER}"/packages/plymouth-theme-orangepi/watermark.png \
+		"${tmp_dir}/${plymouth_theme_orangepi_dir}"/usr/share/plymouth/themes/orangepi/
+
+	cp "${EXTER}"/packages/plymouth-theme-orangepi/{bullet,capslock,entry,keyboard,keymap-render,lock}.png \
+		"${tmp_dir}/${plymouth_theme_orangepi_dir}"/usr/share/plymouth/themes/orangepi/
+
+	cp "${EXTER}"/packages/plymouth-theme-orangepi/orangepi.plymouth \
+		"${tmp_dir}/${plymouth_theme_orangepi_dir}"/usr/share/plymouth/themes/orangepi/
+
+	fakeroot dpkg-deb -b -Z${DEB_COMPRESS} "${tmp_dir}/${plymouth_theme_orangepi_dir}" > /dev/null
+	rsync --remove-source-files -rq "${tmp_dir}/${plymouth_theme_orangepi_dir}.deb" "${DEB_STORAGE}/"
+	rm -rf "${tmp_dir}"
+}
 
 compile_orangepi-config()
 {

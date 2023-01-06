@@ -442,7 +442,7 @@ if [[ ${IGNORE_UPDATES} != yes ]]; then
 
 	fi
 
-	if [[ ${BOARD} =~ orangepi5 && $RELEASE =~ bullseye|jammy ]]; then
+	if [[ ${BOARD} =~ orangepi5 && $RELEASE =~ bullseye|focal|jammy ]]; then
 
 		[[ ${BUILD_OPT} == image ]] && fetch_from_repo "https://github.com/orangepi-xunlong/rk-rootfs-build.git" "${EXTER}/cache/sources/rk3588_packages_${RELEASE}" "branch:rk3588_packages_${RELEASE}"
 
@@ -525,9 +525,13 @@ if [[ $BUILD_OPT == rootfs || $BUILD_OPT == image ]]; then
 	        [[ "${REPOSITORY_INSTALL}" != *orangepi-zsh* ]] && compile_orangepi-zsh
 	fi
 
+	# Compile plymouth-theme-orangepi if packed .deb does not exist or use the one from repository
+	if [[ ! -f ${DEB_STORAGE}/plymouth-theme-orangepi_${REVISION}_all.deb ]]; then
+
+		[[ "${REPOSITORY_INSTALL}" != *plymouth-theme-orangepi* ]] && compile_plymouth-theme-orangepi
+	fi
+
 	# Compile orangepi-firmware if packed .deb does not exist or use the one from repository
-
-
 	if [[ "${REPOSITORY_INSTALL}" != *orangepi-firmware* ]]; then
 
 		if ! ls "${DEB_STORAGE}/orangepi-firmware_${REVISION}_all.deb" 1> /dev/null 2>&1; then
@@ -550,21 +554,14 @@ if [[ $BUILD_OPT == rootfs || $BUILD_OPT == image ]]; then
 
 	overlayfs_wrapper "cleanup"
 	
-	
-	
-	
 	# create board support package
 	[[ -n $RELEASE && ! -f ${DEB_STORAGE}/$RELEASE/${BSP_CLI_PACKAGE_FULLNAME}.deb ]] && create_board_package
-
-
 
 	# create desktop package
 	#[[ -n $RELEASE && $DESKTOP_ENVIRONMENT && ! -f ${DEB_STORAGE}/$RELEASE/${CHOSEN_DESKTOP}_${REVISION}_all.deb ]] && create_desktop_package
 	#[[ -n $RELEASE && $DESKTOP_ENVIRONMENT && ! -f ${DEB_STORAGE}/${RELEASE}/${BSP_DESKTOP_PACKAGE_FULLNAME}.deb ]] && create_bsp_desktop_package
 	[[ -n $RELEASE && $DESKTOP_ENVIRONMENT ]] && create_desktop_package
 	[[ -n $RELEASE && $DESKTOP_ENVIRONMENT ]] && create_bsp_desktop_package
-
-
 	
 	# build additional packages
 	[[ $EXTERNAL_NEW == compile ]] && chroot_build_packages

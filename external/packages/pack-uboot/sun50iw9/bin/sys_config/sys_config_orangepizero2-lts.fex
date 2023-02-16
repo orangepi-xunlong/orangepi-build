@@ -37,11 +37,13 @@ dragonboard_test= 0
 dcdc2_vol                  = 1001000
 aldo1_vol                  = 1001800
 dldo1_vol                  = 1003300
+cldo1_vol		   = 1001800
 
 [axp1530_power_sply]
 dcdc2_vol                  = 1001000
 aldo1_vol                  = 1001800
 dldo1_vol                  = 1003300
+cldo1_vol		   = 1001800
 
 [axp806_power_sply]
 dcdce_vol                  = 1003300
@@ -49,6 +51,7 @@ dcdce_vol                  = 1003300
 aldo1_vol		   = 1003300
 bldo1_vol		   = 1001800
 bldo2_vol		   = 1001800
+cldo1_vol                  = 1001800
 
 [card_boot]
 logical_start   = 40960
@@ -220,39 +223,37 @@ select_gpio3	=
 ;
 ;*****************************************************************************
 [dram_para]
-
-dram_clk       = 720
-dram_type      = 3
-dram_dx_odt    = 0x08080808
-dram_dx_dri    = 0x0e0e0e0e
-dram_ca_dri    = 0x0e0e
-dram_odt_en    = 1
-dram_para1     = 0x30FA
-dram_para2     = 0x1000
-dram_mr0       = 0x840
-dram_mr1       = 0x4
-dram_mr2       = 0x8
-dram_mr3       = 0x0
-dram_mr4       = 0x0
-dram_mr5       = 0x0
-dram_mr6       = 0x0
-dram_mr11      = 0x0
-dram_mr12      = 0x0
-dram_mr13      = 0x0
-dram_mr14      = 0x0
-dram_mr16      = 0x0
-dram_mr17      = 0x0
-dram_mr22      = 0x0
-dram_tpr0      = 0x0
-dram_tpr1      = 0x0
-dram_tpr2      = 0x0
-dram_tpr3      = 0x0
-dram_tpr6      = 0x33808080
-dram_tpr10     = 0x00f83438
-dram_tpr11     = 0x0
-dram_tpr12     = 0x0
-dram_tpr13     = 0x40
-
+dram_clk = 792
+dram_type = 8
+dram_dx_odt = 0x07070707
+dram_dx_dri = 0x0e0e0e0e
+dram_ca_dri = 0x0e0e
+dram_odt_en = 0xaaaaeeee
+dram_para1 = 0x30fa
+dram_para2 = 0x0000
+dram_mr0 = 0x0
+dram_mr1 = 0x34
+dram_mr2 = 0x1b
+dram_mr3 = 0x33
+dram_mr4 = 0x3
+dram_mr5 = 0x0
+dram_mr6 = 0x0
+dram_mr11 = 0x4
+dram_mr12 = 0x72
+dram_mr13 = 0x0
+dram_mr14 = 0x9
+dram_mr16 = 0x0
+dram_mr17 = 0x0
+dram_mr22 = 0x24
+dram_tpr0 = 0x0
+dram_tpr1 = 0x0
+dram_tpr2 = 0x0
+dram_tpr3 = 0x0
+dram_tpr6 = 0x35808080
+dram_tpr10 = 0x402f6663
+dram_tpr11 = 0x36363535
+dram_tpr12 = 0x10101110
+dram_tpr13 = 0x2080C60
 
 [dram_para1]
 

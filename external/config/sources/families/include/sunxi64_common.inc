@@ -26,40 +26,32 @@ family_tweaks()
 {
 	# execute specific tweaks function if present
 	[[ $(type -t family_tweaks_s) == function ]] && family_tweaks_s
-	#cp $SRC/packages/blobs/splash/orangepi-u-boot-24.bmp $SDCARD/boot/boot.bmp
-
-	#if [[ $BOARD == orangepizero2 ]]; then
-
-	#	install_deb_chroot "$EXTER/cache/debs/extra/bullseye-desktop/xfce4-zorinmenulite-plugin_1.1.2_arm64.deb"
-	#	install_deb_chroot "$EXTER/cache/debs/extra/bullseye-desktop/dockbarx-common_1.0~beta+git20210222-1~ppa1_all.deb"
-	#	install_deb_chroot "$EXTER/cache/debs/extra/bullseye-desktop/dockbarx-dockx_1.0~beta+git20210222-1~ppa1_all.deb"
-	#	install_deb_chroot "$EXTER/cache/debs/extra/bullseye-desktop/dockbarx_1.0~beta+git20210222-1~ppa1_all.deb"
-	#	install_deb_chroot "$EXTER/cache/debs/extra/bullseye-desktop/xfce4-dockbarx-plugin_0.6+git20210221-1~ppa2~20.10_arm64.deb"
-	#	install_deb_chroot "$EXTER/cache/debs/extra/bullseye-desktop/dockbarx-theme-zorin_1.1.0_all.deb"
-	#	#install_deb_chroot "$EXTER/cache/debs/extra/bullseye-desktop/scratch-desktop_3.26.0_arm64.deb"
-	#fi
 
 	if [[ $RELEASE == jammy && $BUILD_DESKTOP == yes && $install_chromium == yes ]]; then
 
-		chromium_name="chromium-browser_101.0.4951.15-0ubuntu1~ppa1~22.04.1_arm64.deb"
-		chromium_extra_name="chromium-codecs-ffmpeg-extra_101.0.4951.15-0ubuntu1~ppa1~22.04.1_arm64.deb"
+		chromium_name="chromium-browser_107.0.5304.62-0ubuntu1~ppa1~22.04.1_arm64.deb"
+		chromium_extra_name="chromium-codecs-ffmpeg-extra_107.0.5304.62-0ubuntu1~ppa1~22.04.1_arm64.deb"
+		chromium_browser_l10n_name="chromium-browser-l10n_107.0.5304.62-0ubuntu1~ppa1~22.04.1_all.deb"
 		chromium_url="http://ppa.launchpadcontent.net/saiarcot895/chromium-beta/ubuntu/pool/main/c/chromium-browser"
 		chromium=${EXTER}/cache/debs/arm64/${chromium_name}
 		chromium_extra=${EXTER}/cache/debs/arm64/${chromium_extra_name}
+		chromium_browser_l10n=${EXTER}/cache/debs/arm64/${chromium_browser_l10n_name}
 
 		if [[ ! -f $chromium_extra ]]; then
 			wget -P ${EXTER}/cache/debs/arm64 ${chromium_url}/${chromium_name}
 			wget -P ${EXTER}/cache/debs/arm64 ${chromium_url}/${chromium_extra_name}
+			wget -P ${EXTER}/cache/debs/arm64 ${chromium_url}/${chromium_browser_l10n_name}
 		fi
 
 		install_deb_chroot $chromium_extra
 		install_deb_chroot $chromium
+		install_deb_chroot $chromium_browser_l10n
 
 	fi
 
 	if [[ $RELEASE == jammy && $BUILD_DESKTOP == yes && $install_firefox == yes ]]; then
 
-		firefox_name="firefox-esr_102.1.0esr+build1-0ubuntu0.22.04.1_arm64.deb"
+		firefox_name="firefox-esr_102.6.0esr+build1-0ubuntu0.22.04.1_arm64.deb"
 		firefox_url="https://ppa.launchpadcontent.net/mozillateam/ppa/ubuntu/pool/main/f/firefox-esr/"
 		firefox=${EXTER}/cache/debs/arm64/${firefox_name}
 

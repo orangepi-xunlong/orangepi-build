@@ -1371,7 +1371,7 @@
 			};
 
 			uart2@0 {
-				allwinner,pins = "PG15", "PG16", "PG17", "PG18";
+				allwinner,pins = "PH5", "PH6", "PH7", "PH8";
 				allwinner,pname = "uart2_tx", "uart2_rx", "uart2_rts", "uart2_cts";
 				allwinner,function = "uart2";
 				allwinner,muxsel = <0x2>;
@@ -1382,7 +1382,7 @@
 			};
 
 			uart2@1 {
-				allwinner,pins = "PG15", "PG16", "PG17", "PG18";
+				allwinner,pins = "PH5", "PH6", "PH7", "PH8";
 				allwinner,function = "io_disabled";
 				allwinner,muxsel = <0x7>;
 				allwinner,drive = <0x1>;
@@ -1476,10 +1476,10 @@
 			};
 
 			twi1@0 {
-				allwinner,pins = "PA2", "PA3";
+				allwinner,pins = "PH0", "PH1";
 				allwinner,pname = "twi1_scl", "twi1_sda";
 				allwinner,function = "twi1";
-				allwinner,muxsel = <0x4>;
+				allwinner,muxsel = <0x5>;
 				allwinner,drive = <0x1>;
 				allwinner,pull = <0x0>;
 				linux,phandle = <0x3f>;
@@ -1487,7 +1487,7 @@
 			};
 
 			twi1@1 {
-				allwinner,pins = "PA2", "PA3";
+				allwinner,pins = "PH0", "PH1";
 				allwinner,function = "io_disabled";
 				allwinner,muxsel = <0x7>;
 				allwinner,drive = <0x1>;
@@ -1497,7 +1497,7 @@
 			};
 
 			twi2@0 {
-				allwinner,pins = "PE20", "PE21";
+				allwinner,pins = "PH2", "PH3";
 				allwinner,pname = "twi2_scl", "twi2_sda";
 				allwinner,function = "twi2";
 				allwinner,muxsel = <0x5>;
@@ -1508,7 +1508,7 @@
 			};
 
 			twi2@1 {
-				allwinner,pins = "PE20", "PE21";
+				allwinner,pins = "PH2", "PH3";
 				allwinner,function = "io_disabled";
 				allwinner,muxsel = <0x7>;
 				allwinner,drive = <0x1>;
@@ -1539,7 +1539,7 @@
 			};
 
 			twi4@0 {
-				allwinner,pins = "PG15", "PG16";
+				allwinner,pins = "PH6", "PH7";
 				allwinner,pname = "twi4_scl", "twi4_sda";
 				allwinner,function = "twi4";
 				allwinner,muxsel = <0x5>;
@@ -1550,7 +1550,7 @@
 			};
 
 			twi4@1 {
-				allwinner,pins = "PG15", "PG16";
+				allwinner,pins = "PH6", "PH7";
 				allwinner,function = "io_disabled";
 				allwinner,muxsel = <0x7>;
 				allwinner,drive = <0x1>;
@@ -2565,7 +2565,7 @@
 			phandle = <0x11a>;
 		};
 
-		uart@05000000 {
+		uart0: uart@05000000 {
 			compatible = "allwinner,sun50i-uart";
 			device_type = "uart0";
 			reg = <0x0 0x5000000 0x0 0x400>;
@@ -2581,7 +2581,7 @@
 			pinctrl-0 = <0x187>;
 		};
 
-		uart@05000400 {
+		uart1: uart@05000400 {
 			compatible = "allwinner,sun50i-uart";
 			device_type = "uart1";
 			reg = <0x0 0x5000400 0x0 0x400>;
@@ -2597,7 +2597,7 @@
 			phandle = <0x11c>;
 		};
 
-		uart@05000800 {
+		uart2: uart@05000800 {
 			compatible = "allwinner,sun50i-uart";
 			device_type = "uart2";
 			reg = <0x0 0x5000800 0x0 0x400>;
@@ -2607,13 +2607,11 @@
 			pinctrl-0 = <0x30>;
 			pinctrl-1 = <0x31>;
 			uart2_port = <0x2>;
-			uart2_type = <0x4>;
+			uart2_type = <0x2>;
 			status = "disabled";
-			linux,phandle = <0x11d>;
-			phandle = <0x11d>;
 		};
 
-		uart@05000c00 {
+		uart3: uart@05000c00 {
 			compatible = "allwinner,sun50i-uart";
 			device_type = "uart3";
 			reg = <0x0 0x5000c00 0x0 0x400>;
@@ -2629,7 +2627,7 @@
 			phandle = <0x11e>;
 		};
 
-		uart@05001000 {
+		uart4: uart@05001000 {
 			compatible = "allwinner,sun50i-uart";
 			device_type = "uart4";
 			reg = <0x0 0x5001000 0x0 0x400>;
@@ -2645,7 +2643,7 @@
 			phandle = <0x11f>;
 		};
 
-		uart@05001400 {
+		uart5: uart@05001400 {
 			compatible = "allwinner,sun50i-uart";
 			device_type = "uart5";
 			reg = <0x0 0x5001400 0x0 0x400>;
@@ -2661,7 +2659,7 @@
 			phandle = <0x120>;
 		};
 
-		twi@0x05002000 {
+		i2c0: twi@0x05002000 {
 			#address-cells = <0x1>;
 			#size-cells = <0x0>;
 			compatible = "allwinner,sun50i-twi";
@@ -2678,7 +2676,7 @@
 			phandle = <0x121>;
 		};
 
-		twi@0x05002400 {
+		i2c1: twi@0x05002400 {
 			#address-cells = <0x1>;
 			#size-cells = <0x0>;
 			compatible = "allwinner,sun50i-twi";
@@ -2695,7 +2693,7 @@
 			phandle = <0x122>;
 		};
 
-		twi@0x05002800 {
+		i2c2: twi@0x05002800 {
 			#address-cells = <0x1>;
 			#size-cells = <0x0>;
 			compatible = "allwinner,sun50i-twi";
@@ -2712,7 +2710,7 @@
 			phandle = <0x123>;
 		};
 
-		twi@0x05002c00 {
+		i2c3: twi@0x05002c00 {
 			#address-cells = <0x1>;
 			#size-cells = <0x0>;
 			compatible = "allwinner,sun50i-twi";
@@ -2729,7 +2727,7 @@
 			phandle = <0x124>;
 		};
 
-		twi@0x05003000 {
+		i2c4: twi@0x05003000 {
 			#address-cells = <0x1>;
 			#size-cells = <0x0>;
 			compatible = "allwinner,sun50i-twi";
@@ -2742,11 +2740,9 @@
 			pinctrl-0 = <0x48>;
 			pinctrl-1 = <0x49>;
 			status = "disabled";
-			linux,phandle = <0x125>;
-			phandle = <0x125>;
 		};
 
-		twi@0x07081400 {
+		i2c5: twi@0x07081400 {
 			#address-cells = <0x1>;
 			#size-cells = <0x0>;
 			compatible = "allwinner,sun50i-twi";
@@ -2760,78 +2756,149 @@
 			pinctrl-1 = <0x4c>;
 			status = "okay";
 			no_suspend = <0x1>;
-			linux,phandle = <0x126>;
-			phandle = <0x126>;
 
-			pmu {
-				compatible = "x-powers,axp1530";
+			pmu0: pmu {
+				compatible = "x-powers,axp806";
 				reg = <0x36>;
 				wakeup-source;
-				linux,phandle = <0x127>;
-				phandle = <0x127>;
 
 				standby_param {
-					vcc-dram = <0x4>;
-					linux,phandle = <0x128>;
-					phandle = <0x128>;
+					vcc-dram = <0x8>;
 				};
 
 				regulators {
-
-					dcdc1 {
-						regulator-name = "axp1530-dcdc1";
-						regulator-min-microvolt = <0x7a120>;
-						regulator-max-microvolt = <0x33e140>;
-						regulator-step-delay-us = <0x19>;
-						regulator-final-delay-us = <0x32>;
+					reg_dcdc1: dcdca {
+						regulator-name = "axp806-dcdca";
+						regulator-min-microvolt = <600000>;
+						regulator-max-microvolt = <1520000>;
+						regulator-step-delay-us = <25>;
+						regulator-final-delay-us = <50>;
 						regulator-always-on;
-						linux,phandle = <0x129>;
-						phandle = <0x129>;
 					};
 
-					dcdc2 {
-						regulator-name = "axp1530-dcdc2";
-						regulator-min-microvolt = <0x7a120>;
-						regulator-max-microvolt = <0x177fa0>;
-						regulator-step-delay-us = <0x19>;
-						regulator-final-delay-us = <0x32>;
-						regulator-ramp-delay = <0xc8>;
-						regulator-always-on;
-						linux,phandle = <0xd6>;
-						phandle = <0xd6>;
+					reg_dcdc2: dcdcb {
+						regulator-name = "axp806-dcdcb";
+						regulator-min-microvolt = <1000000>;
+						regulator-max-microvolt = <2550000>;
+						regulator-step-delay-us = <25>;
+						regulator-final-delay-us = <50>;
 					};
 
-					dcdc3 {
-						regulator-name = "axp1530-dcdc3";
-						regulator-min-microvolt = <0x16e360>;
-						regulator-max-microvolt = <0x16e360>;
-						regulator-step-delay-us = <0x19>;
-						regulator-final-delay-us = <0x32>;
+					reg_dcdc3: dcdcc {
+						regulator-name = "axp806-dcdcc";
+						regulator-min-microvolt = <600000>;
+						regulator-max-microvolt = <1520000>;
+						regulator-step-delay-us = <25>;
+						regulator-final-delay-us = <50>;
 						regulator-always-on;
-						linux,phandle = <0x12a>;
-						phandle = <0x12a>;
 					};
 
-					ldo1 {
-						regulator-name = "axp1530-aldo1";
-						regulator-min-microvolt = <0x1b7740>;
-						regulator-max-microvolt = <0x1b7740>;
-						regulator-step-delay-us = <0x19>;
-						regulator-final-delay-us = <0x32>;
+					reg_dcdc4: dcdcd {
+						regulator-name = "axp806-dcdcd";
+						regulator-min-microvolt = <600000>;
+						regulator-max-microvolt = <3300000>;
+						regulator-step-delay-us = <25>;
+						regulator-final-delay-us = <50>;
 						regulator-always-on;
-						linux,phandle = <0x68>;
-						phandle = <0x68>;
 					};
 
-					ldo2 {
-						regulator-name = "axp1530-dldo1";
-						regulator-min-microvolt = <0x325aa0>;
-						regulator-max-microvolt = <0x325aa0>;
-						regulator-step-delay-us = <0x19>;
-						regulator-final-delay-us = <0x32>;
+					reg_dcdc5: dcdce {
+						regulator-name = "axp806-dcdce";
+						regulator-min-microvolt = <3300000>;
+						regulator-max-microvolt = <3300000>;
+						regulator-step-delay-us = <25>;
+						regulator-final-delay-us = <50>;
 						regulator-always-on;
-						linux,phandle = <0x69>;
-						phandle = <0x69>;
+					};
+
+					reg_aldo1: aldo1 {
+						regulator-name = "axp806-aldo1";
+						regulator-min-microvolt = <3300000>;
+						regulator-max-microvolt = <3300000>;
+						regulator-step-delay-us = <25>;
+						regulator-final-delay-us = <50>;
+						regulator-always-on;
+					};
+
+					reg_aldo2: aldo2 {
+						regulator-name = "axp806-aldo2";
+						regulator-min-microvolt = <3300000>;
+						regulator-max-microvolt = <3300000>;
+						regulator-step-delay-us = <25>;
+						regulator-final-delay-us = <50>;
+						regulator-always-on;
+					};
+
+					reg_aldo3: aldo3 {
+						regulator-name = "axp806-aldo3";
+						regulator-min-microvolt = <3300000>;
+						regulator-max-microvolt = <3300000>;
+						regulator-step-delay-us = <25>;
+						regulator-final-delay-us = <50>;
+						regulator-always-on;
+					};
+
+					reg_bldo1: bldo1 {
+						regulator-name = "axp806-bldo1";
+						regulator-min-microvolt = <180000>;
+						regulator-max-microvolt = <1800000>;
+						regulator-step-delay-us = <25>;
+						regulator-final-delay-us = <50>;
+						regulator-always-on;
+					};
+
+					reg_bldo2: bldo2 {
+						regulator-name = "axp806-bldo2";
+						regulator-min-microvolt = <700000>;
+						regulator-max-microvolt = <1900000>;
+						regulator-step-delay-us = <25>;
+						regulator-final-delay-us = <50>;
+						regulator-always-on;
+					};
+
+					reg_bldo3: bldo3 {
+						regulator-name = "axp806-bldo3";
+						regulator-min-microvolt = <700000>;
+						regulator-max-microvolt = <1900000>;
+						regulator-step-delay-us = <25>;
+						regulator-final-delay-us = <50>;
+					};
+
+					reg_bldo4: bldo4 {
+						regulator-name = "axp806-bldo4";
+						regulator-min-microvolt = <700000>;
+						regulator-max-microvolt = <1900000>;
+						regulator-step-delay-us = <25>;
+						regulator-final-delay-us = <50>;
+					};
+
+					reg_cldo1: cldo1 {
+						regulator-name = "axp806-cldo1";
+						regulator-min-microvolt = <1800000>;
+						regulator-max-microvolt = <1800000>;
+						regulator-step-delay-us = <25>;
+						regulator-final-delay-us = <50>;
+						regulator-always-on;
+					};
+
+					reg_cldo2: cldo2 {
+						regulator-name = "axp806-cldo2";
+						regulator-min-microvolt = <700000>;
+						regulator-max-microvolt = <4200000>;
+						regulator-step-delay-us = <25>;
+						regulator-final-delay-us = <50>;
+					};
+
+					reg_cldo3: cldo3 {
+						regulator-name = "axp806-cldo3";
+						regulator-min-microvolt = <700000>;
+						regulator-max-microvolt = <3300000>;
+						regulator-step-delay-us = <25>;
+						regulator-final-delay-us = <50>;
+					};
+
+					reg_sw: sw {
+						regulator-name = "axp806-sw";
 					};
 				};
 			};
@@ -3384,8 +3451,6 @@
 			ctl-spec-caps = <0x8>;
 			vmmc-supply = <0x69>;
 			vqmmc-supply = <0x68>;
-			linux,phandle = <0x145>;
-			phandle = <0x145>;
 		};
 
 		sdmmc@04020000 {
@@ -3402,24 +3467,18 @@
 			max-frequency = <0x8f0d180>;
 			bus-width = <0x4>;
 			cd-gpios = <0x53 0x5 0x6 0x6 0x1 0x3 0xffffffff>;
-			cap-sd-highspeed;
+			//cap-sd-highspeed;
 			cap-wait-while-busy;
 			no-sdio;
 			no-mmc;
 			sunxi-power-save-mode;
 			status = "okay";
 			cd-used-24M;
-			sd-uhs-sdr50;
-			sd-uhs-ddr50;
-			sd-uhs-sdr104;
+			//sd-uhs-sdr50;
+			//sd-uhs-ddr50;
+			//sd-uhs-sdr104;
 			ctl-spec-caps = <0x8>;
-			vmmc-supply = <0x69>;
-			vqmmc33sw-supply = <0x69>;
-			vdmmc33sw-supply = <0x69>;
-			vqmmc18sw-supply = <0x68>;
-			vdmmc18sw-supply = <0x68>;
-			linux,phandle = <0x146>;
-			phandle = <0x146>;
+			//vdmmc-supply = <&reg_dcdc5>;
 		};
 
 		sdmmc@04021000 {
@@ -4434,13 +4493,6 @@
 			dldo1_vol = <0xf4f24>;
 		};
 
-		axp1530_power_sply {
-			device_type = "axp1530_power_sply";
-			dcdc2_vol = <0xf4628>;
-			aldo1_vol = <0xf4948>;
-			dldo1_vol = <0xf4f24>;
-		};
-
 		axp806_power_sply {
 			device_type = "axp806_power_sply";
 			dcdce_vol = <0xf4f24>;
@@ -4448,6 +4500,7 @@
 			aldo1_vol = <0xf4f24>;
 			bldo1_vol = <0xf4948>;
 			bldo2_vol = <0xf4948>;
+			cldo1_vol = <0xf4948>;
 		};
 
 		card_boot {

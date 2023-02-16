@@ -14,6 +14,7 @@
 *.swp
 *.tar.gz
 
+b.sh
 .tmp
 kernel
 output

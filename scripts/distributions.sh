@@ -451,6 +451,8 @@ POST_INSTALL_KERNEL_DEBS
 	cp "${EXTER}"/packages/blobs/audio_wav/audio.wav "${SDCARD}"/usr/share/sounds/alsa/
 	cp "${EXTER}"/packages/blobs/audio_wav/mute.wav "${SDCARD}"/usr/share/sounds/alsa/
 
+	cp "${EXTER}"/packages/blobs/test.mp4 "${SDCARD}"/usr/local/
+
 	# copy watchdog test programm
 	cp "${EXTER}"/packages/blobs/watchdog/watchdog_test_${ARCH} "${SDCARD}"/usr/local/bin/watchdog_test
 

@@ -162,15 +162,46 @@ prepare_board() {
 
 			/usr/bin/pwm-fan.sh &
 			;;
-		orangepizero2|orangepizero2-lts|orangepizero2-b|orangepi400)
-			if [[ $BRANCH == current ]]; then
-				# Initial hdmi audio
-				aplay /usr/share/sounds/alsa/mute.wav -D hw:0,0 > /dev/null 2>&1
-				aplay /usr/share/sounds/alsa/mute.wav -D hw:1,0 > /dev/null 2>&1
-				aplay /usr/share/sounds/alsa/mute.wav -D hw:0,0 > /dev/null 2>&1
+		orangepizero2|orangepizero2-lts|orangepizero2-b|orangepizero3|orangepir1b)
+			kv=$(uname -r)
+
+			#if [[ $BRANCH == current ]]; then
+			#	# Initial hdmi audio
+			#	aplay /usr/share/sounds/alsa/mute.wav -D hw:0,0 > /dev/null 2>&1
+			#	aplay /usr/share/sounds/alsa/mute.wav -D hw:1,0 > /dev/null 2>&1
+			#	aplay /usr/share/sounds/alsa/mute.wav -D hw:0,0 > /dev/null 2>&1
+			#fi
+
+			if [[ $BOARD == orangepir1b ]]; then
+
+				#for 100m interface
+				interface_100m="eth1"
+				echo netdev > /sys/class/leds/100m_act/trigger
+				echo "${interface_100m}" > /sys/class/leds/100m_act/device_name
+				echo 1 > /sys/class/leds/100m_act/tx
+				echo 1 > /sys/class/leds/100m_act/rx
+
+				echo netdev > /sys/class/leds/100m_link/trigger
+				echo ${interface_100m} > /sys/class/leds/100m_link/device_name
+				echo 1 > /sys/class/leds/100m_link/link
+
+				echo netdev > /sys/class/leds/lan_led/trigger
+				echo ${interface_100m} > /sys/class/leds/lan_led/device_name
+				echo 1 > /sys/class/leds/lan_led/link
+				echo 1 > /sys/class/leds/lan_led/tx
+				echo 1 > /sys/class/leds/lan_led/rx
+
+				#for 1000m interface
+				interface_1000m="eth0"
+				echo netdev > /sys/class/leds/wan_led/trigger
+				echo ${interface_1000m} > /sys/class/leds/wan_led/device_name
+				echo 1 > /sys/class/leds/wan_led/link
+				echo 1 > /sys/class/leds/wan_led/tx
+				echo 1 > /sys/class/leds/wan_led/rx
+
 			fi
 
-			if [[ $BRANCH == legacy ]]; then
+			if [[ ${kv} == 4.9* ]]; then
 				aplay /usr/share/sounds/alsa/audio.wav -D hw:2,0 > /dev/null 2>&1
 			fi
 

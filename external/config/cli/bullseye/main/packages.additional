@@ -5,6 +5,7 @@ i2c-tools
 iozone3
 jq
 libcrack2
+lm-sensors
 lsof
 mc
 mmc-utils

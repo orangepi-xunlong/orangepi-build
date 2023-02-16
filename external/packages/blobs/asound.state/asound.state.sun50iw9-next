@@ -1,0 +1,942 @@
+state.sndahub {
+	control.1 {
+		iface MIXER
+		name 'I2S0IN Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.2 {
+		iface MIXER
+		name 'I2S0OUT Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.3 {
+		iface MIXER
+		name 'I2S1IN Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.4 {
+		iface MIXER
+		name 'I2S1OUT Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.5 {
+		iface MIXER
+		name 'I2S2IN Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.6 {
+		iface MIXER
+		name 'I2S2OUT Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.7 {
+		iface MIXER
+		name 'I2S3IN Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.8 {
+		iface MIXER
+		name 'I2S3OUT Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.9 {
+		iface MIXER
+		name 'DAM0IN Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.10 {
+		iface MIXER
+		name 'DAM1IN Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.11 {
+		iface MIXER
+		name 'DAM0OUT Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.12 {
+		iface MIXER
+		name 'DAM1OUT Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.13 {
+		iface MIXER
+		name 'APBIF0 Src Select'
+		value NONE
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 NONE
+			item.1 APBIF_TXDIF0
+			item.2 APBIF_TXDIF1
+			item.3 APBIF_TXDIF2
+			item.4 I2S0_TXDIF
+			item.5 I2S1_TXDIF
+			item.6 I2S2_TXDIF
+			item.7 I2S3_TXDIF
+			item.8 DAM0_TXDIF
+			item.9 DAM1_TXDIF
+		}
+	}
+	control.14 {
+		iface MIXER
+		name 'APBIF1 Src Select'
+		value NONE
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 NONE
+			item.1 APBIF_TXDIF0
+			item.2 APBIF_TXDIF1
+			item.3 APBIF_TXDIF2
+			item.4 I2S0_TXDIF
+			item.5 I2S1_TXDIF
+			item.6 I2S2_TXDIF
+			item.7 I2S3_TXDIF
+			item.8 DAM0_TXDIF
+			item.9 DAM1_TXDIF
+		}
+	}
+	control.15 {
+		iface MIXER
+		name 'APBIF2 Src Select'
+		value NONE
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 NONE
+			item.1 APBIF_TXDIF0
+			item.2 APBIF_TXDIF1
+			item.3 APBIF_TXDIF2
+			item.4 I2S0_TXDIF
+			item.5 I2S1_TXDIF
+			item.6 I2S2_TXDIF
+			item.7 I2S3_TXDIF
+			item.8 DAM0_TXDIF
+			item.9 DAM1_TXDIF
+		}
+	}
+	control.16 {
+		iface MIXER
+		name 'I2S0 Src Select'
+		value NONE
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 NONE
+			item.1 APBIF_TXDIF0
+			item.2 APBIF_TXDIF1
+			item.3 APBIF_TXDIF2
+			item.4 I2S0_TXDIF
+			item.5 I2S1_TXDIF
+			item.6 I2S2_TXDIF
+			item.7 I2S3_TXDIF
+			item.8 DAM0_TXDIF
+			item.9 DAM1_TXDIF
+		}
+	}
+	control.17 {
+		iface MIXER
+		name 'I2S1 Src Select'
+		value APBIF_TXDIF0
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 NONE
+			item.1 APBIF_TXDIF0
+			item.2 APBIF_TXDIF1
+			item.3 APBIF_TXDIF2
+			item.4 I2S0_TXDIF
+			item.5 I2S1_TXDIF
+			item.6 I2S2_TXDIF
+			item.7 I2S3_TXDIF
+			item.8 DAM0_TXDIF
+			item.9 DAM1_TXDIF
+		}
+	}
+	control.18 {
+		iface MIXER
+		name 'I2S2 Src Select'
+		value NONE
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 NONE
+			item.1 APBIF_TXDIF0
+			item.2 APBIF_TXDIF1
+			item.3 APBIF_TXDIF2
+			item.4 I2S0_TXDIF
+			item.5 I2S1_TXDIF
+			item.6 I2S2_TXDIF
+			item.7 I2S3_TXDIF
+			item.8 DAM0_TXDIF
+			item.9 DAM1_TXDIF
+		}
+	}
+	control.19 {
+		iface MIXER
+		name 'I2S3 Src Select'
+		value NONE
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 NONE
+			item.1 APBIF_TXDIF0
+			item.2 APBIF_TXDIF1
+			item.3 APBIF_TXDIF2
+			item.4 I2S0_TXDIF
+			item.5 I2S1_TXDIF
+			item.6 I2S2_TXDIF
+			item.7 I2S3_TXDIF
+			item.8 DAM0_TXDIF
+			item.9 DAM1_TXDIF
+		}
+	}
+	control.20 {
+		iface MIXER
+		name 'DAM0Chan0 Src Select'
+		value NONE
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 NONE
+			item.1 APBIF_TXDIF0
+			item.2 APBIF_TXDIF1
+			item.3 APBIF_TXDIF2
+			item.4 I2S0_TXDIF
+			item.5 I2S1_TXDIF
+			item.6 I2S2_TXDIF
+			item.7 I2S3_TXDIF
+			item.8 DAM0_TXDIF
+			item.9 DAM1_TXDIF
+		}
+	}
+	control.21 {
+		iface MIXER
+		name 'DAM0Chan1 Src Select'
+		value NONE
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 NONE
+			item.1 APBIF_TXDIF0
+			item.2 APBIF_TXDIF1
+			item.3 APBIF_TXDIF2
+			item.4 I2S0_TXDIF
+			item.5 I2S1_TXDIF
+			item.6 I2S2_TXDIF
+			item.7 I2S3_TXDIF
+			item.8 DAM0_TXDIF
+			item.9 DAM1_TXDIF
+		}
+	}
+	control.22 {
+		iface MIXER
+		name 'DAM0Chan2 Src Select'
+		value NONE
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 NONE
+			item.1 APBIF_TXDIF0
+			item.2 APBIF_TXDIF1
+			item.3 APBIF_TXDIF2
+			item.4 I2S0_TXDIF
+			item.5 I2S1_TXDIF
+			item.6 I2S2_TXDIF
+			item.7 I2S3_TXDIF
+			item.8 DAM0_TXDIF
+			item.9 DAM1_TXDIF
+		}
+	}
+	control.23 {
+		iface MIXER
+		name 'DAM1Chan0 Src Select'
+		value NONE
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 NONE
+			item.1 APBIF_TXDIF0
+			item.2 APBIF_TXDIF1
+			item.3 APBIF_TXDIF2
+			item.4 I2S0_TXDIF
+			item.5 I2S1_TXDIF
+			item.6 I2S2_TXDIF
+			item.7 I2S3_TXDIF
+			item.8 DAM0_TXDIF
+			item.9 DAM1_TXDIF
+		}
+	}
+	control.24 {
+		iface MIXER
+		name 'DAM1Chan1 Src Select'
+		value NONE
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 NONE
+			item.1 APBIF_TXDIF0
+			item.2 APBIF_TXDIF1
+			item.3 APBIF_TXDIF2
+			item.4 I2S0_TXDIF
+			item.5 I2S1_TXDIF
+			item.6 I2S2_TXDIF
+			item.7 I2S3_TXDIF
+			item.8 DAM0_TXDIF
+			item.9 DAM1_TXDIF
+		}
+	}
+	control.25 {
+		iface MIXER
+		name 'DAM1Chan2 Src Select'
+		value NONE
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 NONE
+			item.1 APBIF_TXDIF0
+			item.2 APBIF_TXDIF1
+			item.3 APBIF_TXDIF2
+			item.4 I2S0_TXDIF
+			item.5 I2S1_TXDIF
+			item.6 I2S2_TXDIF
+			item.7 I2S3_TXDIF
+			item.8 DAM0_TXDIF
+			item.9 DAM1_TXDIF
+		}
+	}
+}
+state.allwinnerhdmi {
+	control.1 {
+		iface PCM
+		name 'Playback Channel Map'
+		value.0 3
+		value.1 4
+		value.2 0
+		value.3 0
+		value.4 0
+		value.5 0
+		value.6 0
+		value.7 0
+		comment {
+			access read
+			type INTEGER
+			count 8
+			range '0 - 36'
+		}
+	}
+	control.2 {
+		iface PCM
+		name ELD
+		value '100008006c1000010000000000000000410c1000323450464c333534332f5433090701000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'
+		comment {
+			access 'read volatile'
+			type BYTES
+			count 128
+		}
+	}
+}
+state.Codec {
+	control.1 {
+		iface MIXER
+		name 'digital volume'
+		value 0
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 63'
+			dbmin -9999999
+			dbmax 4121460
+			dbvalue.0 -9999999
+		}
+	}
+	control.2 {
+		iface MIXER
+		name 'LINEOUT volume'
+		value 30
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 31'
+			dbmin -9999999
+			dbmax 150
+			dbvalue.0 0
+		}
+	}
+	control.3 {
+		iface MIXER
+		name 'LINEOUT Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.4 {
+		iface MIXER
+		name 'Left Output Mixer DACL Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.5 {
+		iface MIXER
+		name 'Left Output Mixer DACR Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.6 {
+		iface MIXER
+		name 'Right Output Mixer DACL Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.7 {
+		iface MIXER
+		name 'Right Output Mixer DACR Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.8 {
+		iface MIXER
+		name 'Left LINEOUT Mux'
+		value LOMixer
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 LOMixer
+			item.1 LROMixer
+		}
+	}
+	control.9 {
+		iface MIXER
+		name 'Right LINEOUT Mux'
+		value ROMixer
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 ROMixer
+			item.1 LROMixer
+		}
+	}
+}
+state.audiocodec {
+	control.1 {
+		iface MIXER
+		name 'digital volume'
+		value 0
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 63'
+			dbmin -9999999
+			dbmax 4121460
+			dbvalue.0 -9999999
+		}
+	}
+	control.2 {
+		iface MIXER
+		name 'LINEOUT volume'
+		value 31
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 31'
+			dbmin -9999999
+			dbmax 150
+			dbvalue.0 150
+		}
+	}
+	control.3 {
+		iface MIXER
+		name 'LINEOUT Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.4 {
+		iface MIXER
+		name 'Left Output Mixer DACL Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.5 {
+		iface MIXER
+		name 'Left Output Mixer DACR Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.6 {
+		iface MIXER
+		name 'Right Output Mixer DACL Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.7 {
+		iface MIXER
+		name 'Right Output Mixer DACR Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.8 {
+		iface MIXER
+		name 'Left LINEOUT Mux'
+		value LOMixer
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 LOMixer
+			item.1 LROMixer
+		}
+	}
+	control.9 {
+		iface MIXER
+		name 'Right LINEOUT Mux'
+		value ROMixer
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 ROMixer
+			item.1 LROMixer
+		}
+	}
+}
+state.ahubdam {
+	control.1 {
+		iface MIXER
+		name 'APBIF0 Src Select'
+		value NONE
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 NONE
+			item.1 APBIF_TXDIF0
+			item.2 APBIF_TXDIF1
+			item.3 APBIF_TXDIF2
+			item.4 I2S0_TXDIF
+			item.5 I2S1_TXDIF
+			item.6 I2S2_TXDIF
+			item.7 I2S3_TXDIF
+			item.8 DAM0_TXDIF
+			item.9 DAM1_TXDIF
+		}
+	}
+	control.2 {
+		iface MIXER
+		name 'APBIF1 Src Select'
+		value I2S1_TXDIF
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 NONE
+			item.1 APBIF_TXDIF0
+			item.2 APBIF_TXDIF1
+			item.3 APBIF_TXDIF2
+			item.4 I2S0_TXDIF
+			item.5 I2S1_TXDIF
+			item.6 I2S2_TXDIF
+			item.7 I2S3_TXDIF
+			item.8 DAM0_TXDIF
+			item.9 DAM1_TXDIF
+		}
+	}
+	control.3 {
+		iface MIXER
+		name 'APBIF2 Src Select'
+		value NONE
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 NONE
+			item.1 APBIF_TXDIF0
+			item.2 APBIF_TXDIF1
+			item.3 APBIF_TXDIF2
+			item.4 I2S0_TXDIF
+			item.5 I2S1_TXDIF
+			item.6 I2S2_TXDIF
+			item.7 I2S3_TXDIF
+			item.8 DAM0_TXDIF
+			item.9 DAM1_TXDIF
+		}
+	}
+	control.4 {
+		iface MIXER
+		name 'I2S0 Src Select'
+		value NONE
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 NONE
+			item.1 APBIF_TXDIF0
+			item.2 APBIF_TXDIF1
+			item.3 APBIF_TXDIF2
+			item.4 I2S0_TXDIF
+			item.5 I2S1_TXDIF
+			item.6 I2S2_TXDIF
+			item.7 I2S3_TXDIF
+			item.8 DAM0_TXDIF
+			item.9 DAM1_TXDIF
+		}
+	}
+	control.5 {
+		iface MIXER
+		name 'I2S1 Src Select'
+		value APBIF_TXDIF1
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 NONE
+			item.1 APBIF_TXDIF0
+			item.2 APBIF_TXDIF1
+			item.3 APBIF_TXDIF2
+			item.4 I2S0_TXDIF
+			item.5 I2S1_TXDIF
+			item.6 I2S2_TXDIF
+			item.7 I2S3_TXDIF
+			item.8 DAM0_TXDIF
+			item.9 DAM1_TXDIF
+		}
+	}
+	control.6 {
+		iface MIXER
+		name 'I2S2 Src Select'
+		value NONE
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 NONE
+			item.1 APBIF_TXDIF0
+			item.2 APBIF_TXDIF1
+			item.3 APBIF_TXDIF2
+			item.4 I2S0_TXDIF
+			item.5 I2S1_TXDIF
+			item.6 I2S2_TXDIF
+			item.7 I2S3_TXDIF
+			item.8 DAM0_TXDIF
+			item.9 DAM1_TXDIF
+		}
+	}
+	control.7 {
+		iface MIXER
+		name 'I2S3 Src Select'
+		value NONE
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 NONE
+			item.1 APBIF_TXDIF0
+			item.2 APBIF_TXDIF1
+			item.3 APBIF_TXDIF2
+			item.4 I2S0_TXDIF
+			item.5 I2S1_TXDIF
+			item.6 I2S2_TXDIF
+			item.7 I2S3_TXDIF
+			item.8 DAM0_TXDIF
+			item.9 DAM1_TXDIF
+		}
+	}
+	control.8 {
+		iface MIXER
+		name 'DAM0C0 Src Select'
+		value NONE
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 NONE
+			item.1 APBIF_TXDIF0
+			item.2 APBIF_TXDIF1
+			item.3 APBIF_TXDIF2
+			item.4 I2S0_TXDIF
+			item.5 I2S1_TXDIF
+			item.6 I2S2_TXDIF
+			item.7 I2S3_TXDIF
+			item.8 DAM0_TXDIF
+			item.9 DAM1_TXDIF
+		}
+	}
+	control.9 {
+		iface MIXER
+		name 'DAM0C1 Src Select'
+		value NONE
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 NONE
+			item.1 APBIF_TXDIF0
+			item.2 APBIF_TXDIF1
+			item.3 APBIF_TXDIF2
+			item.4 I2S0_TXDIF
+			item.5 I2S1_TXDIF
+			item.6 I2S2_TXDIF
+			item.7 I2S3_TXDIF
+			item.8 DAM0_TXDIF
+			item.9 DAM1_TXDIF
+		}
+	}
+	control.10 {
+		iface MIXER
+		name 'DAM0C2 Src Select'
+		value NONE
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 NONE
+			item.1 APBIF_TXDIF0
+			item.2 APBIF_TXDIF1
+			item.3 APBIF_TXDIF2
+			item.4 I2S0_TXDIF
+			item.5 I2S1_TXDIF
+			item.6 I2S2_TXDIF
+			item.7 I2S3_TXDIF
+			item.8 DAM0_TXDIF
+			item.9 DAM1_TXDIF
+		}
+	}
+	control.11 {
+		iface MIXER
+		name 'DAM1C0 Src Select'
+		value NONE
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 NONE
+			item.1 APBIF_TXDIF0
+			item.2 APBIF_TXDIF1
+			item.3 APBIF_TXDIF2
+			item.4 I2S0_TXDIF
+			item.5 I2S1_TXDIF
+			item.6 I2S2_TXDIF
+			item.7 I2S3_TXDIF
+			item.8 DAM0_TXDIF
+			item.9 DAM1_TXDIF
+		}
+	}
+	control.12 {
+		iface MIXER
+		name 'DAM1C1 Src Select'
+		value NONE
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 NONE
+			item.1 APBIF_TXDIF0
+			item.2 APBIF_TXDIF1
+			item.3 APBIF_TXDIF2
+			item.4 I2S0_TXDIF
+			item.5 I2S1_TXDIF
+			item.6 I2S2_TXDIF
+			item.7 I2S3_TXDIF
+			item.8 DAM0_TXDIF
+			item.9 DAM1_TXDIF
+		}
+	}
+	control.13 {
+		iface MIXER
+		name 'DAM1C2 Src Select'
+		value NONE
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 NONE
+			item.1 APBIF_TXDIF0
+			item.2 APBIF_TXDIF1
+			item.3 APBIF_TXDIF2
+			item.4 I2S0_TXDIF
+			item.5 I2S1_TXDIF
+			item.6 I2S2_TXDIF
+			item.7 I2S3_TXDIF
+			item.8 DAM0_TXDIF
+			item.9 DAM1_TXDIF
+		}
+	}
+}
+state.ahubhdmi {
+	control.1 {
+		iface MIXER
+		name 'loopback debug'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.2 {
+		iface PCM
+		name 'Playback Channel Map'
+		value.0 0
+		value.1 0
+		value.2 0
+		value.3 0
+		value.4 0
+		value.5 0
+		value.6 0
+		value.7 0
+		comment {
+			access read
+			type INTEGER
+			count 8
+			range '0 - 36'
+		}
+	}
+	control.3 {
+		iface PCM
+		name 'IEC958 Playback Mask'
+		value ffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+		comment {
+			access read
+			type IEC958
+			count 1
+		}
+	}
+	control.4 {
+		iface PCM
+		name 'IEC958 Playback Default'
+		value '0400000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'
+		comment {
+			access 'read write'
+			type IEC958
+			count 1
+		}
+	}
+	control.5 {
+		iface PCM
+		name ELD
+		value '10000600651000010000000000000000061433455443313536097f0700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'
+		comment {
+			access 'read volatile'
+			type BYTES
+			count 128
+		}
+	}
+}

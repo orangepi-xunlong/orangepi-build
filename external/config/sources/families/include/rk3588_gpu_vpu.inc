@@ -1,6 +1,6 @@
 rk3588_gpu_vpu_tweaks()
 {
-	if [[ ${BOARD} =~ orangepi5 && ${SELECTED_CONFIGURATION} == desktop && ${RELEASE} == bullseye ]]; then
+	if [[ ${BOARD} =~ orangepi5|orangepi5b && ${SELECTED_CONFIGURATION} == desktop && ${RELEASE} == bullseye ]]; then
 
 		chroot $SDCARD /bin/bash -c "chmod o+x /usr/lib/dbus-1.0/dbus-daemon-launch-helper"
 
@@ -125,13 +125,13 @@ rk3588_gpu_vpu_tweaks()
 
 	fi
 
-	if [[ ${BOARD} =~ orangepi5 && ${SELECTED_CONFIGURATION} == desktop && ${RELEASE} == jammy ]]; then
+	if [[ ${BOARD} =~ orangepi5|orangepi5b && ${SELECTED_CONFIGURATION} == desktop && ${RELEASE} == jammy ]]; then
 
 		chroot $SDCARD /bin/bash -c "chmod o+x /usr/lib/dbus-1.0/dbus-daemon-launch-helper"
 
 		#chroot $SDCARD /bin/bash -c "apt-get update"
 		#chroot $SDCARD /bin/bash -c "apt-get upgrade -y" > /dev/null
-		chroot $SDCARD /bin/bash -c "apt-get install -y libgraphene-1.0-0" > /dev/null
+		chroot $SDCARD /bin/bash -c "apt-get install -y libgraphene-1.0-0 libqt5waylandclient5" > /dev/null
 
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/rkaiq/camera-engine-rkaiq_rk3588_arm64.deb"
 		cp "$EXTER/cache/sources/rk3588_packages_${RELEASE}/rkaiq/rkaiq_3A_server" $SDCARD/usr/bin/ -f
@@ -161,23 +161,21 @@ rk3588_gpu_vpu_tweaks()
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-base1.0/libgstreamer-plugins-base1.0-0_1.20.3-1_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-base1.0/libgstreamer-plugins-base1.0-dev_1.20.3-1_arm64.deb"
 
-		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-bad1.0/libgstreamer-plugins-bad1.0-0_1.18.5-1_arm64.deb"
-		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-bad1.0/gir1.2-gst-plugins-bad-1.0_1.18.5-1_arm64.deb"
-		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-bad1.0/libgstreamer-opencv1.0-0_1.18.5-1_arm64.deb"
-		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-bad1.0/gstreamer1.0-opencv_1.18.5-1_arm64.deb"
-		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-bad1.0/gstreamer1.0-plugins-bad_1.18.5-1_arm64.deb"
-		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-bad1.0/gstreamer1.0-plugins-bad-apps_1.18.5-1_arm64.deb"
-		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-bad1.0/gstreamer1.0-wpe_1.18.5-1_arm64.deb"
-		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-bad1.0/libgstreamer-plugins-bad1.0-dev_1.18.5-1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-bad1.0/libgstreamer-plugins-bad1.0-0_1.20.3-0ubuntu1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-bad1.0/gir1.2-gst-plugins-bad-1.0_1.20.3-0ubuntu1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-bad1.0/libgstreamer-opencv1.0-0_1.20.3-0ubuntu1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-bad1.0/gstreamer1.0-opencv_1.20.3-0ubuntu1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-bad1.0/gstreamer1.0-plugins-bad_1.20.3-0ubuntu1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-bad1.0/gstreamer1.0-plugins-bad-apps_1.20.3-0ubuntu1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-bad1.0/gstreamer1.0-wpe_1.20.3-0ubuntu1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-bad1.0/libgstreamer-plugins-bad1.0-dev_1.20.3-0ubuntu1_arm64.deb"
 
-		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-good1.0/gstreamer1.0-gtk3_1.18.5-1_arm64.deb"
-		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-good1.0/gstreamer1.0-plugins-good_1.18.5-1_arm64.deb"
-		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-good1.0/gstreamer1.0-pulseaudio_1.18.5-1_arm64.deb"
-		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-good1.0/gstreamer1.0-qt5_1.18.5-1_arm64.deb"
-
-		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-ugly1.0/gstreamer1.0-plugins-ugly_1.18.5-1_arm64.deb"
-
-		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-libav1.0/gstreamer1.0-plugins-ugly_1.18.5-1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-good1.0/gstreamer1.0-gtk3_1.20.3-0ubuntu1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-good1.0/gstreamer1.0-plugins-good_1.20.3-0ubuntu1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-good1.0/gstreamer1.0-pulseaudio_1.20.3-0ubuntu1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-good1.0/gstreamer1.0-qt5_1.20.3-0ubuntu1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-good1.0/libgstreamer-plugins-good1.0-0_1.20.3-0ubuntu1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-good1.0/libgstreamer-plugins-good1.0-dev_1.20.3-0ubuntu1_arm64.deb"
 
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/libv4l/libdvbv5-0_1.22.1-2build1_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/libv4l/dvb-tools_1.22.1-2build1_arm64.deb"
@@ -252,7 +250,7 @@ rk3588_gpu_vpu_tweaks()
 
 	fi
 
-	if [[ ${BOARD} =~ orangepi5 && ${SELECTED_CONFIGURATION} == desktop && ${RELEASE} == focal ]]; then
+	if [[ ${BOARD} =~ orangepi5|orangepi5b && ${SELECTED_CONFIGURATION} == desktop && ${RELEASE} == focal ]]; then
 
 		chroot $SDCARD /bin/bash -c "chmod o+x /usr/lib/dbus-1.0/dbus-daemon-launch-helper"
 

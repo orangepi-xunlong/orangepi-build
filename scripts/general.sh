@@ -786,7 +786,7 @@ display_alert "Building kernel splash logo" "$RELEASE" "info"
 	--blob "${SDCARD}"/tmp/throbber73.rgb \
 	--blob "${SDCARD}"/tmp/throbber74.rgb \
 	"${SDCARD}"/lib/firmware/bootsplash.orangepi >/dev/null 2>&1
-	if [[ $BOOT_LOGO == yes || $BOOT_LOGO == desktop && $BUILD_DESKTOP == yes ]]; then
+	if [[ $BOOT_LOGO == yes || $BOOT_LOGO == desktop && $BUILD_DESKTOP == yes && $RELEASE != buster ]]; then
 		[[ -f "${SDCARD}"/boot/orangepiEnv.txt ]] &&	grep -q '^bootlogo' "${SDCARD}"/boot/orangepiEnv.txt && \
 		sed -i 's/^bootlogo.*/bootlogo=true/' "${SDCARD}"/boot/orangepiEnv.txt || echo 'bootlogo=true' >> "${SDCARD}"/boot/orangepiEnv.txt
 		[[ -f "${SDCARD}"/boot/boot.ini ]] &&	sed -i 's/^setenv bootlogo.*/setenv bootlogo "true"/' "${SDCARD}"/boot/boot.ini
@@ -1518,6 +1518,8 @@ prepare_host()
 			"gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu.tar.xz"
 			"gcc-arm-9.2-2019.12-x86_64-arm-none-linux-gnueabihf.tar.xz"
 			"gcc-arm-9.2-2019.12-x86_64-aarch64-none-linux-gnu.tar.xz"
+			"gcc-arm-11.2-2022.02-x86_64-arm-none-linux-gnueabihf.tar.xz"
+			"gcc-arm-11.2-2022.02-x86_64-aarch64-none-linux-gnu.tar.xz"
 			)
 
 		USE_TORRENT_STATUS=${USE_TORRENT}
@@ -1816,7 +1818,7 @@ show_checklist_variables ()
 
 install_wiringop()
 {
-        install_deb_chroot "$EXTER/cache/debs/arm64/wiringpi_2.46.deb" >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
+        install_deb_chroot "$EXTER/cache/debs/arm64/wiringpi_2.47.deb"
         chroot "${SDCARD}" /bin/bash -c "apt-mark hold wiringpi" >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
 }
 

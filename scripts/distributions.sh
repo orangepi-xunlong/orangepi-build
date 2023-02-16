@@ -393,7 +393,7 @@ POST_INSTALL_KERNEL_DEBS
 	fi
 
 	# install plymouth-theme-orangepi
-	if [[ $PLYMOUTH == yes ]]; then
+	if [[ $PLYMOUTH == yes && $BUILD_DESKTOP == yes && $RELEASE != buster ]]; then
 		if [[ "${REPOSITORY_INSTALL}" != *plymouth-theme-orangepi* ]]; then
 			install_deb_chroot "${DEB_STORAGE}/orangepi-plymouth-theme_${REVISION}_all.deb"
 		else

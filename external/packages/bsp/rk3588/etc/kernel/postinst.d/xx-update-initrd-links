@@ -1,0 +1,30 @@
+#!/bin/bash
+set -e
+
+# installkernel script calls postinst.d without any DEB_MAINT_PARAMS set
+# linux-image-* postinst calls postinst.d with DEB_MAINT_PARAMS set
+# do nothing in case linux-image-* calls this, as it already calls `linux-update-symlinks`
+[ -z "$DEB_MAINT_PARAMS" ] || exit 0
+
+# installkernel must call postinst.d with two args, version & image_path
+version="$1"
+image_path="$2"
+
+[ -n "$version" ] || exit 0
+[ -n "$image_path" ] || exit 0
+
+# call linux-update-symlinks in install mode, which will correctly
+# update vmlinuz & initrd.img symlinks. Even if initrd.img does not
+# exist yet, or has already been created by the initramfs-update
+# postinst.d hook. It will also honor kernel_img.conf settings to
+# link_in_boot yes/no. Thus matching behaviour of linux-image-*
+# postinst call to linux-update-symlinks.
+tmp=$(lsblk -f | grep "boot" | grep "vfat")
+if [[ $tmp == *vfat* ]]; then
+	echo "Cpoy $image_path to /boot/Image"
+	cp $image_path /boot/Image
+else
+	linux-update-symlinks install $version $image_path
+fi
+
+exit 0

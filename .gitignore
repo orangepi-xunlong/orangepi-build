@@ -26,6 +26,8 @@ mkimage.sh
 !external/patch/u-boot
 !external/patch/kernel
 !external/config/kernel
+!external/packages/bsp/common/etc/kernel
+!external/packages/bsp/rk3588/etc/kernel
 
 external/cache/.gpg
 external/cache/hash

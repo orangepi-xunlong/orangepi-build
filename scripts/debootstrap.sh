@@ -422,7 +422,7 @@ prepare_partitions() {
 	# mountopts[nfs] is empty
 
 	# default BOOTSIZE to use if not specified
-	DEFAULT_BOOTSIZE=256 # MiB
+	DEFAULT_BOOTSIZE=1024 # MiB
 	# size of UEFI partition. 0 for no UEFI. Don't mix UEFISIZE>0 and BOOTSIZE>0
 	UEFISIZE=${UEFISIZE:-0}
 	BIOSSIZE=${BIOSSIZE:-0}

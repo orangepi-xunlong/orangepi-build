@@ -1,6 +1,6 @@
 rk3588_gpu_vpu_tweaks()
 {
-	if [[ ${BOARD} =~ orangepi5|orangepi5b && ${SELECTED_CONFIGURATION} == desktop && ${RELEASE} == bullseye ]]; then
+	if [[ ${BOARD} =~ orangepi5|orangepi5b && ${SELECTED_CONFIGURATION} == desktop && ${DESKTOP_ENVIRONMENT} == xfce && ${RELEASE} == bullseye ]]; then
 
 		chroot $SDCARD /bin/bash -c "chmod o+x /usr/lib/dbus-1.0/dbus-daemon-launch-helper"
 
@@ -125,7 +125,7 @@ rk3588_gpu_vpu_tweaks()
 
 	fi
 
-	if [[ ${BOARD} =~ orangepi5|orangepi5b && ${SELECTED_CONFIGURATION} == desktop && ${RELEASE} == jammy ]]; then
+	if [[ ${BOARD} =~ orangepi5|orangepi5b && ${SELECTED_CONFIGURATION} == desktop && ${DESKTOP_ENVIRONMENT} == xfce && ${RELEASE} == jammy ]]; then
 
 		chroot $SDCARD /bin/bash -c "chmod o+x /usr/lib/dbus-1.0/dbus-daemon-launch-helper"
 
@@ -250,7 +250,7 @@ rk3588_gpu_vpu_tweaks()
 
 	fi
 
-	if [[ ${BOARD} =~ orangepi5|orangepi5b && ${SELECTED_CONFIGURATION} == desktop && ${RELEASE} == focal ]]; then
+	if [[ ${BOARD} =~ orangepi5|orangepi5b && ${SELECTED_CONFIGURATION} == desktop && ${DESKTOP_ENVIRONMENT} == xfce && ${RELEASE} == focal ]]; then
 
 		chroot $SDCARD /bin/bash -c "chmod o+x /usr/lib/dbus-1.0/dbus-daemon-launch-helper"
 
@@ -365,5 +365,126 @@ rk3588_gpu_vpu_tweaks()
 		chroot $SDCARD /bin/bash -c "rm /usr/lib/aarch64-linux-gnu/dri/*.so;mv /*.so /usr/lib/aarch64-linux-gnu/dri/"
 
 	fi
-}
 
+
+	if [[ ${BOARD} =~ orangepi5|orangepi5b && ${SELECTED_CONFIGURATION} == desktop && ${DESKTOP_ENVIRONMENT} == gnome && ${RELEASE} == jammy ]]; then
+
+
+		if [[ 0 == 1 ]] ; then
+
+		chroot $SDCARD /bin/bash -c "chmod o+x /usr/lib/dbus-1.0/dbus-daemon-launch-helper"
+
+
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gstreamer/gir1.2-gstreamer-1.0_1.20.3-0ubuntu1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gstreamer/gstreamer1.0-tools_1.20.3-0ubuntu1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gstreamer/libgstreamer1.0-0_1.20.3-0ubuntu1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gstreamer/libgstreamer1.0-dev_1.20.3-0ubuntu1_arm64.deb"
+
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-base1.0/gir1.2-gst-plugins-base-1.0_1.20.3-1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-base1.0/gstreamer1.0-alsa_1.20.3-1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-base1.0/gstreamer1.0-gl_1.20.3-1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-base1.0/gstreamer1.0-plugins-base_1.20.3-1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-base1.0/gstreamer1.0-plugins-base-apps_1.20.3-1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-base1.0/gstreamer1.0-x_1.20.3-1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-base1.0/libgstreamer-gl1.0-0_1.20.3-1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-base1.0/libgstreamer-plugins-base1.0-0_1.20.3-1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-base1.0/libgstreamer-plugins-base1.0-dev_1.20.3-1_arm64.deb"
+
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-bad1.0/libgstreamer-plugins-bad1.0-0_1.20.3-0ubuntu1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-bad1.0/gir1.2-gst-plugins-bad-1.0_1.20.3-0ubuntu1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-bad1.0/libgstreamer-opencv1.0-0_1.20.3-0ubuntu1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-bad1.0/gstreamer1.0-opencv_1.20.3-0ubuntu1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-bad1.0/gstreamer1.0-plugins-bad_1.20.3-0ubuntu1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-bad1.0/gstreamer1.0-plugins-bad-apps_1.20.3-0ubuntu1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-bad1.0/gstreamer1.0-wpe_1.20.3-0ubuntu1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-bad1.0/libgstreamer-plugins-bad1.0-dev_1.20.3-0ubuntu1_arm64.deb"
+
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-good1.0/gstreamer1.0-gtk3_1.20.3-0ubuntu1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-good1.0/gstreamer1.0-plugins-good_1.20.3-0ubuntu1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-good1.0/gstreamer1.0-pulseaudio_1.20.3-0ubuntu1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-good1.0/gstreamer1.0-qt5_1.20.3-0ubuntu1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-good1.0/libgstreamer-plugins-good1.0-0_1.20.3-0ubuntu1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-plugins-good1.0/libgstreamer-plugins-good1.0-dev_1.20.3-0ubuntu1_arm64.deb"
+
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/libdrm/libkms1_2.4.110-1ubuntu1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/libdrm-cursor/libdrm-cursor_1.4.0-1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/libdrm-cursor/libdrm-cursor-dev_1.4.0-1_arm64.deb"
+
+		else
+
+		chroot $SDCARD /bin/bash -c "apt-get update" > /dev/null
+		chroot $SDCARD /bin/bash -c "apt-get upgrade -y" > /dev/null
+		chroot $SDCARD /bin/bash -c "apt-get install -y libgraphene-1.0-0 libqt5waylandclient5" > /dev/null
+		chroot $SDCARD /bin/bash -c "apt-get install -y glmark2 glmark2-es2 mesa-utils libqt5core5a libqt5gui5 libqt5opengl5 libqt5widgets5 libchromaprint1 libchromaprint1 libcec6 libcrossguid0 libfmt8 libfstrcmp0 libimagequant0 libiso9660-11 libkissfft-float131 liblirc-client0 libmicrohttpd12 libmysqlclient21 libp8-platform2 libraqm0 libraspberrypi0 libshairplay0 libtinyxml2.6.2v5 libwayland-client++0 libwayland-cursor++0 libwayland-egl++0 mailcap mime-support mysql-common python3-pil python3-pycryptodome libjs-iscroll gnome-bluetooth onboard mpv gnome-screenshot"
+
+		[[ -f $SDCARD/etc/profile.d/x11.sh ]] && rm $SDCARD/etc/profile.d/x11.sh
+
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/rkaiq/camera-engine-rkaiq_rk3588_arm64.deb"
+		cp "$EXTER/cache/sources/rk3588_packages_${RELEASE}/rkaiq/rkaiq_3A_server" $SDCARD/usr/bin/ -f
+
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/rga2/librga2_2.2.0-1+git220920.c1d5c71~jammy_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/rga2/librga-dev_2.2.0-1+git220920.c1d5c71~jammy_arm64.deb"
+
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/mpp/librockchip-mpp1_1.5.0-1+git230210.c145c84~jammy1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/mpp/librockchip-mpp-dev_1.5.0-1+git230210.c145c84~jammy1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/mpp/librockchip-vpu0_1.5.0-1+git230210.c145c84~jammy1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/mpp/rockchip-mpp-demos_1.5.0-1+git230210.c145c84~jammy1_arm64.deb"
+
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/libv4l/libdvbv5-0_1.22.1-2build1+rkmpp20221209_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/libv4l/dvb-tools_1.22.1-2build1+rkmpp20221209_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/libv4l/ir-keytable_1.22.1-2build1+rkmpp20221209_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/libv4l/libdvbv5-dev_1.22.1-2build1+rkmpp20221209_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/libv4l/libdvbv5-doc_1.22.1-2build1+rkmpp20221209_all.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/libv4l/libv4lconvert0_1.22.1-2build1+rkmpp20221209_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/libv4l/libv4l-0_1.22.1-2build1+rkmpp20221209_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/libv4l/libv4l2rds0_1.22.1-2build1+rkmpp20221209_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/libv4l/libv4l-dev_1.22.1-2build1+rkmpp20221209_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/libv4l/v4l-utils_1.22.1-2build1+rkmpp20221209_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/libv4l/qv4l2_1.22.1-2build1+rkmpp20221209_arm64.deb"
+
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/libv4l/libv4l-rkmpp_1.5.1-1.1+git230130.b004755~jammy1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/libv4l/rockchip-multimedia-config_1.0.0-2+jammy_all.deb"
+
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/chromium/chromium-codecs-ffmpeg-extra_110.0.5481.4-0ubuntu1~jammy~rkmpp20230130_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/chromium/chromium-browser_110.0.5481.4-0ubuntu1~jammy~rkmpp20230130_arm64.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/chromium/chromium-browser-l10n_110.0.5481.4-0ubuntu1~jammy~rkmpp20230130_all.deb"
+		#dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/chromium/chromium-chromedriver_110.0.5481.4-0ubuntu1~jammy~rkmpp20230130_arm64.deb"
+		cp $EXTER/cache/sources/rk3588_packages_jammy/chromium/default $SDCARD/etc/chromium-browser/
+
+		## for panfork
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/mesa/libgbm1_23.0~panfork~csf~git221210.120202c6757~j_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/mesa/libglapi-mesa_23.0~panfork~csf~git221210.120202c6757~j_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/mesa/libgl1-mesa-dri_23.0~panfork~csf~git221210.120202c6757~j_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/mesa/libegl-mesa0_23.0~panfork~csf~git221210.120202c6757~j_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/mesa/libglx-mesa0_23.0~panfork~csf~git221210.120202c6757~j_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/mesa/mali-g610-firmware_1.0.0-1_all.deb"
+
+		## for ffmpeg
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/ffmpeg/libavutil56_4.4.2-0ubuntu0.22.04.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/ffmpeg/libavutil-dev_4.4.2-0ubuntu0.22.04.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/ffmpeg/libpostproc55_4.4.2-0ubuntu0.22.04.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/ffmpeg/libpostproc-dev_4.4.2-0ubuntu0.22.04.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/ffmpeg/libswresample3_4.4.2-0ubuntu0.22.04.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/ffmpeg/libswresample-dev_4.4.2-0ubuntu0.22.04.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/ffmpeg/libswscale5_4.4.2-0ubuntu0.22.04.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/ffmpeg/libswscale-dev_4.4.2-0ubuntu0.22.04.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/ffmpeg/libavcodec58_4.4.2-0ubuntu0.22.04.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/ffmpeg/libavcodec-dev_4.4.2-0ubuntu0.22.04.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/ffmpeg/libavformat58_4.4.2-0ubuntu0.22.04.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/ffmpeg/libavformat-dev_4.4.2-0ubuntu0.22.04.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/ffmpeg/libavfilter7_4.4.2-0ubuntu0.22.04.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/ffmpeg/libavfilter-dev_4.4.2-0ubuntu0.22.04.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/ffmpeg/libavdevice58_4.4.2-0ubuntu0.22.04.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/ffmpeg/libavdevice-dev_4.4.2-0ubuntu0.22.04.1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/ffmpeg/ffmpeg_4.4.2-0ubuntu0.22.04.1_arm64.deb"
+
+		## for kodi
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/kodi/kodi-bin_19.4+dfsg1-2+gles2_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/kodi/kodi-data_19.4+dfsg1-2+gles2_all.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/kodi/kodi_19.4+dfsg1-2+gles2_arm64.deb"
+
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/rktoolkit/rktoolkit_1.0.0-1_arm64.deb"
+
+		fi
+	fi
+}

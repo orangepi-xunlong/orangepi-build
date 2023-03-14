@@ -1,6 +1,6 @@
 rk3588_gpu_vpu_tweaks()
 {
-	if [[ ${BOARD} =~ orangepi5|orangepi5b && ${SELECTED_CONFIGURATION} == desktop && ${DESKTOP_ENVIRONMENT} == xfce && ${RELEASE} == bullseye ]]; then
+	if [[ ${BOARD} =~ orangepi5|orangepi5b && ${SELECTED_CONFIGURATION} == desktop && ${DESKTOP_ENVIRONMENT} =~ xfce|kde-plasma && ${RELEASE} == bullseye ]]; then
 
 		chroot $SDCARD /bin/bash -c "chmod o+x /usr/lib/dbus-1.0/dbus-daemon-launch-helper"
 
@@ -125,13 +125,13 @@ rk3588_gpu_vpu_tweaks()
 
 	fi
 
-	if [[ ${BOARD} =~ orangepi5|orangepi5b && ${SELECTED_CONFIGURATION} == desktop && ${DESKTOP_ENVIRONMENT} == xfce && ${RELEASE} == jammy ]]; then
+	if [[ ${BOARD} =~ orangepi5|orangepi5b && ${SELECTED_CONFIGURATION} == desktop && ${DESKTOP_ENVIRONMENT} =~ xfce|kde-plasma && ${RELEASE} == jammy ]]; then
 
 		chroot $SDCARD /bin/bash -c "chmod o+x /usr/lib/dbus-1.0/dbus-daemon-launch-helper"
 
 		#chroot $SDCARD /bin/bash -c "apt-get update"
 		#chroot $SDCARD /bin/bash -c "apt-get upgrade -y" > /dev/null
-		chroot $SDCARD /bin/bash -c "apt-get install -y libgraphene-1.0-0 libqt5waylandclient5" > /dev/null
+		chroot $SDCARD /bin/bash -c "apt-get install -y libgraphene-1.0-0 libqt5waylandclient5 libgdk-pixbuf2.0-0 libjsoncpp-dev" > /dev/null
 
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/rkaiq/camera-engine-rkaiq_rk3588_arm64.deb"
 		cp "$EXTER/cache/sources/rk3588_packages_${RELEASE}/rkaiq/rkaiq_3A_server" $SDCARD/usr/bin/ -f
@@ -360,7 +360,7 @@ rk3588_gpu_vpu_tweaks()
 	fi
 
 
-	if [[ ${BOARD} =~ orangepi5|orangepi5b && ${SELECTED_CONFIGURATION} == desktop && ${DESKTOP_ENVIRONMENT} == gnome && ${RELEASE} == jammy ]]; then
+	if [[ ${BOARD} =~ orangepi5|orangepi5b && ${SELECTED_CONFIGURATION} == desktop && ${DESKTOP_ENVIRONMENT} =~ gnome && ${RELEASE} == jammy ]]; then
 
 		[[ -f $SDCARD/etc/profile.d/x11.sh ]] && rm $SDCARD/etc/profile.d/x11.sh
 

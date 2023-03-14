@@ -452,6 +452,7 @@ POST_INSTALL_KERNEL_DEBS
 	cp "${EXTER}"/packages/blobs/watchdog/watchdog_test_${ARCH} "${SDCARD}"/usr/local/bin/watchdog_test
 
 	[[ -f "${SDCARD}"/usr/bin/gnome-session ]] && sed -i "s/user-session.*/user-session=ubuntu-wayland/" ${SDCARD}/etc/lightdm/lightdm.conf.d/22-orangepi-autologin.conf
+	[[ -f "${SDCARD}"/usr/bin/startplasma-x11 ]] && sed -i "s/user-session.*/user-session=plasma-x11/" ${SDCARD}/etc/lightdm/lightdm.conf.d/22-orangepi-autologin.conf
 
 	# execute $LINUXFAMILY-specific tweaks
 	[[ $(type -t family_tweaks) == function ]] && family_tweaks

@@ -1,0 +1,46 @@
+	  This is the package for pgtool of Realtek. There are two methods to use
+	this tool. The method 1 is through a script file. However, you have to use
+	the Method 2 if the Method 1 doesn't work.
+	  If you use the embedded system, you maybe have to build "pgdrv.ko" first
+	for the target platform. Please reference the Step 2 of Method 2. And the
+	steps may be different.
+
+Method 1:
+	Step 1: Run the script file to load the necessary elements.
+	# ./pgload.sh
+
+	Step 2: Run the pgtool "rtnicpg". Use /h to show user guide.
+	# ./rtnicpg /h | more
+
+	Step 3: Choose the cmd to pg.
+	Example: Read the EEPROM for the first NIC card.
+	# ./rtnicpg /r /eeprom /# 1
+
+	Step 4: Unload the elements of pgtool.
+	# rmmod pgdrv
+
+
+Method 2:
+	Step 1: Unload all the NIC driver for Realtek.
+	# rmmod r8169
+	# rmmod r8168
+	# rmmod r8101
+
+	Step 2: Build the pgdrv.ko and install it.
+	# make clean all
+	# insmod pgdrv.ko
+
+	Step 3: Run the pgtool "rtnicpg". Use /h to show user guide.
+	# ./rtnicpg /h | more
+
+	Step 4: Choose the cmd to pg.
+	Example: Read the EEPROM for the first NIC card.
+	# ./rtnicpg /r /eeprom /# 1
+
+	Step 5: Remove the pgdrv.
+	# rmmod pgdrv
+
+[NOTICE]
+	1. The applications are only for little-endian platform.
+	2. Must login with "root".
+	3. The NIC driver must be unload first or the pgdrv.ko cannot work.

@@ -1818,8 +1818,18 @@ show_checklist_variables ()
 
 install_wiringop()
 {
-        install_deb_chroot "$EXTER/cache/debs/arm64/wiringpi_2.47.deb"
-        chroot "${SDCARD}" /bin/bash -c "apt-mark hold wiringpi" >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
+	install_deb_chroot "$EXTER/cache/debs/arm64/wiringpi_2.48.deb"
+	chroot "${SDCARD}" /bin/bash -c "apt-mark hold wiringpi" >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
+
+	if [[ ${IGNORE_UPDATES} != yes ]]; then
+
+		fetch_from_repo "https://github.com/orangepi-xunlong/wiringOP.git" "${EXTER}/cache/sources/wiringOP" "branch:next" "yes"
+		fetch_from_repo "https://github.com/orangepi-xunlong/wiringOP-Python.git" "${EXTER}/cache/sources/wiringOP-Python" "branch:next" "yes"
+
+	fi
+
+	cp ${EXTER}/cache/sources/wiringOP/next ${SDCARD}/usr/src/wiringOP -rfa
+	cp ${EXTER}/cache/sources/wiringOP-Python/next ${SDCARD}/usr/src/wiringOP-Python -rfa
 }
 
 install_docker() {

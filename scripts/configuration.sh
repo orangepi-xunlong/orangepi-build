@@ -589,6 +589,7 @@ if [[ $DOWNLOAD_MIRROR == "china" ]] ; then
 		DEBIAN_SECURTY='repo.huaweicloud.com/debian-security'
 		UBUNTU_MIRROR='repo.huaweicloud.com/ubuntu-ports/'
 	fi
+
 fi
 
 if [[ $DOWNLOAD_MIRROR == "bfsu" ]] ; then

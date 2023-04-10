@@ -309,6 +309,8 @@ PRE_INSTALL_KERNEL_DEBS
 			fi
 			if [[ $INSTALL_HEADERS == yes ]]; then
 				install_deb_chroot "${DEB_STORAGE}/${CHOSEN_KERNEL/image/headers}_${REVISION}_${ARCH}.deb"
+			else
+				cp "${DEB_STORAGE}/${CHOSEN_KERNEL/image/headers}_${REVISION}_${ARCH}.deb" "${SDCARD}"/opt/
 			fi
 		else
 			VER=$(dpkg --info "${DEB_ORANGEPI}/${CHOSEN_KERNEL}_${REVISION}_${ARCH}.deb" | grep Descr | awk '{print $(NF)}')

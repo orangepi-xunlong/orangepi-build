@@ -57,7 +57,7 @@ if [[ $BOARD =~ orangepir1plus|orangepir1plus-lts ]]; then
 	MINILOADER_BLOB='rk33/rk322xh_miniloader_v2.50.bin'
 	BL31_BLOB='rk33/rk322xh_bl31_v1.44.elf'
 
-elif [[ $BOARD =~ orangepi5|orangepi5b ]]; then
+elif [[ $BOARD =~ orangepi5|orangepi5b|orangepi5plus|orangepitab ]]; then
 
         BOOT_SCENARIO="${BOOT_SCENARIO:=spl-blobs}"
         DDR_BLOB="${DDR_BLOB:=rk35/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.08.bin}"
@@ -113,20 +113,21 @@ uboot_custom_postprocess()
 
 	if [[ $BOOT_SUPPORT_SPI == yes ]]; then
 
-		if [[ $BOARD =~ orangepi5|orangepi5b ]]; then
+		if [[ $BOARD =~ orangepi5|orangepi5b|orangepi5plus|orangepitab ]]; then
 
 			tools/mkimage -n rk3588 -T rksd -d $RKBIN_DIR/$DDR_BLOB:spl/u-boot-spl.bin idbloader.img
-			dd if=/dev/zero of=rkspi_loader.img bs=1M count=0 seek=16
+			dd if=/dev/zero of=rkspi_loader.img bs=1M count=0 seek=4
 			/sbin/parted -s rkspi_loader.img mklabel gpt
-			/sbin/parted -s rkspi_loader.img unit s mkpart idbloader 64 7167
-			/sbin/parted -s rkspi_loader.img unit s mkpart vnvm 7168 7679
-			/sbin/parted -s rkspi_loader.img unit s mkpart reserved_space 7680 8063
-			/sbin/parted -s rkspi_loader.img unit s mkpart reserved1 8064 8127
-			/sbin/parted -s rkspi_loader.img unit s mkpart uboot_env 8128 8191
-			/sbin/parted -s rkspi_loader.img unit s mkpart reserved2 8192 16383
-			/sbin/parted -s rkspi_loader.img unit s mkpart uboot 16384 32734
+			/sbin/parted -s rkspi_loader.img unit s mkpart idbloader 64 1023
+			/sbin/parted -s rkspi_loader.img unit s mkpart uboot 1024 7167
+			#/sbin/parted -s rkspi_loader.img unit s mkpart vnvm 7168 7679
+			#/sbin/parted -s rkspi_loader.img unit s mkpart reserved_space 7680 8063
+			#/sbin/parted -s rkspi_loader.img unit s mkpart reserved1 8064 8127
+			#/sbin/parted -s rkspi_loader.img unit s mkpart uboot_env 8128 8191
+			#/sbin/parted -s rkspi_loader.img unit s mkpart reserved2 8192 16383
 			dd if=idbloader.img of=rkspi_loader.img seek=64 conv=notrunc
-			dd if=u-boot.itb of=rkspi_loader.img seek=16384 conv=notrunc
+			dd if=u-boot.itb of=rkspi_loader.img seek=1024 conv=notrunc
+			#dd if=$EXTER/packages/blobs/splash/logo.bmp of=rkspi_loader.img seek=8192 conv=notrunc
 
 		fi
 	fi
@@ -241,7 +242,7 @@ family_tweaks()
 	[[ $(type -t family_tweaks_s) == function ]] && family_tweaks_s
 
 	[[ "$BRANCH" =~ legacy|current ]] && rk3399_gpu_vpu_tweaks
-	[[ "$BRANCH" =~ legacy && "$BOARD" =~ orangepi5|orangepi5b ]] && rk3588_gpu_vpu_tweaks
+	[[ "$BRANCH" =~ legacy && "$BOARD" =~ orangepi5|orangepi5b|orangepi5plus|orangepitab ]] && rk3588_gpu_vpu_tweaks
 
 	#if [[ ${BOARD} == orangepi800 && ${SELECTED_CONFIGURATION} == desktop && ${RELEASE} =~ bullseye|bookworm ]]; then
 

@@ -1,0 +1,25 @@
+#!/bin/bash
+
+echo 0 > /sys/devices/platform/fd8b0030.pwm/pwm/pwmchip*/export
+echo 10000 > /sys/devices/platform/fd8b0030.pwm/pwm/pwmchip*/pwm0/period
+echo 8000 > /sys/devices/platform/fd8b0030.pwm/pwm/pwmchip*/pwm0/duty_cycle
+echo normal > /sys/devices/platform/fd8b0030.pwm/pwm/pwmchip*/pwm0/polarity
+echo 1 > /sys/devices/platform/fd8b0030.pwm/pwm/pwmchip*/pwm0/enable
+sleep 3
+
+while true
+do
+	a=$(cat /sys/class/thermal/thermal_zone0/temp)
+	time=$(date)
+	pwm=$(echo ${a} | awk '{printf("%d",$1*0.15-800)}')
+	if (( $pwm > 8500 ))
+	then
+		pwm=8500
+	elif (( $pwm < 5000 ))
+	then
+		pwm=5000
+	fi
+	echo ${pwm} > /sys/devices/platform/fd8b0030.pwm/pwm/pwmchip*/pwm0/duty_cycle
+	echo [${time}] Thermal value: ${a}, write fan PWM cycle ${pwm}
+	sleep 5
+done

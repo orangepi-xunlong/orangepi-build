@@ -443,6 +443,7 @@ POST_INSTALL_KERNEL_DEBS
 
 	# copy boot splash images
 	cp "${EXTER}"/packages/blobs/splash/orangepi-u-boot.bmp "${SDCARD}"/boot/boot.bmp
+	cp "${EXTER}"/packages/blobs/splash/logo.bmp "${SDCARD}"/boot/logo.bmp
 
 	# copy audio.wav and mute.wav
 	cp "${EXTER}"/packages/blobs/audio_wav/audio.wav "${SDCARD}"/usr/share/sounds/alsa/

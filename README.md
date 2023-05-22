@@ -9,7 +9,8 @@ Soc | Boards |
 | Allwinner H616 | Orange Pi Zero2 | 
 | Rockchip RK3328 | | 
 | Rockchip RK3399 | Orange Pi 4/4B/4 LTS/800 |
-| Rockchip RK3588S | Orange Pi 5 |
+| Rockchip RK3588S | Orange Pi 5/5B |
+| Rockchip RK3588 | Orange Pi 5Plus |
 
 ## Download links
 

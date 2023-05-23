@@ -57,7 +57,7 @@ if [[ $BOARD =~ orangepir1plus|orangepir1plus-lts ]]; then
 	MINILOADER_BLOB='rk33/rk322xh_miniloader_v2.50.bin'
 	BL31_BLOB='rk33/rk322xh_bl31_v1.44.elf'
 
-elif [[ $BOARD =~ orangepi5|orangepi5b|orangepi5plus|orangepitab ]]; then
+elif [[ $BOARDFAMILY == "rockchip-rk3588" ]]; then
 
         BOOT_SCENARIO="${BOOT_SCENARIO:=spl-blobs}"
         DDR_BLOB="${DDR_BLOB:=rk35/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.08.bin}"
@@ -113,7 +113,7 @@ uboot_custom_postprocess()
 
 	if [[ $BOOT_SUPPORT_SPI == yes ]]; then
 
-		if [[ $BOARD =~ orangepi5|orangepi5b|orangepi5plus|orangepitab ]]; then
+		if [[ $BOARDFAMILY == "rockchip-rk3588" ]]; then
 
 			tools/mkimage -n rk3588 -T rksd -d $RKBIN_DIR/$DDR_BLOB:spl/u-boot-spl.bin idbloader.img
 			dd if=/dev/zero of=rkspi_loader.img bs=1M count=0 seek=4
@@ -242,7 +242,7 @@ family_tweaks()
 	[[ $(type -t family_tweaks_s) == function ]] && family_tweaks_s
 
 	[[ "$BRANCH" =~ legacy|current ]] && rk3399_gpu_vpu_tweaks
-	[[ "$BRANCH" =~ legacy && "$BOARD" =~ orangepi5|orangepi5b|orangepi5plus|orangepitab ]] && rk3588_gpu_vpu_tweaks
+	[[ "$BRANCH" =~ legacy && $BOARDFAMILY == "rockchip-rk3588" ]] && rk3588_gpu_vpu_tweaks
 
 	#if [[ ${BOARD} == orangepi800 && ${SELECTED_CONFIGURATION} == desktop && ${RELEASE} =~ bullseye|bookworm ]]; then
 

@@ -130,4 +130,5 @@ xscreensaver
 xserver-xorg
 xserver-xorg-video-fbdev
 xwallpaper
-
+libpipewire-0.3-0
+libspa-0.2-modules

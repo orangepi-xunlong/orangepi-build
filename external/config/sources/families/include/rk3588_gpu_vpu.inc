@@ -62,7 +62,7 @@ rk3588_gpu_vpu_tweaks()
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_${RELEASE}/libv4l/libv4l2rds0_1.20.0-2_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_${RELEASE}/libv4l/libv4lconvert0_1.20.0-2_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_${RELEASE}/libv4l/libv4l-dev_1.20.0-2_arm64.deb"
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_${RELEASE}/libv4l/libv4l-rkmpp_1.4.0-1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_${RELEASE}/libv4l/libv4l-rkmpp_1.5.1-1.1_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_${RELEASE}/libv4l/v4l-utils_1.20.0-2_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_${RELEASE}/libv4l/qv4l2_1.20.0-2_arm64.deb"
 
@@ -71,7 +71,9 @@ rk3588_gpu_vpu_tweaks()
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_${RELEASE}/xserver/xserver-xorg-dev_1.20.11-1_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_${RELEASE}/xserver/xserver-xorg-legacy_1.20.11-1_arm64.deb"
 
-		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_${RELEASE}/chromium/chromium-x11_91.0.4472.164_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_${RELEASE}/chromium/chromium-codecs-ffmpeg-extra_110.0.5481.4-debian11~bullseye~rkmpp20230130+1_arm64.deb"
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_${RELEASE}/chromium/chromium-browser_110.0.5481.4-debian11~bullseye~rkmpp20230130+1_arm64.deb"
+		cp $EXTER/cache/sources/rk3588_packages_${RELEASE}/chromium/default $SDCARD/etc/chromium-browser/
 
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_${RELEASE}/libdrm/libkms1_2.4.104-1_arm64.deb"
 

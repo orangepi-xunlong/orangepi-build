@@ -101,13 +101,23 @@ prepare_board() {
 			[[ $BOARD =~ orangepi5|orangepi5b ]] && echo host > /sys/kernel/debug/usb/fc000000.usb/mode
 
 			if [[ -c /dev/mpp_service ]]; then
-				chmod 666 /dev/mpp_service
+				chmod 0666 /dev/mpp_service
+
+				if [[ $DISTRIBUTION_CODENAME == bullseye ]]; then
+					{
+						echo "type=dec"
+						echo "codecs=VP8:VP9:H.264:H.265:AV1"
+						echo "max-width=7680"
+						echo "max-height=4320"
+					} > /dev/video-dec0
+				else
+					echo dec > /dev/video-dec0
+				fi
 
 				# Create dummy video node for chromium V4L2 VDA/VEA with rkmpp plugin
-				echo dec > /dev/video-dec0
 				echo enc > /dev/video-enc0
-				chmod 660 /dev/video-*
-				chown root.video /dev/video-*
+				chmod 0660 /dev/video-*
+				chown root:video /dev/video-*
 			fi
 
 			for p in $(modetest|grep "^Planes:" -A 9999|grep -o "^[0-9]*");

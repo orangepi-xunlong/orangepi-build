@@ -20,7 +20,7 @@ hdmiin_card=$(arecord -l | grep "hdmiin" | cut -d ":" -f 1 | cut -d ' ' -f 2)
 DISPLAY=:0.0 gst-launch-1.0 v4l2src device=${device_id} io-mode=4 ! videoconvert \
 	! video/x-raw,format=NV12,width=${width},height=${heigh} \
 	! videoscale ! video/x-raw,width=1280,height=720 \
-	! autovideosink 2>&1 > /dev/null &
+	! autovideosink sync=false 2>&1 > /dev/null &
 
 gst-launch-1.0 alsasrc device=hw:${hdmiin_card},0 ! audioconvert ! audioresample ! queue \
 	! tee name=t ! queue ! alsasink device="hw:${hdmi0_card},0" \

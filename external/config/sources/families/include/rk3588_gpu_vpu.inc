@@ -377,6 +377,8 @@ rk3588_gpu_vpu_tweaks()
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/mpp/librockchip-vpu0_1.5.0-1+git230210.c145c84~jammy1_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/mpp/rockchip-mpp-demos_1.5.0-1+git230210.c145c84~jammy1_arm64.deb"
 
+		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gst-rkmpp/gstreamer1.0-rockchip1_1.14-4_arm64.deb"
+
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gstreamer/gir1.2-gstreamer-1.0_1.20.3-0ubuntu1_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gstreamer/gstreamer1.0-tools_1.20.3-0ubuntu1_arm64.deb"
 		dpkg_install_deb_chroot "$EXTER/cache/sources/rk3588_packages_jammy/gstreamer/libgstreamer1.0-0_1.20.3-0ubuntu1_arm64.deb"

@@ -17,10 +17,17 @@ hdmi0_card=$(aplay -l | grep "hdmi0" | cut -d ':' -f 1 | cut -d ' ' -f 2)
 hdmi1_card=$(aplay -l | grep "hdmi1" | cut -d ':' -f 1 | cut -d ' ' -f 2)
 hdmiin_card=$(arecord -l | grep "hdmiin" | cut -d ":" -f 1 | cut -d ' ' -f 2)
 
-DISPLAY=:0.0 gst-launch-1.0 v4l2src device=${device_id} io-mode=4 ! videoconvert \
-	! video/x-raw,format=NV12,width=${width},height=${heigh} \
-	! videoscale ! video/x-raw,width=1280,height=720 \
-	! autovideosink sync=false 2>&1 > /dev/null &
+if [[ $XDG_SESSION_TYPE == wayland ]]; then
+	DISPLAY=:0.0 gst-launch-1.0 v4l2src device=${device_id} ! videoconvert \
+		! videoscale ! video/x-raw,width=1280,height=720 \
+		! waylandsink sync=false 2>&1 > /dev/null &
+else
+	DISPLAY=:0.0 gst-launch-1.0 v4l2src device=${device_id} io-mode=4 ! videoconvert \
+		! video/x-raw,format=NV12,width=${width},height=${heigh} \
+		! videoscale ! video/x-raw,width=1280,height=720 \
+		! autovideosink sync=false 2>&1 > /dev/null &
+
+fi
 
 gst-launch-1.0 alsasrc device=hw:${hdmiin_card},0 ! audioconvert ! audioresample ! queue \
 	! tee name=t ! queue ! alsasink device="hw:${hdmi0_card},0" \

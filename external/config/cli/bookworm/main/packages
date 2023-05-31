@@ -13,6 +13,7 @@ openssh-server
 parted
 psmisc
 python3-apt
+python-is-python3
 smartmontools
 sysfsutils
 toilet

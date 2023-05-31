@@ -103,7 +103,7 @@ prepare_board() {
 			if [[ -c /dev/mpp_service ]]; then
 				chmod 0666 /dev/mpp_service
 
-				if [[ $DISTRIBUTION_CODENAME == bullseye ]]; then
+				if [[ $DISTRIBUTION_CODENAME =~ bullseye|bookworm|jammy ]]; then
 					{
 						echo "type=dec"
 						echo "codecs=VP8:VP9:H.264:H.265:AV1"

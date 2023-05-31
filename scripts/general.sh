@@ -184,7 +184,7 @@ create_sources_list()
 	EOF
 	;;
 
-	bullseye|bookworm|trixie)
+	bullseye|trixie)
 	cat <<-EOF > "${basedir}"/etc/apt/sources.list
 	deb https://${DEBIAN_MIRROR} $release main contrib non-free
 	#deb-src https://${DEBIAN_MIRROR} $release main contrib non-free
@@ -200,10 +200,29 @@ create_sources_list()
 	EOF
 	;;
 
+	bookworm)
+	cat <<- EOF > "${basedir}"/etc/apt/sources.list
+	deb http://${DEBIAN_MIRROR} $release main contrib non-free non-free-firmware
+	#deb-src http://${DEBIAN_MIRROR} $release main contrib non-free non-free-firmware
+
+	deb http://${DEBIAN_MIRROR} ${release}-updates main contrib non-free non-free-firmware
+	#deb-src http://${DEBIAN_MIRROR} ${release}-updates main contrib non-free non-free-firmware
+
+	deb http://${DEBIAN_MIRROR} ${release}-backports main contrib non-free non-free-firmware
+	#deb-src http://${DEBIAN_MIRROR} ${release}-backports main contrib non-free non-free-firmware
+
+	deb http://${DEBIAN_SECURTY} ${release}-security main contrib non-free non-free-firmware
+	#deb-src http://${DEBIAN_SECURTY} ${release}-security main contrib non-free non-free-firmware
+	EOF
+	;;
+
 	sid) # sid is permanent unstable development and has no such thing as updates or security
-	cat <<-EOF > "${basedir}"/etc/apt/sources.list
-	deb http://${DEBIAN_MIRROR} $release main contrib non-free
-	#deb-src http://${DEBIAN_MIRROR} $release main contrib non-free
+	cat <<- EOF > "${basedir}"/etc/apt/sources.list
+	deb http://${DEBIAN_MIRROR} $release main contrib non-free non-free-firmware
+	#deb-src http://${DEBIAN_MIRROR} $release main contrib non-free non-free-firmware
+
+	deb http://${DEBIAN_MIRROR} unstable main contrib non-free non-free-firmware
+	#deb-src http://${DEBIAN_MIRROR} unstable main contrib non-free non-free-firmware
 	EOF
 	;;
 

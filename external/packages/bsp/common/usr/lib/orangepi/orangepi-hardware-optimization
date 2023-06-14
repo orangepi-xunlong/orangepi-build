@@ -100,6 +100,19 @@ prepare_board() {
 		orangepi5|orangepi5b|orangepi5plus|orangepitab|orangepi900)
 			[[ $BOARD =~ orangepi5|orangepi5b ]] && echo host > /sys/kernel/debug/usb/fc000000.usb/mode
 
+			if [[ $BOARD =~ orangepi900 ]]; then
+				es8388_card=$(aplay -l | grep "es8388" | cut -d ':' -f 1 | cut -d ' ' -f 2)
+				jack_num=$(tinymix -D ${es8388_card} | grep "Headphone Jack" | cut -c1-2)
+
+				if [[ $(tinymix -D ${es8388_card} $jack_num | cut -d ":" -f 2) == *On ]]; then
+					tinymix -D ${es8388_card} 25 2
+					tinymix -D ${es8388_card} 27 2
+				else
+					tinymix -D ${es8388_card} 25 0
+					tinymix -D ${es8388_card} 27 0
+				fi
+			fi
+
 			if [[ -c /dev/mpp_service ]]; then
 				chmod 0666 /dev/mpp_service
 

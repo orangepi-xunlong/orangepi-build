@@ -1,0 +1,1 @@
+ACTION=="change", SUBSYSTEM=="extcon", ATTR{name}=="es8388-sound", RUN+="/usr/bin/orangepi_audio.sh"

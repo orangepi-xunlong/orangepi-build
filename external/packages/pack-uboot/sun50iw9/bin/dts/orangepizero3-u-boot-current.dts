@@ -719,8 +719,8 @@
 			reg = <0x0 0x0300a011 0x0 0x4>;
 			reg_base = <0x0300a000>;
 			pinctrl-names = "active", "sleep";
-			pinctrl-0 = <&pwm1_pin_a>;
-			pinctrl-1 = <&pwm1_pin_b>;
+			pinctrl-0 = <&pwm1_ph_pin_a>;
+			pinctrl-1 = <&pwm1_ph_pin_b>;
 			status = "disabled";
 		};
 
@@ -729,8 +729,8 @@
 			reg = <0x0 0x0300a012 0x0 0x4>;
 			reg_base = <0x0300a000>;
 			pinctrl-names = "active", "sleep";
-			pinctrl-0 = <&pwm2_pin_a>;
-			pinctrl-1 = <&pwm2_pin_b>;
+			pinctrl-0 = <&pwm2_ph_pin_a>;
+			pinctrl-1 = <&pwm2_ph_pin_b>;
 			status = "disabled";
 		};
 
@@ -739,8 +739,8 @@
 			reg = <0x0 0x0300a013 0x0 0x4>;
 			reg_base = <0x0300a000>;
 			pinctrl-names = "active", "sleep";
-			pinctrl-0 = <&pwm3_pin_a>;
-			pinctrl-1 = <&pwm3_pin_b>;
+			pinctrl-0 = <&pwm3_ph_pin_a>;
+			pinctrl-1 = <&pwm3_ph_pin_b>;
 			status = "disabled";
 		};
 
@@ -749,8 +749,8 @@
 			reg = <0x0 0x0300a014 0x0 0x4>;
 			reg_base = <0x0300a000>;
 			pinctrl-names = "active", "sleep";
-			pinctrl-0 = <&pwm4_pin_a>;
-			pinctrl-1 = <&pwm4_pin_b>;
+			pinctrl-0 = <&pwm4_ph_pin_a>;
+			pinctrl-1 = <&pwm4_ph_pin_b>;
 			status = "disabled";
 		};
 
@@ -790,14 +790,14 @@
 			vcc-pg-supply = <0x17>;
 			phandle = <0x23>;
 
-			uart0-ph-pins {
+			uart0_ph_pins_a: uart0-ph-pins {
 				pins = "PH0", "PH1";
 				function = "uart0";
 				bias-pull-up;
 				phandle = <0x29>;
 			};
 
-			uart0-ph-sleep {
+			uart0_ph_pins_b: uart0-ph-sleep {
 				pins = "PH0", "PH1";
 				function = "gpio_in";
 				phandle = <0x2a>;
@@ -915,61 +915,67 @@
 				phandle = <0x28>;
 			};
 
-			uart1-ph-pins {
+			uart1_ph_pins_a: uart1-ph-pins {
 				pins = "PG6", "PG7", "PG8", "PG9";
 				function = "uart1";
 				phandle = <0x2b>;
 			};
 
-			uart1-ph-sleep {
+			uart1_ph_pins_b: uart1-ph-sleep {
 				pins = "PG6", "PG7", "PG8", "PG9";
 				function = "gpio_in";
 				phandle = <0x2c>;
 			};
 
-			uart2-ph-pins {
+			uart2_ph_pins_a: uart2-ph-pins {
 				pins = "PH5", "PH6";
 				function = "uart2";
 				phandle = <0x2d>;
 			};
 
-			uart2-ph-sleep {
+			uart2_pi_pins_a: uart2-pi-pins {
+				pins = "PI5", "PI6";
+				function = "uart2";
+			};
+
+			uart2_pi_pins_b: uart2-pi-sleep {
+				pins = "PI5", "PI6";
+				function = "gpio_in";
+			};
+
+			uart2_ph_pins_b: uart2-ph-sleep {
 				pins = "PH5", "PH6";
 				function = "gpio_in";
 				phandle = <0x2e>;
 			};
 
-			uart3-ph-pins {
+			uart3_pi_pins_a: uart3-pi-pins {
 				pins = "PI9", "PI10";
 				function = "uart3";
-				phandle = <0x2f>;
 			};
 
-			uart3-ph-sleep {
+			uart3_pi_pins_b: uart3-pi-sleep {
 				pins = "PI9", "PI10";
 				function = "gpio_in";
-				phandle = <0x30>;
 			};
 
-			uart4-ph-pins {
+			uart4_pi_pins_a: uart4-pi-pins {
 				pins = "PI13", "PI14";
 				function = "uart4";
-				phandle = <0x31>;
 			};
 
-			uart4-ph-sleep {
+			uart4_pi_pins_b: uart4-pi-sleep {
 				pins = "PI13", "PI14";
 				function = "gpio_in";
-				phandle = <0x32>;
 			};
 
-			uart5-ph-pins {
+			uart5_ph_pins_a: uart5-ph-pins {
 				pins = "PH2", "PH3";
 				function = "uart5";
 				phandle = <0x33>;
 			};
 
-			uart5-ph-sleep {
+			uart5_ph_pins_b: uart5-ph-sleep {
 				pins = "PH2", "PH3";
 				function = "gpio_in";
 				phandle = <0x34>;
@@ -989,35 +995,44 @@
 				phandle = <0x65>;
 			};
 
-			twi0@0 {
+			twi0_pi_pins_a: twi0-pi-pins-a@0 {
 				pins = "PI5", "PI6";
 				function = "twi0";
 				drive-strength = <0xa>;
 				bias-pull-up;
-				phandle = <0x36>;
 			};
 
-			twi0@1 {
+			twi0_pi_pins_b: twi0-pi-pins-b@1 {
 				pins = "PI5", "PI6";
 				function = "gpio_in";
-				phandle = <0x37>;
 			};
 
-			twi1@0 {
+			twi1_ph_pins_a: twi1-ph-pins-a@0 {
 				pins = "PH0", "PH1";
 				function = "twi1";
 				drive-strength = <0xa>;
 				bias-pull-up;
-				phandle = <0x38>;
 			};
 
-			twi1@1 {
+			twi1_ph_pins_b: twi1-ph-pins-b@0 {
 				pins = "PH0", "PH1";
 				function = "gpio_in";
 				phandle = <0x39>;
 			};
 
-			twi2@0 {
+			twi1_pi_pins_a: twi1-pi-pins-a@0 {
+				pins = "PI7", "PI8";
+				function = "twi1";
+				drive-strength = <0xa>;
+				bias-pull-up;
+			};
+
+			twi1_pi_pins_b: twi1-pi-pins-b@0 {
+				pins = "PI7", "PI8";
+				function = "gpio_in";
+			};
+
+			twi2_ph_pins_a: twi2-ph-pins-a@0 {
 				pins = "PH2", "PH3";
 				function = "twi2";
 				drive-strength = <0xa>;
@@ -1025,13 +1040,25 @@
 				phandle = <0x3a>;
 			};
 
-			twi2@1 {
+			twi2_ph_pins_b: twi2-ph-pins-b@0 {
 				pins = "PH2", "PH3";
 				function = "gpio_in";
 				phandle = <0x3b>;
 			};
 
-			twi3@0 {
+			twi2_pi_pins_a: twi2-pi-pins-a@0 {
+				pins = "PI9", "PI10";
+				function = "twi2";
+				drive-strength = <0xa>;
+				bias-pull-up;
+			};
+
+			twi2_pi_pins_b: twi2-pi-pins-b@0 {
+				pins = "PI9", "PI10";
+				function = "gpio_in";
+			};
+
+			twi3_ph_pins_a: twi3-ph-pins-a@0 {
 				pins = "PH4", "PH5";
 				function = "twi3";
 				drive-strength = <0xa>;
@@ -1039,13 +1066,13 @@
 				phandle = <0x3c>;
 			};
 
-			twi3@1 {
+			twi3_ph_pins_b: twi3-ph-pins-b@0 {
 				pins = "PH4", "PH5";
 				function = "gpio_in";
 				phandle = <0x3d>;
 			};
 
-			twi4@0 {
+			twi4_ph_pins_a: twi4-ph-pins-a@0 {
 				pins = "PH6", "PH7";
 				function = "twi4";
 				drive-strength = <0xa>;
@@ -1053,7 +1080,7 @@
 				phandle = <0x3e>;
 			};
 
-			twi4@1 {
+			twi4_ph_pins_b: twi4-ph-pins-b@0 {
 				pins = "PH6", "PH7";
 				function = "gpio_in";
 				phandle = <0x3f>;
@@ -1135,63 +1162,111 @@
 				phandle = <0x61>;
 			};
 
-			pwm0_pin_a: pwm0@0 {
+			pwm0_pin_a: pwm0-pin-a@0 {
 				pins = "PD28";
 				function = "pwm0";
 				drive-strength = <10>;
 				bias-pull-up;
 			};
 
-			pwm0_pin_b: pwm0@1 {
+			pwm0_pin_b: pwm0-pin-b@0 {
 				pins = "PD28";
 				function = "gpio_in";
 			};
 
-			pwm1_pin_a: pwm1@0 {
+			pwm1_ph_pin_a: pwm1-ph-pin-a@0 {
 				pins = "PH3";
 				function = "pwm1";
 				drive-strength = <10>;
 				bias-pull-up;
 			};
 
-			pwm1_pin_b: pwm1@1 {
+			pwm1_ph_pin_b: pwm1-ph-pin-b@0 {
 				pins = "PH3";
 				function = "gpio_in";
 			};
 
-			pwm2_pin_a: pwm2@0 {
+			pwm2_ph_pin_a: pwm2-ph-pin-a@0 {
 				pins = "PH2";
 				function = "pwm2";
 				drive-strength = <10>;
 				bias-pull-up;
 			};
 
-			pwm2_pin_b: pwm2@1 {
+			pwm2_ph_pin_b: pwm2-ph-pin-b@0 {
 				pins = "PH2";
 				function = "gpio_in";
 			};
 
-			pwm3_pin_a: pwm3@0 {
+			pwm3_ph_pin_a: pwm3-ph-pin-a@0 {
 				pins = "PH0";
 				function = "pwm3";
 				drive-strength = <10>;
 				bias-pull-up;
 			};
 
-			pwm3_pin_b: pwm3@1 {
+			pwm3_ph_pin_b: pwm3-ph-pin-b@0 {
 				pins = "PH0";
 				function = "gpio_in";
 			};
 
-			pwm4_pin_a: pwm4@0 {
+			pwm4_ph_pin_a: pwm4-ph-pin-a@0 {
 				pins = "PH1";
 				function = "pwm4";
 				drive-strength = <10>;
 				bias-pull-up;
 			};
 
-			pwm4_pin_b: pwm4@1 {
+			pwm4_ph_pin_b: pwm4-ph-pin-b@0 {
 				pins = "PH1";
+				function = "gpio_in";
+			};
+
+			pwm1_pi_pin_a: pwm1-pi-pin-a@0 {
+				pins = "PI11";
+				function = "pwm1";
+				drive-strength = <10>;
+				bias-pull-up;
+			};
+
+			pwm1_pi_pin_b: pwm1-pi-pin-b@0 {
+				pins = "PI11";
+				function = "gpio_in";
+			};
+
+			pwm2_pi_pin_a: pwm2-pi-pin-a@0 {
+				pins = "PI12";
+				function = "pwm2";
+				drive-strength = <10>;
+				bias-pull-up;
+			};
+
+			pwm2_pi_pin_b: pwm2-pi-pin-b@0 {
+				pins = "PI12";
+				function = "gpio_in";
+			};
+
+			pwm3_pi_pin_a: pwm3-pi-pin-a@0 {
+				pins = "PI13";
+				function = "pwm3";
+				drive-strength = <10>;
+				bias-pull-up;
+			};
+
+			pwm3_pi_pin_b: pwm3-pi-pin-b@0 {
+				pins = "PI13";
+				function = "gpio_in";
+			};
+
+			pwm4_pi_pin_a: pwm4-pi-pin-a@0 {
+				pins = "PI14";
+				function = "pwm4";
+				drive-strength = <10>;
+				bias-pull-up;
+			};
+
+			pwm4_pi_pin_b: pwm4-pi-pin-b@0 {
+				pins = "PI14";
 				function = "gpio_in";
 			};
 
@@ -1845,7 +1920,16 @@
 				compatible = "rohm,dh2228fv";
 				spi-max-frequency = <0x10000000>;
 				reg = <0x0>;
+				status = "disabled";
+			};
+
+			flash@0 {
 				status = "okay";
+				#address-cells = <1>;
+				#size-cells = <1>;
+				compatible = "jedec,spi-nor";
+				reg = <0>;
+				spi-max-frequency = <0x10000000>;
 			};
 		};
 
@@ -2265,19 +2349,20 @@
 			};
 		};
 
-		leds {
+		leds: leds {
 			compatible = "gpio-leds";
+			status = "okay";
 
-			power {
+			led-red {
 				label = "red_led";
-				gpios = <0x23 0x2 0xc 0x1>; /* PC12 */
-				default-state = "on";
+				gpios = <0x23 0x2 0xc 0x0>; /* PC12 */
+				linux,default-trigger = "none";
 			};
 
-			status {
+			led-green {
 				label = "green_led";
-				gpios = <0x23 0x2 0xd 0x1>; /* PC13 */
-				default-state = "off";
+				gpios = <0x23 0x2 0xd 0x0>; /* PC13 */
+				linux,default-trigger = "heartbeat";
 			};
 		};
 
@@ -2933,13 +3018,13 @@
 		cryptoengine = "/soc@3000000/ce@1904000";
 		soc_timer0 = "/soc@3000000/timer@3009000";
 		wdt = "/soc@3000000/watchdog@30090a0";
-		pwm = "/soc@3000000/pwm@300a000";
+		/*pwm = "/soc@3000000/pwm@300a000";
 		pwm0 = "/soc@3000000/pwm0@300a010";
 		pwm1 = "/soc@3000000/pwm1@300a011";
 		pwm2 = "/soc@3000000/pwm2@300a012";
 		pwm3 = "/soc@3000000/pwm3@300a013";
 		pwm4 = "/soc@3000000/pwm4@300a014";
-		pwm5 = "/soc@3000000/pwm5@300a015";
+		pwm5 = "/soc@3000000/pwm5@300a015";*/
 		ac200 = "/soc@3000000/ac200";
 		pio = "/soc@3000000/pinctrl@300b000";
 		uart0_ph_pins = "/soc@3000000/pinctrl@300b000/uart0-ph-pins";
@@ -2961,10 +3046,6 @@
 		uart1_ph_sleep = "/soc@3000000/pinctrl@300b000/uart1-ph-sleep";
 		uart2_ph_pins = "/soc@3000000/pinctrl@300b000/uart2-ph-pins";
 		uart2_ph_sleep = "/soc@3000000/pinctrl@300b000/uart2-ph-sleep";
-		uart3_ph_pins = "/soc@3000000/pinctrl@300b000/uart3-ph-pins";
-		uart3_ph_sleep = "/soc@3000000/pinctrl@300b000/uart3-ph-sleep";
-		uart4_ph_pins = "/soc@3000000/pinctrl@300b000/uart4-ph-pins";
-		uart4_ph_sleep = "/soc@3000000/pinctrl@300b000/uart4-ph-sleep";
 		uart5_ph_pins = "/soc@3000000/pinctrl@300b000/uart5-ph-pins";
 		uart5_ph_sleep = "/soc@3000000/pinctrl@300b000/uart5-ph-sleep";
 		s_cir0_pins_a = "/soc@3000000/pinctrl@300b000/s_cir0@0";
@@ -2989,8 +3070,8 @@
 		gmac0_pins_b = "/soc@3000000/pinctrl@300b000/gmac0@1";
 		gmac1_pins_a = "/soc@3000000/pinctrl@300b000/gmac1@0";
 		gmac1_pins_b = "/soc@3000000/pinctrl@300b000/gmac1@1";
-		pwm5_pin_a = "/soc@3000000/pinctrl@300b000/pwm5@0";
-		pwm5_pin_b = "/soc@3000000/pinctrl@300b000/pwm5@1";
+		//pwm5_pin_a = "/soc@3000000/pinctrl@300b000/pwm5@0";
+		//pwm5_pin_b = "/soc@3000000/pinctrl@300b000/pwm5@1";
 		spdif_pins_a = "/soc@3000000/pinctrl@300b000/spdif@0";
 		spdif_pins_b = "/soc@3000000/pinctrl@300b000/spdif_sleep@0";
 		ahub_daudio0_pins_a = "/soc@3000000/pinctrl@300b000/ahub_daudio0@0";
@@ -3015,7 +3096,7 @@
 		sdc1 = "/soc@3000000/sdmmc@4021000";
 		nand0 = "/soc@3000000/nand0@4011000";
 		mbus0 = "/soc@3000000/mbus-controller@47fa000";
-		uart0 = "/soc@3000000/uart@5000000";
+		/*uart0 = "/soc@3000000/uart@5000000";
 		uart1 = "/soc@3000000/uart@5000400";
 		uart2 = "/soc@3000000/uart@5000800";
 		uart3 = "/soc@3000000/uart@5000c00";
@@ -3026,7 +3107,7 @@
 		twi2 = "/soc@3000000/twi@5002800";
 		twi3 = "/soc@3000000/twi@5002c00";
 		twi4 = "/soc@3000000/twi@5003000";
-		twi5 = "/soc@3000000/twi@7081400";
+		twi5 = "/soc@3000000/twi@7081400";*/
 		pmu0 = "/soc@3000000/twi@7081400/pmu";
 		standby_param = "/soc@3000000/twi@7081400/pmu/standby_param";
 		reg_dcdc1 = "/soc@3000000/twi@7081400/pmu/regulators/dcdc1";
@@ -3034,8 +3115,8 @@
 		reg_dcdc3 = "/soc@3000000/twi@7081400/pmu/regulators/dcdc3";
 		reg_aldo1 = "/soc@3000000/twi@7081400/pmu/regulators/ldo1";
 		reg_dldo1 = "/soc@3000000/twi@7081400/pmu/regulators/ldo2";
-		spi0 = "/soc@3000000/spi@5010000";
-		spi1 = "/soc@3000000/spi@5011000";
+		/*spi0 = "/soc@3000000/spi@5010000";
+		spi1 = "/soc@3000000/spi@5011000";*/
 		ths = "/soc@3000000/thermal-sensor@5070400";
 		gpadc = "/soc@3000000/gpadc@5070000";
 		keyboard = "/soc@3000000/keyboard@5070800";

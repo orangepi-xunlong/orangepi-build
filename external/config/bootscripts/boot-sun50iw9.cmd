@@ -53,8 +53,8 @@ fdt set disp boot_disp1 <${boot_disp1}>
 fdt set disp boot_disp2 <${boot_disp2}>
 fdt set disp tv_vdid <${tv_vdid}>
 
-fdt set disp fb0_width <${fb0_width}>
-fdt set disp fb0_height <${fb0_height}>
+fdt set /soc/disp fb0_width <${fb0_width}>
+fdt set /soc/disp fb0_height <${fb0_height}>
 
 fdt set mmc0 cap-sd-highspeed
 #fdt set mmc0 sd-uhs-sdr50

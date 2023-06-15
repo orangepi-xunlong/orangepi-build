@@ -162,7 +162,7 @@ prepare_board() {
 
 			/usr/bin/pwm-fan.sh &
 			;;
-		orangepizero2|orangepizero2-lts|orangepizero2-b|orangepizero3|orangepir1b)
+		orangepizero2|orangepizero2-lts|orangepizero2-b|orangepizero3|orangepir1b|orangepizero2w)
 			kv=$(uname -r)
 
 			#if [[ $BRANCH == current ]]; then

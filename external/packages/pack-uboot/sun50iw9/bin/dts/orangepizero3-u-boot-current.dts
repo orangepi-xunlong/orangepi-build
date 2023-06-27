@@ -1108,26 +1108,30 @@
 				phandle = <0x44>;
 			};
 
-			spi1@0 {
+			spi1_pins_a: spi1-pins-a {
 				pins = "PH6", "PH7", "PH8";
 				function = "spi1";
 				drive-strength = <0x14>;
-				phandle = <0x45>;
 			};
 
-			spi1@1 {
+			spi1_cs0_pin: spi1-cs0-pin {
+				pins = "PH5";
+				function = "spi1";
+				drive-strength = <0x14>;
+				bias-pull-up;
+			};
+
+			spi1_cs1_pin: spi1-cs1-pin {
 				pins = "PH9";
 				function = "spi1";
 				drive-strength = <0x14>;
 				bias-pull-up;
-				phandle = <0x46>;
 			};
 
-			spi1@2 {
-				pins = "PH6", "PH7", "PH8", "PH9";
+			spi1_pins_b: spi1-pins-b {
+				pins = "PH6", "PH7", "PH8";
 				function = "gpio_in";
 				drive-strength = <0x14>;
-				phandle = <0x47>;
 			};
 
 			gmac0@0 {
@@ -3063,9 +3067,10 @@
 		spi0_pins_a = "/soc@3000000/pinctrl@300b000/spi0@0";
 		spi0_pins_b = "/soc@3000000/pinctrl@300b000/spi0@1";
 		spi0_pins_c = "/soc@3000000/pinctrl@300b000/spi0@2";
-		spi1_pins_a = "/soc@3000000/pinctrl@300b000/spi1@0";
-		spi1_pins_b = "/soc@3000000/pinctrl@300b000/spi1@1";
-		spi1_pins_c = "/soc@3000000/pinctrl@300b000/spi1@2";
+		spi1_pins_a = "/soc@3000000/pinctrl@300b000/spi1-pins-a";
+		spi1_pins_b = "/soc@3000000/pinctrl@300b000/spi1-pins-b";
+		spi1_cs0_pin = "/soc@3000000/pinctrl@300b000/spi1-cs0-pin";
+		spi1_cs1_pin = "/soc@3000000/pinctrl@300b000/spi1-cs1-pin";
 		gmac0_pins_a = "/soc@3000000/pinctrl@300b000/gmac0@0";
 		gmac0_pins_b = "/soc@3000000/pinctrl@300b000/gmac0@1";
 		gmac1_pins_a = "/soc@3000000/pinctrl@300b000/gmac1@0";

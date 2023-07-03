@@ -112,6 +112,14 @@ compile_atf()
 
 compile_uboot()
 {
+
+	if [[ ${BOARDFAMILY} == "sun50iw9" && ${BRANCH} =~ legacy|current && $(dpkg --print-architecture) == arm64 ]]; then
+
+		local uboot_name=${CHOSEN_UBOOT}_${REVISION}_${ARCH}.deb
+		display_alert "Compile u-boot is not supported, only copy precompiled deb package" "$uboot_name" "info"
+		cp "${EXTER}/cache/debs/h618/$uboot_name" "${DEB_STORAGE}/u-boot/"
+	else
+
 	# not optimal, but extra cleaning before overlayfs_wrapper should keep sources directory clean
 	if [[ $CLEAN_LEVEL == *make* ]]; then
 		display_alert "Cleaning" "$BOOTSOURCEDIR" "info"
@@ -215,6 +223,15 @@ compile_uboot()
 
 			fi
 
+			if [[ ${BOARDFAMILY} == "sun50iw9" && ${BRANCH} == "next" ]]; then
+				if [[ ${MEM_TYPE} == "1500MB" ]]; then
+
+					sed -i 's/^.*CONFIG_DRAM_SUN50I_H616_TRIM_SIZE*/CONFIG_DRAM_SUN50I_H616_TRIM_SIZE=y/g' .config
+				else
+					sed -i 's/^.*CONFIG_DRAM_SUN50I_H616_TRIM_SIZE*/# CONFIG_DRAM_SUN50I_H616_TRIM_SIZE is not set/g' .config
+				fi
+			fi
+
 			[[ -f tools/logos/udoo.bmp ]] && cp "${EXTER}"/packages/blobs/splash/udoo.bmp tools/logos/udoo.bmp
 			touch .scmversion
 
@@ -315,6 +332,8 @@ compile_uboot()
 
 	rsync --remove-source-files -rq "$uboottempdir/${uboot_name}.deb" "${DEB_STORAGE}/u-boot/"
 	rm -rf "$uboottempdir"
+
+	fi
 }
 
 create_linux-source_package ()

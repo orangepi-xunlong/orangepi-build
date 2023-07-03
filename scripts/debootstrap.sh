@@ -748,7 +748,11 @@ create_image()
 		IMAGE_TYPE=desktop
 	fi
 
-	local version="${BOARD^}_${REVISION}_${DISTRIBUTION,}_${RELEASE}_${IMAGE_TYPE}"${DESKTOP_ENVIRONMENT:+_$DESKTOP_ENVIRONMENT}"_linux$(grab_version "$LINUXSOURCEDIR")"
+	if [[ ${MEM_TYPE} == "1500MB" ]]; then
+		local version="${BOARD^}_${REVISION}_${DISTRIBUTION,}_${RELEASE}_${IMAGE_TYPE}"${DESKTOP_ENVIRONMENT:+_$DESKTOP_ENVIRONMENT}"_linux$(grab_version "$LINUXSOURCEDIR")_1.5gb"
+	else
+		local version="${BOARD^}_${REVISION}_${DISTRIBUTION,}_${RELEASE}_${IMAGE_TYPE}"${DESKTOP_ENVIRONMENT:+_$DESKTOP_ENVIRONMENT}"_linux$(grab_version "$LINUXSOURCEDIR")"
+	fi
 	[[ $ROOTFS_TYPE == nfs ]] && version=${version}_nfsboot
 
 	destimg=$DEST/images/${version}

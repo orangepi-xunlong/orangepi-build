@@ -13,6 +13,7 @@
 *.bak
 *.swp
 *.tar.gz
+*.patch
 
 b.sh
 .tmp

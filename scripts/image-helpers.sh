@@ -237,10 +237,9 @@ dpkg_install_deb_chroot()
 
 	display_alert "Installing${desc}" "${name/\/root\//}"
 
-	package_name=$(echo $(basename "${package}") | cut -d "_" -f1)
 	# when building in bulk from remote, lets make sure we have up2date index
 	chroot "${SDCARD}" /bin/bash -c "dpkg -i $name" >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
-	chroot "${SDCARD}" /bin/bash -c "apt-mark hold $package_name" >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
+	chroot "${SDCARD}" /bin/bash -c "dpkg-deb -f $name Package | xargs apt-mark hold" >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
 	[[ $? -ne 0 ]] && exit_with_error "Installation of $name failed" "${BOARD} ${RELEASE} ${BUILD_DESKTOP} ${LINUXFAMILY}"
 
 }

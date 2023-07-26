@@ -16,4 +16,6 @@ EOF
 chmod +x ~/.vnc/xstartup
 vncserver
 
+sudo chown orangepi:root .Xauthority
+
 sync

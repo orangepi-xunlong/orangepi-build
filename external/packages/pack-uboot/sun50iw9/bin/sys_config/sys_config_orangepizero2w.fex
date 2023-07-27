@@ -6,7 +6,7 @@
 
 [product]
 version = "100"
-machine = "orangepizero3"
+machine = "orangepizero2w"
 
 [platform]
 eraseflag   = 1

@@ -766,9 +766,9 @@
 
 		ac200 {
 			compatible = "allwinner,sunxi-ac200";
-			status = "disabled";
-			tv_used = <0x0>;
-			tv_twi_used = <0x0>;
+			status = "okay";
+			tv_used = <0x1>;
+			tv_twi_used = <0x1>;
 			tv_twi_id = <0x3>;
 			tv_twi_addr = <0x10>;
 			tv_pwm_ch = <0x5>;
@@ -1149,20 +1149,17 @@
 			};
 
 			gmac1@0 {
-				allwinner,pins = "PA0", "PA1", "PA2", "PA3", "PA4", "PA5", "PA6", "PA7", "PA8", "PA9";
-				allwinner,function = "gmac1";
-				allwinner,muxsel = <0x2>;
-				allwinner,drive = <0x3>;
-				allwinner,pull = <0x0>;
+				pins = "PA0", "PA1", "PA2", "PA3", "PA4", "PA5", "PA6", "PA7", "PA8", "PA9";
+				function = "gmac1";
+				drive-strength = <10>;
+				bias-pull-up;
 				phandle = <0x60>;
 			};
 
 			gmac1@1 {
-				allwinner,pins = "PA0", "PA1", "PA2", "PA3", "PA4", "PA5", "PA6", "PA7", "PA8", "PA9";
-				allwinner,function = "gpio_in";
-				allwinner,muxsel = <0x0>;
-				allwinner,drive = <0x3>;
-				allwinner,pull = <0x0>;
+				pins = "PA0", "PA1", "PA2", "PA3", "PA4", "PA5", "PA6", "PA7", "PA8", "PA9";
+				function = "gpio_in";
+				drive-strength = <10>;
 				phandle = <0x61>;
 			};
 
@@ -1914,9 +1911,6 @@
 			pinctrl-names = "default", "sleep";
 			pinctrl-0 = <0x42 0x43>;
 			pinctrl-1 = <0x44>;
-			spi1_cs_number = <0x1>;
-			spi1_cs_bitmap = <0x1>;
-			/*spi_dbi_enable = <0x0>;*/
 			phandle = <0xa9>;
 
 			spi_board0 {
@@ -1988,17 +1982,18 @@
 			clocks = <0x2 0x58>;
 			clock-names = "bus";
 			resets = <0x2 0x22>;
-			status = "disabled";
+			status = "okay";
 			phandle = <0xab>;
 		};
 
 		keyboard@5070800 {
 			compatible = "allwinner,keyboard_1350mv";
 			reg = <0x0 0x5070800 0x0 0x400>;
-			interrupts = <0x0 0x14 0x1>;
+			interrupts = <0x0 0x14 0x0>;
 			clocks = <0x2 0x74>;
-			resets = <0x2 0x35>;
-			status = "disabled";
+			key_cnt = <1>;
+			key0 = <1800 139>;
+			status = "okay";
 			phandle = <0xac>;
 		};
 
@@ -2357,9 +2352,33 @@
 			compatible = "gpio-leds";
 			status = "okay";
 
-			led-green {
-				label = "green_led";
+			status {
+				label = "status_led";
 				gpios = <0x23 0x2 0xd 0x0>; /* PC13 */
+				linux,default-trigger = "heartbeat";
+			};
+
+			100m_link {
+				label = "100m_link";
+				gpios = <0x23 0x2 0xc 0x0>; /* PC12 */
+				default-state = "off";
+			};
+
+			100m_act {
+				label = "100m_act";
+				gpios = <0x23 0x2 0xe 0x0>; /* PC14 */
+				default-state = "off";
+			};
+
+			led12 {
+				label = "led12";
+				gpios = <0x23 0x2 0xf 0x0>; /* PC15 */
+				linux,default-trigger = "heartbeat";
+			};
+
+			led34 {
+				label = "led34";
+				gpios = <0x23 0x2 0x10 0x0>; /* PC16 */
 				linux,default-trigger = "heartbeat";
 			};
 		};
@@ -2412,7 +2431,7 @@
 			gmac-power0;
 			gmac-power1;
 			gmac-power2;
-			status = "disabled";
+			status = "okay";
 			pinctrl-0 = <0x60>;
 			pinctrl-1 = <0x61>;
 			pinctrl-names = "default", "sleep";
@@ -2965,7 +2984,6 @@
 		regulator-min-microvolt = <0x4c4b40>;
 		regulator-max-microvolt = <0x4c4b40>;
 		regulator-enable-ramp-delay = <0x3e8>;
-		gpio = <0x23 0x2 0x10 0x0>;
 		enable-active-high;
 		phandle = <0x62>;
 	};

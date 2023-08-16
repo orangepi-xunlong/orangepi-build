@@ -94,6 +94,18 @@ rk356x_gpu_vpu_tweaks()
 		chroot $SDCARD /bin/bash -c "cd /usr/lib/aarch64-linux-gnu/dri/;cp kms_swrast_dri.so swrast_dri.so rockchip_dri.so /"
 		chroot $SDCARD /bin/bash -c "rm /usr/lib/aarch64-linux-gnu/dri/*.so;mv /*.so /usr/lib/aarch64-linux-gnu/dri/"
 
+		if [[ $install_zfs == "yes" ]]; then
+
+			chroot $SDCARD /bin/bash -c "dpkg -i /opt/${CHOSEN_KERNEL/image/headers}_${REVISION}_${ARCH}.deb"
+			dpkg_install_deb_chroot "$EXTER/cache/sources/rk356x_packages/focal/zfs/libnvpair3linux_2.1.6-0york1~20.04_arm64.deb"
+			dpkg_install_deb_chroot "$EXTER/cache/sources/rk356x_packages/focal/zfs/libuutil3linux_2.1.6-0york1~20.04_arm64.deb"
+			dpkg_install_deb_chroot "$EXTER/cache/sources/rk356x_packages/focal/zfs/libzfs4linux_2.1.6-0york1~20.04_arm64.deb"
+			dpkg_install_deb_chroot "$EXTER/cache/sources/rk356x_packages/focal/zfs/libzpool5linux_2.1.6-0york1~20.04_arm64.deb"
+			dpkg_install_deb_chroot "$EXTER/cache/sources/rk356x_packages/focal/zfs/zfsutils-linux_2.1.6-0york1~20.04_arm64.deb"
+			dpkg_install_deb_chroot "$EXTER/cache/sources/rk356x_packages/focal/zfs/zfs-dkms_2.1.6-0york1~20.04_all.deb"
+			chroot $SDCARD /bin/bash -c "apt remove -y ${CHOSEN_KERNEL/image/headers}"
+		fi
+
 	fi
 
 	if [[ ${BOARD} =~ orangepicm4|orangepi3b && ${SELECTED_CONFIGURATION} == desktop && ${DESKTOP_ENVIRONMENT} == xfce && ${RELEASE} == jammy ]]; then
@@ -197,6 +209,18 @@ rk356x_gpu_vpu_tweaks()
 		chroot $SDCARD /bin/bash -c "cd /usr/lib/aarch64-linux-gnu/dri/;cp kms_swrast_dri.so swrast_dri.so rockchip_dri.so /"
 		chroot $SDCARD /bin/bash -c "rm /usr/lib/aarch64-linux-gnu/dri/*.so;mv /*.so /usr/lib/aarch64-linux-gnu/dri/"
 
+		if [[ $install_zfs == "yes" ]]; then
+
+			chroot $SDCARD /bin/bash -c "dpkg -i /opt/${CHOSEN_KERNEL/image/headers}_${REVISION}_${ARCH}.deb"
+			dpkg_install_deb_chroot "$EXTER/cache/sources/rk356x_packages/jammy/zfs/libnvpair3linux_2.1.6-0york1~22.04_arm64.deb"
+			dpkg_install_deb_chroot "$EXTER/cache/sources/rk356x_packages/jammy/zfs/libuutil3linux_2.1.6-0york1~22.04_arm64.deb"
+			dpkg_install_deb_chroot "$EXTER/cache/sources/rk356x_packages/jammy/zfs/libzfs4linux_2.1.6-0york1~22.04_arm64.deb"
+			dpkg_install_deb_chroot "$EXTER/cache/sources/rk356x_packages/jammy/zfs/libzpool5linux_2.1.6-0york1~22.04_arm64.deb"
+			dpkg_install_deb_chroot "$EXTER/cache/sources/rk356x_packages/jammy/zfs/zfsutils-linux_2.1.6-0york1~22.04_arm64.deb"
+			dpkg_install_deb_chroot "$EXTER/cache/sources/rk356x_packages/jammy/zfs/zfs-dkms_2.1.6-0york1~22.04_all.deb"
+			chroot $SDCARD /bin/bash -c "apt remove -y ${CHOSEN_KERNEL/image/headers}"
+		fi
+
 	fi
 
 
@@ -291,6 +315,18 @@ rk356x_gpu_vpu_tweaks()
 		rk356x_deb+=("rk356x_packages/bullseye/cheese/cheese_3.38.0-3_arm64.deb")
 		rk356x_deb+=("rk356x_packages/bullseye/cheese/cheese-common_3.38.0-3_all.deb")
 		rk356x_deb+=("rk356x_packages/bullseye/cheese/libcheese8_3.38.0-3_arm64.deb")
+
+		if [[ $install_zfs == "yes" ]]; then
+
+			chroot $SDCARD /bin/bash -c "dpkg -i /opt/${CHOSEN_KERNEL/image/headers}_${REVISION}_${ARCH}.deb"
+			dpkg_install_deb_chroot "$EXTER/cache/sources/rk356x_packages/${RELEASE}/zfs/libnvpair3linux_2.1.11-1~bpo11+1_arm64.deb"
+			dpkg_install_deb_chroot "$EXTER/cache/sources/rk356x_packages/${RELEASE}/zfs/libuutil3linux_2.1.11-1~bpo11+1_arm64.deb"
+			dpkg_install_deb_chroot "$EXTER/cache/sources/rk356x_packages/${RELEASE}/zfs/libzfs4linux_2.1.11-1~bpo11+1_arm64.deb"
+			dpkg_install_deb_chroot "$EXTER/cache/sources/rk356x_packages/${RELEASE}/zfs/libzpool5linux_2.1.11-1~bpo11+1_arm64.deb"
+			dpkg_install_deb_chroot "$EXTER/cache/sources/rk356x_packages/${RELEASE}/zfs/zfsutils-linux_2.1.11-1~bpo11+1_arm64.deb"
+			dpkg_install_deb_chroot "$EXTER/cache/sources/rk356x_packages/${RELEASE}/zfs/zfs-dkms_2.1.11-1~bpo11+1_all.deb"
+			chroot $SDCARD /bin/bash -c "apt remove -y ${CHOSEN_KERNEL/image/headers}"
+		fi
 
 		chroot $SDCARD /bin/bash -c "chmod o+x /usr/lib/dbus-1.0/dbus-daemon-launch-helper"
 

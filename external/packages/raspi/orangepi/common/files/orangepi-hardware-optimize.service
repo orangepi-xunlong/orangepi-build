@@ -1,0 +1,19 @@
+# Orange Pi hardware optimization service
+# Apply optimisations
+# This service may block the boot process for up to 2 minutes
+
+[Unit]
+Description=Orange Pi hardware optimization
+Before=basic.target
+After=sysinit.target local-fs.target orangepi-hardware-monitor.target
+DefaultDependencies=no
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/orangepi/orangepi-hardware-optimization start
+ExecStop=/usr/lib/orangepi/orangepi-hardware-optimization stop
+RemainAfterExit=yes
+TimeoutStartSec=2min
+
+[Install]
+WantedBy=basic.target

@@ -1,0 +1,106 @@
+#!/bin/bash
+
+source /etc/orangepi-release
+
+prepare_board() {
+
+	case ${BOARD} in
+
+		orangepi5|orangepi5b|orangepi5plus|orangepitab|orangepi900)
+
+			[[ $BOARD =~ orangepi5|orangepi5b ]] && echo host > /sys/kernel/debug/usb/fc000000.usb/mode
+			if [[ -c /dev/mpp_service ]]; then
+				chmod 0666 /dev/mpp_service
+
+				{
+					echo "type=dec"
+					echo "codecs=VP8:VP9:H.264:H.265:AV1"
+					echo "max-width=7680"
+					echo "max-height=4320"
+				} > /dev/video-dec0
+
+				# Create dummy video node for chromium V4L2 VDA/VEA with rkmpp plugin
+				echo enc > /dev/video-enc0
+				chmod 0660 /dev/video-*
+				chown root:video /dev/video-*
+			fi
+			bt_status=$(cat /proc/device-tree/wireless-bluetooth/status)
+			wifi_chip=$(cat /proc/device-tree/wireless-wlan/wifi_chip_type)
+			if [[ ${wifi_chip} == "ap6275p" && ${bt_status} == "okay" ]]; then
+				rfkill unblock all
+				brcm_patchram_plus --bd_addr_rand --enable_hci --no2bytes --use_baudrate_for_download --tosleep 200000 \
+					--baudrate 1500000 --patchram /lib/firmware/ap6275p/BCM4362A2.hcd /dev/ttyS9 &
+			fi
+			;;
+		orangepicm4|orangepi3b)
+			if [[ -c /dev/mpp_service ]]; then
+				chmod 666 /dev/mpp_service
+
+				# Create dummy video node for chromium V4L2 VDA/VEA with rkmpp plugin
+				echo dec > /dev/video-dec0
+				echo enc > /dev/video-enc0
+				chmod 660 /dev/video-*
+				chown root.video /dev/video-*
+			fi
+
+			for p in $(modetest|grep "^Planes:" -A 9999|grep -o "^[0-9]*");
+			do
+				modetest -M rockchip -aw $p:ASYNC_COMMIT:1 &>/dev/null
+			done
+
+			amixer -c 0 cset name='Playback Path' HP > /dev/null 2>&1
+			amixer -c 0 cset name='Capture MIC Path' 'Main Mic' > /dev/null 2>&1
+
+			rfkill unblock all
+			/usr/bin/hciattach_opi -n -s 1500000 /dev/ttyBT0 sprd &
+			#rfkill unblock all
+			#brcm_patchram_plus --bd_addr_rand --enable_hci --no2bytes --use_baudrate_for_download --tosleep 200000 \
+			#        --baudrate 1500000 --patchram /lib/firmware/cyw43455/BCM4345C0.hcd /dev/ttyS1 &
+			;;
+		orangepizero2|orangepizero2-lts|orangepizero2-b|orangepizero3|orangepir1b|orangepizero2w)
+			kv=$(uname -r)
+			if [[ $BOARD == orangepir1b ]]; then
+
+				#for 100m interface
+				interface_100m="eth1"
+				echo netdev > /sys/class/leds/100m_act/trigger
+				echo "${interface_100m}" > /sys/class/leds/100m_act/device_name
+				echo 1 > /sys/class/leds/100m_act/tx
+				echo 1 > /sys/class/leds/100m_act/rx
+
+				echo netdev > /sys/class/leds/100m_link/trigger
+				echo ${interface_100m} > /sys/class/leds/100m_link/device_name
+				echo 1 > /sys/class/leds/100m_link/link
+
+				echo netdev > /sys/class/leds/lan_led/trigger
+				echo ${interface_100m} > /sys/class/leds/lan_led/device_name
+				echo 1 > /sys/class/leds/lan_led/link
+				echo 1 > /sys/class/leds/lan_led/tx
+				echo 1 > /sys/class/leds/lan_led/rx
+
+				#for 1000m interface
+				interface_1000m="eth0"
+				echo netdev > /sys/class/leds/wan_led/trigger
+				echo ${interface_1000m} > /sys/class/leds/wan_led/device_name
+				echo 1 > /sys/class/leds/wan_led/link
+				echo 1 > /sys/class/leds/wan_led/tx
+				echo 1 > /sys/class/leds/wan_led/rx
+
+		        fi
+
+		        if [[ ${kv} == 4.9* ]]; then
+		        	aplay /usr/share/sounds/alsa/audio.wav -D hw:2,0 > /dev/null 2>&1
+		        fi
+
+		        rfkill unblock all
+		        /usr/bin/hciattach_opi -n -s 1500000 /dev/ttyBT0 sprd &
+		        ;;
+	esac
+}
+
+case $1 in
+	*start*)
+		# hardware preparation
+		prepare_board &
+		;;
+esac

@@ -1,0 +1,10 @@
+xserver-xorg-dev
+libgstreamer1.0-dev
+libgstreamer-plugins-base1.0-dev
+libgstreamer-opencv1.0-0
+gstreamer1.0-opencv
+gstreamer1.0-wpe
+libgstreamer-plugins-bad1.0-dev
+gstreamer1.0-plugins-ugly
+libre2-9
+libmpv1

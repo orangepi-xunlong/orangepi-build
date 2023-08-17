@@ -347,7 +347,7 @@ fi
 # "-z ${VAR+x}" allows to check for unset variable
 # Technically, someone might want to build a desktop with no additional
 # appgroups.
-if [[ $BUILD_DESKTOP == "yes" && -z ${DESKTOP_APPGROUPS_SELECTED+x} ]]; then
+if [[ $BUILD_DESKTOP == "yes" && -z ${DESKTOP_APPGROUPS_SELECTED+x} && ${RELEASE} != "raspi" ]]; then
 
 	options=()
 	for appgroup_path in "${DESKTOP_APPGROUPS_DIR}/"*; do
@@ -418,6 +418,8 @@ BOOTCONFIG_VAR_NAME=BOOTCONFIG_${BRANCH^^}
 
 if [[ "$RELEASE" =~ ^(xenial|bionic|focal|hirsute|impish|jammy)$ ]]; then
 		DISTRIBUTION="Ubuntu"
+elif [[ "$RELEASE" == raspi ]]; then
+		DISTRIBUTION="Bullseye"
 	else
 		DISTRIBUTION="Debian"
 fi
@@ -575,6 +577,7 @@ unset LOG_OUTPUT_FILE
 DEBIAN_MIRROR='deb.debian.org/debian'
 DEBIAN_SECURTY='security.debian.org/'
 UBUNTU_MIRROR='ports.ubuntu.com/'
+RASPI_MIRROR='archive.raspberrypi.org/debian/'
 
 if [[ $DOWNLOAD_MIRROR == "china" ]] ; then
 
@@ -589,6 +592,8 @@ if [[ $DOWNLOAD_MIRROR == "china" ]] ; then
 		DEBIAN_SECURTY='repo.huaweicloud.com/debian-security'
 		UBUNTU_MIRROR='repo.huaweicloud.com/ubuntu-ports/'
 	fi
+
+	RASPI_MIRROR='mirrors.ustc.edu.cn/archive.raspberrypi.org/debian/'
 
 fi
 

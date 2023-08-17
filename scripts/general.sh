@@ -184,7 +184,7 @@ create_sources_list()
 	EOF
 	;;
 
-	bullseye|trixie)
+	bullseye)
 	cat <<-EOF > "${basedir}"/etc/apt/sources.list
 	deb https://${DEBIAN_MIRROR} $release main contrib non-free
 	#deb-src https://${DEBIAN_MIRROR} $release main contrib non-free
@@ -240,6 +240,38 @@ create_sources_list()
 	deb http://${UBUNTU_MIRROR} ${release}-backports main restricted universe multiverse
 	#deb-src http://${UBUNTU_MIRROR} ${release}-backports main restricted universe multiverse
 	EOF
+	;;
+
+	raspi)
+	cat <<-EOF > "${basedir}"/etc/apt/sources.list
+	deb http://${DEBIAN_MIRROR} bullseye main contrib non-free
+	#deb-src http://${DEBIAN_MIRROR} bullseye main contrib non-free
+
+	deb http://${DEBIAN_MIRROR} bullseye-updates main contrib non-free
+	#deb-src http://${DEBIAN_MIRROR} bullseye-updates main contrib non-free
+
+	deb http://${DEBIAN_MIRROR} bullseye-backports main contrib non-free
+	#deb-src http://${DEBIAN_MIRROR} bullseye-backports main contrib non-free
+
+	deb http://${DEBIAN_SECURTY} bullseye-security main contrib non-free
+	#deb-src http://${DEBIAN_SECURTY} bullseye-security main contrib non-free
+	EOF
+
+	cat <<-EOF > "${basedir}"/etc/apt/sources.list.d/raspi.list
+	deb http://${RASPI_MIRROR} bullseye main
+	# Uncomment line below then 'apt-get update' to enable 'apt-get source'
+	#deb-src http://archive.raspberrypi.org/debian/ bullseye main
+	EOF
+
+	if [ -n "$APT_PROXY" ]; then
+		install -m 644 files/51cache "${APT_PROXY}/etc/apt/apt.conf.d/51cache"
+		sed "${basedir}/etc/apt/apt.conf.d/51cache" -i -e "s|APT_PROXY|${APT_PROXY}|"
+	else
+		rm -f "${basedir}/etc/apt/apt.conf.d/51cache"
+	fi
+
+	cat ${EXTER}/packages/raspi/stage0/00-configure-apt/files/raspberrypi.gpg.key | gpg --dearmor > "${basedir}/raspberrypi-archive-stable.gpg"
+	install -m 644 "${basedir}/raspberrypi-archive-stable.gpg" "${basedir}/etc/apt/trusted.gpg.d/"
 	;;
 	esac
 

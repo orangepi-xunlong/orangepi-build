@@ -1,0 +1,7 @@
+deb http://mirrors.ustc.edu.cn/archive.raspberrypi.org/debian/ RELEASE main
+# Uncomment line below then 'apt-get update' to enable 'apt-get source'
+#deb-src http://mirrors.ustc.edu.cn/archive.raspberrypi.org/debian/ RELEASE main
+
+#deb http://archive.raspberrypi.org/debian/ RELEASE main
+# Uncomment line below then 'apt-get update' to enable 'apt-get source'
+#deb-src http://archive.raspberrypi.org/debian/ RELEASE main

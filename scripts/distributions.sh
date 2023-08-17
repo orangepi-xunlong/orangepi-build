@@ -820,3 +820,322 @@ It is too late to run any chrooted commands, since the supporting filesystems ar
 POST_POST_DEBOOTSTRAP_TWEAKS
 
 }
+
+on_chroot()
+{
+	if [ "$SETFCAP" != "1" ]; then
+		export CAPSH_ARG="--drop=cap_setfcap"
+	fi
+
+	capsh $CAPSH_ARG "--chroot=${ROOTFS_DIR}/" -- -e "$@"
+}
+export -f on_chroot
+
+# shellcheck disable=SC2119
+run_sub_stage()
+{
+	log "Begin ${SUB_STAGE_DIR}"
+	#pushd "${SUB_STAGE_DIR}" > /dev/null
+	cd ${SUB_STAGE_DIR}
+
+	for i in {00..99}; do
+		if [ -f "${SUB_STAGE_DIR}/${i}-debconf" ]; then
+			display_alert "Begin ${SUB_STAGE_DIR}/${i}-debconf" "" "info"
+			on_chroot << EOF
+debconf-set-selections <<SELEOF
+$(cat "${i}-debconf")
+SELEOF
+EOF
+			display_alert "End ${SUB_STAGE_DIR}/${i}-debconf" "" "info"
+		fi
+		if [ -f "${SUB_STAGE_DIR}/${i}-packages-nr" ]; then
+			display_alert "Begin ${SUB_STAGE_DIR}/${i}-packages-nr" "" "info"
+			PACKAGES="$(sed -f "${EXTER}/packages/raspi/scripts/remove-comments.sed" < "${SUB_STAGE_DIR}/${i}-packages-nr")"
+			if [ -n "$PACKAGES" ]; then
+				on_chroot << EOF
+apt-get -o Acquire::Retries=3 install --no-install-recommends -y $PACKAGES
+EOF
+			fi
+			display_alert "End ${SUB_STAGE_DIR}/${i}-packages-nr" "" "info"
+		fi
+		if [ -f "${SUB_STAGE_DIR}/${i}-packages" ]; then
+			display_alert "Begin ${SUB_STAGE_DIR}/${i}-packages" "" "info"
+			PACKAGES="$(sed -f "${EXTER}/packages/raspi/scripts/remove-comments.sed" < "${SUB_STAGE_DIR}/${i}-packages")"
+			if [ -n "$PACKAGES" ]; then
+				on_chroot << EOF
+apt-get -o Acquire::Retries=3 install -y $PACKAGES
+EOF
+			fi
+			display_alert "End ${SUB_STAGE_DIR}/${i}-packages" "" "info"
+                fi
+#                if [ -d "${SUB_STAGE_DIR}/${i}-patches" ]; then
+#                        log "Begin ${SUB_STAGE_DIR}/${i}-patches"
+#                        pushd "${STAGE_WORK_DIR}" > /dev/null
+#                        #cd ${STAGE_WORK_DIR}
+#
+#                        QUILT_PATCHES="${SUB_STAGE_DIR}/${i}-patches"
+#                        SUB_STAGE_QUILT_PATCH_DIR="$(basename "$SUB_STAGE_DIR")-pc"
+#                        mkdir -p "$STAGE_WORK_DIR/$SUB_STAGE_QUILT_PATCH_DIR"
+#                        ln -snf "$STAGE_WORK_DIR/$SUB_STAGE_QUILT_PATCH_DIR" .pc
+#                        ln -snfv "${ROOTFS_DIR}" ${STAGE_WORK_DIR}/rootfs
+#                        quilt upgrade
+#                        if [ -e "${SUB_STAGE_DIR}/${i}-patches/EDIT" ]; then
+#                                echo "Dropping into bash to edit patches..."
+#                                bash
+#                        fi
+#                        RC=0
+#                        quilt push -a || RC=$?
+#                        case "$RC" in
+#                                0|2)
+#                                        ;;
+#                                *)
+#                                        false
+#                                        ;;
+#                        esac
+#                        #popd > /dev/null
+#			cd -
+#                        log "End ${SUB_STAGE_DIR}/${i}-patches"
+#                fi
+		if [ -x ${i}-run.sh ]; then
+			display_alert "Begin ${SUB_STAGE_DIR}/${i}-run.sh" "" "info"
+			./${i}-run.sh
+			display_alert "End ${SUB_STAGE_DIR}/${i}-run.sh" "" "info"
+		fi
+		if [ -f ${i}-run-chroot.sh ]; then
+			display_alert "Begin ${SUB_STAGE_DIR}/${i}-run-chroot.sh" "" "info"
+			on_chroot < ${i}-run-chroot.sh
+			display_alert "End ${SUB_STAGE_DIR}/${i}-run-chroot.sh" "" "info"
+		fi
+	done
+	#popd > /dev/null
+	log "End ${SUB_STAGE_DIR}"
+}
+
+run_stage(){
+	rm -rf "${SRC}"/output/raspi
+	[[ ! -d "${SRC}"/output/raspi ]] && mkdir -p "${SRC}"/output/raspi
+
+	STAGE_WORK_DIR="${SRC}/output/raspi"
+
+	if [ ! -f ${STAGE_DIR}/SKIP ]; then
+		if [ -x ${STAGE_DIR}/prerun.sh ]; then
+			display_alert "Begin ${STAGE_DIR}/prerun.sh" "" "info"
+			source ${STAGE_DIR}/prerun.sh
+			display_alert "End ${STAGE_DIR}/prerun.sh" "" "info"
+		fi
+
+		for SUB_STAGE_DIR in "${STAGE_DIR}"/*; do
+			if [ -d "${SUB_STAGE_DIR}" ] && [ ! -f "${SUB_STAGE_DIR}/SKIP" ]; then
+				run_sub_stage
+			fi
+		done
+	fi
+}
+
+log ()
+{
+	date +"[%T] $*"
+}
+
+install_opi_specific()
+{
+	cd $SRC
+
+	# install u-boot
+	UBOOT_VER=$(dpkg --info "${DEB_STORAGE}/u-boot/${CHOSEN_UBOOT}_${REVISION}_${ARCH}.deb" | grep Descr | awk '{print $(NF)}')
+	install_deb_chroot "${DEB_STORAGE}/u-boot/${CHOSEN_UBOOT}_${REVISION}_${ARCH}.deb"
+
+	# install kernel
+	VER=$(dpkg --info "${DEB_STORAGE}/${CHOSEN_KERNEL}_${REVISION}_${ARCH}.deb" | awk -F"-" '/Source:/{print $2}')
+	install_deb_chroot "${DEB_STORAGE}/${CHOSEN_KERNEL}_${REVISION}_${ARCH}.deb"
+	if [[ -f ${DEB_STORAGE}/${CHOSEN_KERNEL/image/dtb}_${REVISION}_${ARCH}.deb ]]; then
+		install_deb_chroot "${DEB_STORAGE}/${CHOSEN_KERNEL/image/dtb}_${REVISION}_${ARCH}.deb"
+	fi
+	if [[ $INSTALL_HEADERS == yes ]]; then
+		install_deb_chroot "${DEB_STORAGE}/${CHOSEN_KERNEL/image/headers}_${REVISION}_${ARCH}.deb"
+	else
+		cp "${DEB_STORAGE}/${CHOSEN_KERNEL/image/headers}_${REVISION}_${ARCH}.deb" "${SDCARD}"/opt/
+	fi
+
+	rk356x_gpu_vpu_tweaks_for_raspios
+
+	[[ ! -d "${SDCARD}/lib/firmware" ]] && mkdir -p "${SDCARD}/lib/firmware"
+	cp -rfa ${EXTER}/cache/sources/orangepi-firmware-git/* ${SDCARD}/lib/firmware/
+
+	# NOTE: this needs to be executed before family_tweaks
+	local bootscript_src=${BOOTSCRIPT%%:*}
+	local bootscript_dst=${BOOTSCRIPT##*:}
+
+	if [[ "${BOOTCONFIG}" != "none" ]]; then
+		if [ -f "${USERPATCHES_PATH}/bootscripts/${bootscript_src}" ]; then
+			cp "${USERPATCHES_PATH}/bootscripts/${bootscript_src}" "${SDCARD}/boot/${bootscript_dst}"
+		else
+			cp "${EXTER}/config/bootscripts/${bootscript_src}" "${SDCARD}/boot/${bootscript_dst}"
+		fi
+	fi
+
+	if [[ -n $BOOTENV_FILE ]]; then
+		if [[ -f $USERPATCHES_PATH/bootenv/$BOOTENV_FILE ]]; then
+			cp "$USERPATCHES_PATH/bootenv/${BOOTENV_FILE}" "${SDCARD}"/boot/orangepiEnv.txt
+		elif [[ -f $EXTER/config/bootenv/$BOOTENV_FILE ]]; then
+			cp "${EXTER}/config/bootenv/${BOOTENV_FILE}" "${SDCARD}"/boot/orangepiEnv.txt
+		fi
+	fi
+
+	[[ -n $OVERLAY_PREFIX && -f "${SDCARD}"/boot/orangepiEnv.txt && ($BRANCH =~ current|next || $BOARDFAMILY =~ "rockchip-rk3588"|"rockchip-rk356x") ]] && \
+		echo "overlay_prefix=$OVERLAY_PREFIX" >> "${SDCARD}"/boot/orangepiEnv.txt
+
+	[[ -n $DEFAULT_OVERLAYS && -f "${SDCARD}"/boot/orangepiEnv.txt && ($BRANCH =~ current|next || $BOARDFAMILY =~ "rockchip-rk3588"|"rockchip-rk356x") ]] && \
+		echo "overlays=${DEFAULT_OVERLAYS//,/ }" >> "${SDCARD}"/boot/orangepiEnv.txt
+
+	[[ -n $BOOT_FDT_FILE && -f "${SDCARD}"/boot/orangepiEnv.txt ]] && \
+		echo "fdtfile=${BOOT_FDT_FILE}" >> "${SDCARD}/boot/orangepiEnv.txt"
+
+	# create modules file
+	local modules=MODULES_${BRANCH^^}
+	if [[ -n "${!modules}" ]]; then
+		tr ' ' '\n' <<< "${!modules}" > "${SDCARD}"/etc/modules
+	elif [[ -n "${MODULES}" ]]; then
+		tr ' ' '\n' <<< "${MODULES}" > "${SDCARD}"/etc/modules
+	fi
+
+	# create blacklist files
+	local blacklist=MODULES_BLACKLIST_${BRANCH^^}
+	if [[ -n "${!blacklist}" ]]; then
+		tr ' ' '\n' <<< "${!blacklist}" | sed -e 's/^/blacklist /' > "${SDCARD}/etc/modprobe.d/blacklist-${BOARD}.conf"
+	elif [[ -n "${MODULES_BLACKLIST}" ]]; then
+		tr ' ' '\n' <<< "${MODULES_BLACKLIST}" | sed -e 's/^/blacklist /' > "${SDCARD}/etc/modprobe.d/blacklist-${BOARD}.conf"
+	fi
+
+	cat <<-EOF > "${SDCARD}"/etc/orangepi-release
+	# PLEASE DO NOT EDIT THIS FILE
+	BOARD=${BOARD}
+	BOARD_NAME="$BOARD_NAME"
+	BOARDFAMILY=${BOARDFAMILY}
+	BUILD_REPOSITORY_URL=${BUILD_REPOSITORY_URL}
+	BUILD_REPOSITORY_COMMIT=${BUILD_REPOSITORY_COMMIT}
+	DISTRIBUTION_CODENAME=${RELEASE}
+	DISTRIBUTION_STATUS=${DISTRIBUTION_STATUS}
+	VERSION=${REVISION}
+	LINUXFAMILY=${LINUXFAMILY}
+	ARCH=${ARCHITECTURE}
+	IMAGE_TYPE=$IMAGE_TYPE
+	BOARD_TYPE=$BOARD_TYPE
+	INITRD_ARCH=${INITRD_ARCH}
+	KERNEL_IMAGE_TYPE=${KERNEL_IMAGE_TYPE}
+	BRANCH=${BRANCH}
+	EOF
+
+	install -d "${SDCARD}/etc/initramfs/post-update.d/"
+	install -m 755 "${EXTER}/packages/bsp/common/etc/initramfs/post-update.d/99-uboot" "${SDCARD}/etc/initramfs/post-update.d/"
+
+	install -m 755 "${EXTER}/packages/raspi/orangepi/common/files/hciattach_opi" "${SDCARD}/usr/bin/"
+
+	install -d "${SDCARD}/usr/lib/orangepi/"
+	install -m 755 "${EXTER}/packages/raspi/orangepi/common/files/orangepi-hardware-optimization" "${SDCARD}/usr/lib/orangepi/"
+	install -m 755 "${EXTER}/packages/raspi/orangepi/common/files/orangepi-hardware-optimize.service" "${SDCARD}/usr/lib/systemd/system/"
+	chroot "${SDCARD}" /bin/bash -c "systemctl --no-reload enable orangepi-hardware-optimize.service >/dev/null 2>&1"
+
+	install_wiringop
+
+	rm $SDCARD/root/*.deb >/dev/null 2>&1
+}
+
+install_raspi_specific()
+{
+	export TARGET_HOSTNAME=${TARGET_HOSTNAME:-raspberrypi}
+	export FIRST_USER_NAME=${FIRST_USER_NAME:-pi}
+	export FIRST_USER_PASS
+	export DISABLE_FIRST_BOOT_USER_RENAME=${DISABLE_FIRST_BOOT_USER_RENAME:-0}
+	export WPA_ESSID
+	export WPA_PASSWORD
+	export WPA_COUNTRY
+	export ENABLE_SSH="${ENABLE_SSH:-0}"
+	export PUBKEY_ONLY_SSH="${PUBKEY_ONLY_SSH:-0}"
+
+	export LOCALE_DEFAULT="${LOCALE_DEFAULT:-en_GB.UTF-8}"
+
+	export KEYBOARD_KEYMAP="${KEYBOARD_KEYMAP:-gb}"
+	export KEYBOARD_LAYOUT="${KEYBOARD_LAYOUT:-English (UK)}"
+
+	export TIMEZONE_DEFAULT="${TIMEZONE_DEFAULT:-Europe/London}"
+
+	export PUBKEY_SSH_FIRST_USER
+
+	export APT_PROXY
+
+	export STAGE
+	export STAGE_DIR
+	export STAGE_WORK_DIR
+	export PREV_STAGE
+	export PREV_STAGE_DIR
+	export ROOTFS_DIR=${SDCARD}
+	export PREV_ROOTFS_DIR
+	export IMG_SUFFIX
+	export NOOBS_NAME
+	export NOOBS_DESCRIPTION
+	export EXPORT_DIR
+	export EXPORT_ROOTFS_DIR
+
+	export QUILT_PATCHES
+	export QUILT_NO_DIFF_INDEX=1
+	export QUILT_NO_DIFF_TIMESTAMPS=1
+	export QUILT_REFRESH_ARGS="-p ab"
+
+	#check username is valid
+	if [[ ! "$FIRST_USER_NAME" =~ ^[a-z][-a-z0-9_]*$ ]]; then
+		echo "Invalid FIRST_USER_NAME: $FIRST_USER_NAME"
+		exit 1
+	fi
+
+	if [[ "$DISABLE_FIRST_BOOT_USER_RENAME" == "1" ]] && [ -z "${FIRST_USER_PASS}" ]; then
+		echo "To disable user rename on first boot, FIRST_USER_PASS needs to be set"
+		echo "Not setting FIRST_USER_PASS makes your system vulnerable and open to cyberattacks"
+		exit 1
+	fi
+
+	if [[ "$DISABLE_FIRST_BOOT_USER_RENAME" == "1" ]]; then
+		echo "User rename on the first boot is disabled"
+		echo "Be advised of the security risks linked to shipping a device with default username/password set."
+	fi
+
+	if [[ -n "${APT_PROXY}" ]] && ! curl --silent "${APT_PROXY}" >/dev/null ; then
+		echo "Could not reach APT_PROXY server: ${APT_PROXY}"
+		exit 1
+	fi
+
+	if [[ -n "${WPA_PASSWORD}" && ${#WPA_PASSWORD} -lt 8 || ${#WPA_PASSWORD} -gt 63  ]] ; then
+		echo "WPA_PASSWORD" must be between 8 and 63 characters
+		exit 1
+	fi
+
+	if [[ "${PUBKEY_ONLY_SSH}" = "1" && -z "${PUBKEY_SSH_FIRST_USER}" ]]; then
+		echo "Must set 'PUBKEY_SSH_FIRST_USER' to a valid SSH public key if using PUBKEY_ONLY_SSH"
+		exit 1
+	fi
+
+	RASPI_DIR="${EXTER}/packages/raspi"
+
+	if [[ ${BUILD_DESKTOP} == "yes" ]]; then
+		rm -r ${RASPI_DIR}/stage3/SKIP ${RASPI_DIR}/stage4/SKIP ${RASPI_DIR}/stage5/SKIP 2>/dev/null
+		touch ${RASPI_DIR}/stage5/SKIP
+	else
+		rm -r ${RASPI_DIR}/stage1/SKIP ${RASPI_DIR}/stage2/SKIP 2>/dev/null
+		touch ${RASPI_DIR}/stage3/SKIP ${RASPI_DIR}/stage4/SKIP ${RASPI_DIR}/stage5/SKIP
+		export FIRST_USER_PASS="pi"
+	fi
+
+	STAGE_LIST=${RASPI_DIR}/stage*
+
+	for STAGE_DIR in $STAGE_LIST; do
+		STAGE_DIR=$(realpath "${STAGE_DIR}")
+		run_stage
+	done
+
+	STAGE_DIR=${RASPI_DIR}/export-image
+	run_stage
+
+	rm -rf ${SDCARD}/boot/*
+	rm -rf ${SDCARD}/lib/firmware
+	rm -rf ${SDCARD}/lib/modules/*
+}

@@ -57,24 +57,29 @@ PRE_INSTALL_DISTRIBUTION_SPECIFIC
 	# stage: install kernel and u-boot packages
 	# install distribution and board specific applications
 
-	install_distribution_specific
-	install_common
+	if [[ ${RELEASE} == "raspi" ]]; then
+		install_opi_specific
+	else
+		install_distribution_specific
+		install_common
 
-	# install locally built packages or install pre-built packages from orangepi
-	[[ $EXTERNAL_NEW == compile || $EXTERNAL_NEW == prebuilt ]] && chroot_installpackages_local
+		# install locally built packages or install pre-built packages from orangepi
+		[[ $EXTERNAL_NEW == compile || $EXTERNAL_NEW == prebuilt ]] && chroot_installpackages_local
 
-	#[[ $EXTERNAL_NEW == prebuilt ]] && chroot_installpackages "yes"
+		#[[ $EXTERNAL_NEW == prebuilt ]] && chroot_installpackages "yes"
 
-	# stage: user customization script
-	# NOTE: installing too many packages may fill tmpfs mount
-	customize_image
+		# stage: user customization script
+		# NOTE: installing too many packages may fill tmpfs mount
+		customize_image
 
-	# remove packages that are no longer needed. Since we have intrudoced uninstall feature, we might want to clean things that are no longer needed
-	display_alert "No longer needed packages" "purge" "info"
-	chroot $SDCARD /bin/bash -c "apt-get autoremove -y"  >/dev/null 2>&1
+		# remove packages that are no longer needed. Since we have intrudoced uninstall feature, we might want to clean things that are no longer needed
+		display_alert "No longer needed packages" "purge" "info"
+		chroot $SDCARD /bin/bash -c "apt-get autoremove -y"  >/dev/null 2>&1
 
-	# create list of installed packages for debug purposes
-	chroot $SDCARD /bin/bash -c "dpkg --get-selections" | grep -v deinstall | awk '{print $1}' | cut -f1 -d':' > $DEST/${LOG_SUBPATH}/installed-packages-${RELEASE}$([[ ${BUILD_MINIMAL} == yes ]] && echo "-minimal")$([[ ${BUILD_DESKTOP} == yes  ]] && echo "-desktop").list 2>&1
+		# create list of installed packages for debug purposes
+		chroot $SDCARD /bin/bash -c "dpkg --get-selections" | grep -v deinstall | awk '{print $1}' | cut -f1 -d':' > $DEST/${LOG_SUBPATH}/installed-packages-${RELEASE}$([[ ${BUILD_MINIMAL} == yes ]] && echo "-minimal")$([[ ${BUILD_DESKTOP} == yes  ]] && echo "-desktop").list 2>&1
+
+	fi
 
 	# clean up / prepare for making the image
 	umount_chroot "$SDCARD"
@@ -104,6 +109,26 @@ PRE_INSTALL_DISTRIBUTION_SPECIFIC
 	trap - INT TERM EXIT
 } #############################################################################
 
+bootstrap(){
+	local BOOTSTRAP_CMD=debootstrap
+	local BOOTSTRAP_ARGS=()
+
+	export CAPSH_ARG="--drop=cap_setfcap"
+	export http_proxy=${APT_PROXY}
+
+	BOOTSTRAP_ARGS+=(--arch arm64)
+	BOOTSTRAP_ARGS+=(--include gnupg)
+	#BOOTSTRAP_ARGS+=(--components "main,contrib,non-free")
+	BOOTSTRAP_ARGS+=(--components "main")
+	BOOTSTRAP_ARGS+=(--exclude=info)
+	BOOTSTRAP_ARGS+=(--include=ca-certificates)
+	BOOTSTRAP_ARGS+=("$@")
+	printf -v BOOTSTRAP_STR '%q ' "${BOOTSTRAP_ARGS[@]}"
+
+	${BOOTSTRAP_CMD} $BOOTSTRAP_STR || true
+}
+export -f bootstrap
+
 # create_rootfs_cache
 #
 # unpacks cached rootfs for $RELEASE or creates one
@@ -128,6 +153,32 @@ create_rootfs_cache()
 		rm $SDCARD/etc/resolv.conf
 		echo "nameserver $NAMESERVER" >> $SDCARD/etc/resolv.conf
 		create_sources_list "$RELEASE" "$SDCARD/"
+	elif [[ $RELEASE == "raspi" ]]; then
+		display_alert "local not found" "Creating new rootfs cache for $RELEASE" "info"
+
+		cd $SDCARD # this will prevent error sh: 0: getcwd() failed
+
+		bootstrap bullseye "$SDCARD" "https://mirrors.ustc.edu.cn/debian/"
+
+		mount_chroot "$SDCARD"
+
+		display_alert "Diverting" "initctl/start-stop-daemon" "info"
+		# policy-rc.d script prevents starting or reloading services during image creation
+		printf '#!/bin/sh\nexit 101' > $SDCARD/usr/sbin/policy-rc.d
+		LC_ALL=C LANG=C chroot $SDCARD /bin/bash -c "dpkg-divert --quiet --local --rename --add /sbin/initctl" &> /dev/null
+		LC_ALL=C LANG=C chroot $SDCARD /bin/bash -c "dpkg-divert --quiet --local --rename --add /sbin/start-stop-daemon" &> /dev/null
+		printf '#!/bin/sh\necho "Warning: Fake start-stop-daemon called, doing nothing"' > $SDCARD/sbin/start-stop-daemon
+		printf '#!/bin/sh\necho "Warning: Fake initctl called, doing nothing"' > $SDCARD/sbin/initctl
+		chmod 755 $SDCARD/usr/sbin/policy-rc.d
+		chmod 755 $SDCARD/sbin/initctl
+		chmod 755 $SDCARD/sbin/start-stop-daemon
+
+		install_raspi_specific
+
+		umount_chroot "$SDCARD"
+
+		tar cp --xattrs --directory=$SDCARD/ --exclude='./dev/*' --exclude='./proc/*' --exclude='./run/*' --exclude='./tmp/*' \
+			--exclude='./sys/*' . | pv -p -b -r -s $(du -sb $SDCARD/ | cut -f1) -N "$display_name" | lz4 -5 -c > $cache_fname
 	else
 		display_alert "local not found" "Creating new rootfs cache for $RELEASE" "info"
 
@@ -153,6 +204,7 @@ create_rootfs_cache()
 
 		display_alert "Installing base system" "Stage 1/2" "info"
 		cd $SDCARD # this will prevent error sh: 0: getcwd() failed
+
 		eval 'debootstrap --variant=minbase --include=${DEBOOTSTRAP_LIST// /,} ${PACKAGE_LIST_EXCLUDE:+ --exclude=${PACKAGE_LIST_EXCLUDE// /,}} \
 			--arch=$ARCH --components=${DEBOOTSTRAP_COMPONENTS} $DEBOOTSTRAP_OPTION --foreign $RELEASE $SDCARD/ $apt_mirror' \
 			${PROGRESS_LOG_TO_FILE:+' | tee -a $DEST/${LOG_SUBPATH}/debootstrap.log'} \
@@ -753,6 +805,11 @@ create_image()
 	else
 		local version="${BOARD^}_${REVISION}_${DISTRIBUTION,}_${RELEASE}_${IMAGE_TYPE}"${DESKTOP_ENVIRONMENT:+_$DESKTOP_ENVIRONMENT}"_linux$(grab_version "$LINUXSOURCEDIR")"
 	fi
+
+	if [[ ${RELEASE} == "raspi" ]]; then
+		local version="${BOARD^}_${REVISION}_raspios_bullseye_${IMAGE_TYPE}"${DESKTOP_ENVIRONMENT:+_$DESKTOP_ENVIRONMENT}"_linux$(grab_version "$LINUXSOURCEDIR")"
+	fi
+
 	[[ $ROOTFS_TYPE == nfs ]] && version=${version}_nfsboot
 
 	destimg=$DEST/images/${version}

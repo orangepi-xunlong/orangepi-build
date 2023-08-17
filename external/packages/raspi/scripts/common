@@ -1,0 +1,105 @@
+log (){
+	date +"[%T] $*" | tee -a "${LOG_FILE}"
+}
+export -f log
+
+bootstrap(){
+	local BOOTSTRAP_CMD=debootstrap
+	local BOOTSTRAP_ARGS=()
+
+	export http_proxy=${APT_PROXY}
+
+	BOOTSTRAP_ARGS+=(--arch arm64)
+	BOOTSTRAP_ARGS+=(--include gnupg)
+	BOOTSTRAP_ARGS+=(--components "main,contrib,non-free")
+	#BOOTSTRAP_ARGS+=(--keyring "${STAGE_DIR}/files/raspberrypi.gpg")
+	BOOTSTRAP_ARGS+=(--exclude=info)
+	BOOTSTRAP_ARGS+=(--include=ca-certificates)
+	BOOTSTRAP_ARGS+=("$@")
+	printf -v BOOTSTRAP_STR '%q ' "${BOOTSTRAP_ARGS[@]}"
+
+	capsh $CAPSH_ARG -- -c "'${BOOTSTRAP_CMD}' $BOOTSTRAP_STR" || true
+
+	if [ -d "$2/debootstrap" ] && ! rmdir "$2/debootstrap"; then
+		cp "$2/debootstrap/debootstrap.log" "${STAGE_WORK_DIR}"
+		log "bootstrap failed: please check ${STAGE_WORK_DIR}/debootstrap.log"
+		return 1
+	fi
+}
+export -f bootstrap
+
+copy_previous(){
+	if [ ! -d "${PREV_ROOTFS_DIR}" ]; then
+		echo "Previous stage rootfs not found"
+		false
+	fi
+	mkdir -p "${ROOTFS_DIR}"
+	rsync -aHAXx --exclude var/cache/apt/archives "${PREV_ROOTFS_DIR}/" "${ROOTFS_DIR}/"
+}
+export -f copy_previous
+
+unmount(){
+	if [ -z "$1" ]; then
+		DIR=$PWD
+	else
+		DIR=$1
+	fi
+
+	while mount | grep -q "$DIR"; do
+		local LOCS
+		LOCS=$(mount | grep "$DIR" | cut -f 3 -d ' ' | sort -r)
+		for loc in $LOCS; do
+			umount "$loc"
+		done
+	done
+}
+export -f unmount
+
+unmount_image(){
+	sync
+	sleep 1
+	LOOP_DEVICE=$(losetup --list | grep "$1" | cut -f1 -d' ')
+	if [ -n "$LOOP_DEVICE" ]; then
+		for part in "$LOOP_DEVICE"p*; do
+			if DIR=$(findmnt -n -o target -S "$part"); then
+				unmount "$DIR"
+			fi
+		done
+		losetup -d "$LOOP_DEVICE"
+	fi
+}
+export -f unmount_image
+
+on_chroot() {
+	if ! mount | grep -q "$(realpath "${ROOTFS_DIR}"/proc)"; then
+		mount -t proc proc "${ROOTFS_DIR}/proc"
+	fi
+
+	if ! mount | grep -q "$(realpath "${ROOTFS_DIR}"/dev)"; then
+		mount --bind /dev "${ROOTFS_DIR}/dev"
+	fi
+	
+	if ! mount | grep -q "$(realpath "${ROOTFS_DIR}"/dev/pts)"; then
+		mount --bind /dev/pts "${ROOTFS_DIR}/dev/pts"
+	fi
+
+	if ! mount | grep -q "$(realpath "${ROOTFS_DIR}"/sys)"; then
+		mount --bind /sys "${ROOTFS_DIR}/sys"
+	fi
+
+	if ! mount | grep -q "$(realpath "${ROOTFS_DIR}"/run)"; then
+		mount -t tmpfs  tmpfs "${ROOTFS_DIR}/run"
+	fi
+
+	if ! mount | grep -q "$(realpath "${ROOTFS_DIR}"/tmp)"; then
+		mount -t tmpfs  tmpfs "${ROOTFS_DIR}/tmp"
+	fi
+
+	capsh $CAPSH_ARG "--chroot=${ROOTFS_DIR}/" -- -e "$@"
+}
+export -f on_chroot
+
+update_issue() {
+	echo -e "Raspberry Pi reference ${IMG_DATE}\nGenerated using ${PI_GEN}, ${PI_GEN_REPO}, ${GIT_HASH}, ${1}" > "${ROOTFS_DIR}/etc/rpi-issue"
+}
+export -f update_issue

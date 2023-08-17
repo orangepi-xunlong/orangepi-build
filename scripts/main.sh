@@ -464,13 +464,13 @@ if [[ ${IGNORE_UPDATES} != yes ]]; then
 
 	fi
 
-	if [[ ${BOARDFAMILY} == "rockchip-rk3588" && $RELEASE =~ bullseye|bookworm|focal|jammy ]]; then
+	if [[ ${BOARDFAMILY} == "rockchip-rk3588" && $RELEASE =~ bullseye|bookworm|focal|jammy|raspi ]]; then
 
 		[[ ${BUILD_OPT} == image ]] && fetch_from_repo "https://github.com/orangepi-xunlong/rk-rootfs-build.git" "${EXTER}/cache/sources/rk3588_packages_${RELEASE}" "branch:rk3588_packages_${RELEASE}"
 
 	fi
 
-	if [[ ${BOARDFAMILY} == "rockchip-rk356x" && $RELEASE =~ bullseye|focal|jammy ]]; then
+	if [[ ${BOARDFAMILY} == "rockchip-rk356x" && $RELEASE =~ bullseye|focal|jammy|raspi ]]; then
 
 		[[ ${BUILD_OPT} == image ]] && fetch_from_repo "https://github.com/orangepi-xunlong/rk-rootfs-build.git" "${EXTER}/cache/sources/rk356x_packages" "branch:rk356x_packages"
 

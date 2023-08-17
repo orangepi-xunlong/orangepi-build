@@ -1,0 +1,35 @@
+#
+# Set default governor on all CPU cores.
+# More info https://www.kernel.org/doc/Documentation/cpu-freq/governors.txt
+#
+# CPU_DEFAULT_GOVERNOR="ondemand"
+#
+
+#
+# ondemand governor: This defines what the average CPU usage between the
+# samplings of 'sampling_rate' needs to be for the kernel to make a decision
+# on whether it should increase the frequency.
+# 
+# CPU_ONDEMAND_UP_THRESHOLD=50
+#
+
+#
+# ondemand governor: How often you want the kernel to look at the CPU usage
+# and to make decisions on what to do about the frequency.
+#
+# CPU_ONDEMAND_SAMPLING_RATE=100000
+#
+
+#
+# ondemand governor: The rate at which the kernel makes a decision on when to
+# decrease the frequency while running at top speed
+#
+# CPU_ONDEMAND_DOWN_SAMPLING_FACTOR=50
+#
+
+#
+# ondemand governor: Include Input/Output (I/O) activity into CPU activity
+# calculations when using ondemand CPU governor
+#
+# CPU_ONDEMAND_INCLUDE_IO_CALC=0
+#

@@ -1,0 +1,15 @@
+Source: raspi-config
+Section: utils
+Priority: optional
+Maintainer: Serge Schneider <serge@raspberrypi.com>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 4.3.0
+Vcs-Git: git://git@github.com:RPi-Distro/raspi-config.git
+Vcs-Browser: https://github.com/RPi-Distro/raspi-config
+
+Package: raspi-config
+Architecture: all
+Depends: ${misc:Depends}, whiptail, parted, lua5.1, alsa-utils, psmisc, initramfs-tools
+Recommends: triggerhappy, iw, crda
+Description: Raspberry Pi configuration tool
+ A simple configuration tool for common Raspberry Pi administrative tasks

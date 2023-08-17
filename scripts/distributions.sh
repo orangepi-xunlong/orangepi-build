@@ -957,7 +957,12 @@ install_opi_specific()
 		cp "${DEB_STORAGE}/${CHOSEN_KERNEL/image/headers}_${REVISION}_${ARCH}.deb" "${SDCARD}"/opt/
 	fi
 
-	rk356x_gpu_vpu_tweaks_for_raspios
+	dpkg_install_deb_chroot "$EXTER/packages/raspi/orangepi/debs/raspi-config_20230214_all.deb"
+
+	case ${BOARDFAMILY} in
+		"rockchip-rk356x")
+			rk356x_gpu_vpu_tweaks_for_raspios
+	esac
 
 	[[ ! -d "${SDCARD}/lib/firmware" ]] && mkdir -p "${SDCARD}/lib/firmware"
 	cp -rfa ${EXTER}/cache/sources/orangepi-firmware-git/* ${SDCARD}/lib/firmware/

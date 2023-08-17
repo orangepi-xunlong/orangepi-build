@@ -1,0 +1,6 @@
+debhelper-build-stamp
+files
+*.debhelper.log
+*.debhelper
+*.substvars
+raspi-config/

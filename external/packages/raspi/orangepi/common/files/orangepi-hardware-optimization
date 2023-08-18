@@ -51,14 +51,36 @@ prepare_board() {
 			amixer -c 0 cset name='Playback Path' HP > /dev/null 2>&1
 			amixer -c 0 cset name='Capture MIC Path' 'Main Mic' > /dev/null 2>&1
 
-			rfkill unblock all
-			/usr/bin/hciattach_opi -n -s 1500000 /dev/ttyBT0 sprd &
-			#rfkill unblock all
-			#brcm_patchram_plus --bd_addr_rand --enable_hci --no2bytes --use_baudrate_for_download --tosleep 200000 \
-			#        --baudrate 1500000 --patchram /lib/firmware/cyw43455/BCM4345C0.hcd /dev/ttyS1 &
+			if [[ $BOARD == orangepi3b ]]; then
+				rfkill unblock all
+				/usr/bin/hciattach_opi -n -s 1500000 /dev/ttyBT0 sprd &
+			elif [[ $BOARD == orangepicm4 ]]; then
+				rfkill unblock all
+				brcm_patchram_plus --bd_addr_rand --enable_hci --no2bytes --use_baudrate_for_download --tosleep 200000 \
+				        --baudrate 1500000 --patchram /lib/firmware/BCM4345C0.hcd /dev/ttyS1 &
+			fi
 			;;
 		orangepizero2|orangepizero2-lts|orangepizero2-b|orangepizero3|orangepir1b|orangepizero2w)
 			kv=$(uname -r)
+
+			if [[ $BOARD == orangepizero2w ]]; then
+
+				if [[ ${DISTRIBUTION_CODENAME} == "bookworm" ]]; then
+					interface_100m="end0"
+				else
+					interface_100m="eth0"
+				fi
+
+				echo netdev > /sys/class/leds/100m_act/trigger
+				echo "${interface_100m}" > /sys/class/leds/100m_act/device_name
+				echo 1 > /sys/class/leds/100m_act/tx
+				echo 1 > /sys/class/leds/100m_act/rx
+
+				echo netdev > /sys/class/leds/100m_link/trigger
+				echo ${interface_100m} > /sys/class/leds/100m_link/device_name
+				echo 1 > /sys/class/leds/100m_link/link
+			fi
+
 			if [[ $BOARD == orangepir1b ]]; then
 
 				#for 100m interface

@@ -97,7 +97,7 @@ prepare_board() {
 		rockpro64|renegade-elite|pinebook-pro|station-p1)
 			BOARDFAMILY=rk3399
 			;;
-		orangepi5|orangepi5b|orangepi5plus|orangepitab|orangepi900)
+		orangepi5|orangepicm5|orangepi5b|orangepi5plus|orangepitab|orangepi900)
 			[[ $BOARD =~ orangepi5|orangepi5b ]] && echo host > /sys/kernel/debug/usb/fc000000.usb/mode
 
 			if [[ $BOARD =~ orangepi900 ]]; then
@@ -187,7 +187,12 @@ prepare_board() {
 
 			if [[ $BOARD == orangepizero2w ]]; then
 
-				interface_100m="eth0"
+				if [[ ${DISTRIBUTION_CODENAME} == "bookworm" ]]; then
+					interface_100m="end0"
+				else
+					interface_100m="eth0"
+				fi
+
 				echo netdev > /sys/class/leds/100m_act/trigger
 				echo "${interface_100m}" > /sys/class/leds/100m_act/device_name
 				echo 1 > /sys/class/leds/100m_act/tx

@@ -10,4 +10,4 @@
 #EOF
 
 install -m 644 files/hciattach_opi	"${ROOTFS_DIR}/usr/bin/"
-
+install -m 644 files/brcm_patchram_plus	"${ROOTFS_DIR}/usr/bin/"

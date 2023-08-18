@@ -549,10 +549,13 @@ rk356x_gpu_vpu_tweaks_for_raspios()
 		rk356x_deb+=("rk356x_packages/bullseye/mpv/libmpv-dev_0.32.0-3_arm64.deb")
 		rk356x_deb+=("rk356x_packages/bullseye/mpv/mpv_0.32.0-3_arm64.deb")
 
+		chroot $SDCARD /bin/bash -c "apt remove -y chromium-browser rpi-chromium-mods libwidevinecdm0"
+
 		for deb in ${rk356x_deb[@]}
 		do
 			dpkg_install_deb_chroot "$EXTER/cache/sources/${deb}"
 		done
+
 
 		chroot $SDCARD /bin/bash -c "sed -i '5aexport LD_PRELOAD=libdrm-cursor.so.1' /usr/bin/X"
 

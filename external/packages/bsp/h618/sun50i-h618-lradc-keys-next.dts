@@ -1,0 +1,22 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+	fragment@0 {
+		target = <&r_lradc>;
+
+		__overlay__ {
+			status = "okay";
+
+			button-500 {
+			        label = "KEY_1";
+			        linux,code = <2>;
+			};
+
+			button-800 {
+			        label = "KEY_ENTER";
+			        linux,code = <28>;
+			};
+		};
+	};
+};

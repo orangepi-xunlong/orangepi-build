@@ -1,0 +1,15 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+	fragment@0 {
+		target = <&keyboard>;
+
+		__overlay__ {
+			status = "okay";
+
+                        key0 = <600 2>;
+                        key1 = <800 28>;
+		};
+	};
+};

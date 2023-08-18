@@ -996,6 +996,10 @@ install_opi_specific()
 	[[ -n $BOOT_FDT_FILE && -f "${SDCARD}"/boot/orangepiEnv.txt ]] && \
 		echo "fdtfile=${BOOT_FDT_FILE}" >> "${SDCARD}/boot/orangepiEnv.txt"
 
+	# install initial asound.state if defined
+	mkdir -p "${SDCARD}"/var/lib/alsa/
+	[[ -n $ASOUND_STATE ]] && cp "${EXTER}/packages/blobs/asound.state/${ASOUND_STATE}" "${SDCARD}"/var/lib/alsa/asound.state
+
 	# create modules file
 	local modules=MODULES_${BRANCH^^}
 	if [[ -n "${!modules}" ]]; then
@@ -1035,6 +1039,7 @@ install_opi_specific()
 	install -m 755 "${EXTER}/packages/bsp/common/etc/initramfs/post-update.d/99-uboot" "${SDCARD}/etc/initramfs/post-update.d/"
 
 	install -m 755 "${EXTER}/packages/raspi/orangepi/common/files/hciattach_opi" "${SDCARD}/usr/bin/"
+	install -m 755 "${EXTER}/packages/raspi/orangepi/common/files/brcm_patchram_plus" "${SDCARD}/usr/bin/"
 
 	install -d "${SDCARD}/usr/lib/orangepi/"
 	install -m 755 "${EXTER}/packages/raspi/orangepi/common/files/orangepi-hardware-optimization" "${SDCARD}/usr/lib/orangepi/"

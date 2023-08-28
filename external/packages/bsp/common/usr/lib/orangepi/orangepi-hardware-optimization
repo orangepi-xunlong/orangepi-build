@@ -302,11 +302,14 @@ prepare_board() {
 			amixer -c 0 cset name='Playback Path' HP > /dev/null 2>&1
 			amixer -c 0 cset name='Capture MIC Path' 'Main Mic' > /dev/null 2>&1
 
-			rfkill unblock all
-			/usr/bin/hciattach_opi -n -s 1500000 /dev/ttyBT0 sprd &
-                        #rfkill unblock all
-			#brcm_patchram_plus --bd_addr_rand --enable_hci --no2bytes --use_baudrate_for_download --tosleep 200000 \
-			#        --baudrate 1500000 --patchram /lib/firmware/cyw43455/BCM4345C0.hcd /dev/ttyS1 &
+			if [[ $BOARD == orangepi3b ]]; then
+				rfkill unblock all
+				/usr/bin/hciattach_opi -n -s 1500000 /dev/ttyBT0 sprd &
+			elif [[ $BOARD == orangepicm4 ]]; then
+				rfkill unblock all
+				brcm_patchram_plus --bd_addr_rand --enable_hci --no2bytes --use_baudrate_for_download --tosleep 200000 \
+				        --baudrate 1500000 --patchram /lib/firmware/BCM4345C0.hcd /dev/ttyS1 &
+			fi
 			;;
 
 	esac

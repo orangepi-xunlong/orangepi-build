@@ -190,8 +190,8 @@ while true; do
 			LIST+=( "Hotspot" "Manage active wireless access point" )
 		else
 			:
-			[[ -n $(LC_ALL=C nmcli device status 2> /dev/null | grep wifi | grep -w disconnected) ]] && \
-			LIST+=( "Hotspot" "Create WiFi access point" )
+			#[[ -n $(LC_ALL=C nmcli device status 2> /dev/null | grep wifi | grep -w disconnected) ]] && \
+			#LIST+=( "Hotspot" "Create WiFi access point" )
 
 	fi
 

@@ -298,6 +298,7 @@ prepare_board() {
 			/usr/bin/hciattach_opi -n -s 1500000 /dev/ttyBT0 sprd &
 			;;
 		orangepicm4|orangepi3b)
+			echo host > /sys/devices/platform/fe8a0000.usb2-phy/otg_mode
 			if [[ -c /dev/mpp_service ]]; then
 				chmod 666 /dev/mpp_service
 

@@ -961,7 +961,7 @@ install_opi_specific()
 
 	case ${BOARDFAMILY} in
 		"rockchip-rk356x")
-			rk356x_gpu_vpu_tweaks_for_raspios
+			rk35xx_gpu_vpu_tweaks
 	esac
 
 	[[ ! -d "${SDCARD}/lib/firmware" ]] && mkdir -p "${SDCARD}/lib/firmware"

@@ -302,7 +302,7 @@ dpkg_install_debs_chroot()
 
 	if [[ ! -z "${unsatisfied_dependencies[*]}" ]]; then
 		display_alert "Installing Dependencies" "${unsatisfied_dependencies[*]}"
-		chroot $SDCARD /bin/bash -c "apt-get -y -qq install ${unsatisfied_dependencies[*]}" >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
+		chroot $SDCARD /bin/bash -c "apt-get update; apt-get -y -qq install ${unsatisfied_dependencies[*]}" >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
 	fi
 
 	local names=""

@@ -244,7 +244,83 @@ dpkg_install_deb_chroot()
 
 }
 
+dpkg_install_debs_chroot()
+{
+	local deb_dir=$1
+	local unsatisfied_dependencies=()
+	local package_names=()
+	local package_dependencies=()
 
+	[ ! -d "$deb_dir" ] && return
+
+	deb_packages=($(find "${deb_dir}" -type f -name "*.deb"))
+
+	find_in_array() {
+		local target="$1"
+		local element=""
+		shift
+		for element in "$@"; do
+			[[ "$element" == "$target" ]] && return 0
+		done
+		return 1
+	}
+
+	for package in "${deb_packages[@]}"; do
+		package_names+=($(dpkg-deb -f "$package" Package))
+
+		dep_str=$(dpkg-deb -I "${package}" | grep 'Depends' | sed 's/.*: //' | sed 's/ //g' | sed 's/([^)]*)//g')
+		IFS=',' read -ra dep_array <<< "$dep_str"
+
+		if [[ ! ${#dep_array[@]} -eq 0 ]]; then
+			#dep_array[-1]="${dep_array[-1]} "
+
+			for element in "${dep_array[@]}"; do
+				if [[ $element == *"|"* ]]; then
+					#dep_array=("${dep_array[@]/$element}")
+					:
+				else
+					if ! find_in_array "$element" "${package_dependencies[@]}"; then
+						package_dependencies+=("${element}")
+					fi
+				fi
+			done
+
+		fi
+	done
+
+	for dependency in "${package_dependencies[@]}"; do
+		if ! chroot "${SDCARD}" /bin/bash -c "dpkg-query -W --showformat='\${Status}' ${dependency} \
+			| grep -q 'ok installed'" &>/dev/null; then
+
+			all=("${package_names[@]}" "${unsatisfied_dependencies[@]}")
+
+			if ! find_in_array "$dependency" "${all[@]}"; then
+				unsatisfied_dependencies+=("$dependency")
+			fi
+		fi
+	done
+
+	if [[ ! -z "${unsatisfied_dependencies[*]}" ]]; then
+		display_alert "Installing Dependencies" "${unsatisfied_dependencies[*]}"
+		chroot $SDCARD /bin/bash -c "apt-get -y -qq install ${unsatisfied_dependencies[*]}" >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
+	fi
+
+	local names=""
+	for package in "${deb_packages[@]}"; do
+		name="/root/"$(basename "${package}")
+		names+=($name)
+		[[ ! -f "${SDCARD}${name}" ]] && cp "${package}" "${SDCARD}${name}"
+	done
+
+	if [[ ! -z "${names[*]}" ]]; then
+		display_alert "Installing" "$(basename $deb_dir)"
+
+		# when building in bulk from remote, lets make sure we have up2date index
+		chroot "${SDCARD}" /bin/bash -c "dpkg -i ${names[*]} " >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
+		[[ $? -ne 0 ]] && exit_with_error "Installation of $(basename $deb_dir) failed" "${BOARD} ${RELEASE} ${BUILD_DESKTOP} ${LINUXFAMILY}"
+		chroot "${SDCARD}" /bin/bash -c "apt-mark hold ${package_names[*]}" >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
+	fi
+}
 
 run_on_sdcard()
 {

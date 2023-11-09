@@ -97,7 +97,7 @@ prepare_board() {
 		rockpro64|renegade-elite|pinebook-pro|station-p1)
 			BOARDFAMILY=rk3399
 			;;
-		orangepi5|orangepicm5|orangepi5b|orangepi5plus|orangepitab|orangepi900)
+		orangepi5|orangepicm5|orangepi5b|orangepi5plus|orangepi5pro|orangepitab|orangepi900)
 			[[ $BOARD =~ orangepi5|orangepi5b ]] && echo host > /sys/kernel/debug/usb/fc000000.usb/mode
 
 			if [[ $BOARD =~ orangepi900 ]]; then
@@ -144,6 +144,15 @@ prepare_board() {
 				rfkill unblock all
 				brcm_patchram_plus --bd_addr_rand --enable_hci --no2bytes --use_baudrate_for_download --tosleep 200000 \
 					--baudrate 1500000 --patchram /lib/firmware/ap6275p/BCM4362A2.hcd /dev/ttyS9 &
+			fi
+
+			if [[ $BOARD =~ orangepi5pro ]]; then
+
+				es8388_card=$(aplay -l | grep "es8388" | cut -d ':' -f 1 | cut -d ' ' -f 2)
+				tinymix -D ${es8388_card} 37 1
+
+				rfkill unblock all
+				/usr/bin/hciattach_opi -n -s 1500000 /dev/ttyBT0 sprd &
 			fi
 			;;
 		orangepi3-lts)

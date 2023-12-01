@@ -152,7 +152,8 @@ prepare_board() {
 				tinymix -D ${es8388_card} 37 1
 
 				rfkill unblock all
-				/usr/bin/hciattach_opi -n -s 1500000 /dev/ttyBT0 sprd &
+				brcm_patchram_plus --bd_addr_rand --enable_hci --no2bytes --use_baudrate_for_download --tosleep 200000 \
+				        --baudrate 1500000 --patchram /lib/firmware/BCM4345C0.hcd /dev/ttyS9 &
 			fi
 			;;
 		orangepi3-lts)

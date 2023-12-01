@@ -14,36 +14,36 @@ hdmi0_card=$(aplay -l | grep "hdmi0" | cut -d ':' -f 1 | cut -d ' ' -f 2)
 
 if [[ $type == "main" ]]; then
 
-	tinymix -D $card 13 4
-	tinymix -D $card 14 2
-	tinymix -D $card 24 192
-	tinymix -D $card 26 4
-	tinymix -D $card 27 4
+	amixer -c $card cset name='ALC Capture Max PGA' 4 >/dev/null
+	amixer -c $card cset name='ALC Capture Min PGA' 2 >/dev/null
+	amixer -c $card cset name='Capture Digital Volume' 192 >/dev/null
+	amixer -c $card cset name='Left Channel Capture Volume' 4 >/dev/null
+	amixer -c $card cset name='Right Channel Capture Volume' 4 >/dev/null
+
 	if [[ ${BOARD} == orangepi900 ]]; then
-	tinymix -D $card 45 1
-	tinymix -D $card 46 1
-	tinymix -D $card 47 1
+	amixer -c $card cset name='Left Line Mux' 1 >/dev/null
+	amixer -c $card cset name='Right Line Mux' 1 >/dev/null
+	amixer -c $card cset name='Left Mixer Left Playback Switch' 1 >/dev/null
 	else
-	tinymix -D $card 41 1
-	tinymix -D $card 42 1
-	tinymix -D $card 43 1
+	amixer -c $card cset name='Left PGA Mux' 1 >/dev/null
+	amixer -c $card cset name='Right PGA Mux' 1 >/dev/null
+	amixer -c $card cset name='Differential Mux' 1 >/dev/null
 	fi
 
 else
-
-	tinymix -D $card 13 2
-	tinymix -D $card 14 1
-	tinymix -D $card 24 192
-	tinymix -D $card 26 4
-	tinymix -D $card 27 4
+	amixer -c $card cset name='ALC Capture Max PGA' 2 >/dev/null
+	amixer -c $card cset name='ALC Capture Min PGA' 1 >/dev/null
+	amixer -c $card cset name='Capture Digital Volume' 192 >/dev/null
+	amixer -c $card cset name='Left Channel Capture Volume' 4 >/dev/null
+	amixer -c $card cset name='Right Channel Capture Volume' 4 >/dev/null
 	if [[ ${BOARD} == orangepi900 ]]; then
-	tinymix -D $card 45 0
-	tinymix -D $card 46 0
-	tinymix -D $card 47 0
+	amixer -c $card cset name='Left Line Mux' 0 >/dev/null
+	amixer -c $card cset name='Right Line Mux' 0 >/dev/null
+	amixer -c $card cset name='Left Mixer Left Playback Switch' 0 >/dev/null
 	else
-	tinymix -D $card 41 0
-	tinymix -D $card 42 0
-	tinymix -D $card 43 0
+	amixer -c $card cset name='Left PGA Mux' 0 >/dev/null
+	amixer -c $card cset name='Right PGA Mux' 0 >/dev/null
+	amixer -c $card cset name='Differential Mux' 0 >/dev/null
 	fi
 
 fi

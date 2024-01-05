@@ -171,6 +171,8 @@ uboot_custom_postprocess()
         elif [[ $BOOT_SCENARIO == "spl-blobs" || $BOOT_SCENARIO == "tpl-blob-atf-mainline" ]]; then
 		if [[ $BOARD =~ orangepicm4|orangepi3b ]]; then
 			tools/mkimage -n rk3568 -T rksd -d $RKBIN_DIR/$DDR_BLOB:spl/u-boot-spl.bin idbloader.img
+		elif [[ $BOARD =~ orangepi4-lts|orangepi800 ]]; then
+			tools/mkimage -n rk3399 -T rksd -d $RKBIN_DIR/$DDR_BLOB:spl/u-boot-spl.bin idbloader.img
 		fi
 
 		:
@@ -263,7 +265,8 @@ family_tweaks()
 	# execute specific tweaks function if present
 	[[ $(type -t family_tweaks_s) == function ]] && family_tweaks_s
 
-	[[ "$BRANCH" =~ legacy|current ]] && rk3399_gpu_vpu_tweaks
+	[[ "$BRANCH" =~ legacy ]] && rk3399_gpu_vpu_tweaks
+	[[ "$BRANCH" =~ current && $BOARDFAMILY == "rk3399" ]] && rk35xx_gpu_vpu_tweaks
 	[[ "$BRANCH" =~ legacy && $BOARDFAMILY == "rockchip-rk3588" ]] && rk35xx_gpu_vpu_tweaks
 	[[ "$BRANCH" == legacy && $BOARDFAMILY == "rockchip-rk356x" ]] && rk35xx_gpu_vpu_tweaks
 

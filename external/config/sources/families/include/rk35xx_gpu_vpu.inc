@@ -1,6 +1,6 @@
 rk35xx_gpu_vpu_tweaks()
 {
-	if [[ ${SELECTED_CONFIGURATION} == desktop ]]; then
+	if [[ ${SELECTED_CONFIGURATION} == desktop && ${DESKTOP_ENVIRONMENT} != gnome ]]; then
 
 		debs_dir="$EXTER/cache/sources/rk35xx_packages"
 
@@ -8,11 +8,14 @@ rk35xx_gpu_vpu_tweaks()
 		debs_list+=("gstreamer" "gst-plugins-base1.0" "gst-plugins-good1.0" "gst-plugins-bad1.0" "gst-plugins-ugly1.0" "gstreamer-rockchip")
 		debs_list+=("xserver" "glmark2" "libdrm" "libdrm-cursor")
 		debs_list+=("libv4l" "libv4l-rkmpp" "chromium")
-		debs_list+=("ffmpeg" "mpv" "cheese" "gst-rkmpp")
+		debs_list+=("ffmpeg" "cheese" "mpv" "gst-rkmpp")
 
 		chroot $SDCARD /bin/bash -c "rm -rf /etc/mpv/mpv.conf"
+		chroot $SDCARD /bin/bash -c "apt-get update" >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
 
 		[[ ${RELEASE} == raspi ]] && chroot $SDCARD /bin/bash -c "apt remove -y chromium-browser rpi-chromium-mods libwidevinecdm0"
+		[[ "$BOARDFAMILY" == "rk3399" ]] && chroot $SDCARD /bin/bash -c "apt install -y libqt5quick5" \
+			>> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
 
 		for dir in ${debs_common_list[@]}; do
 			dir=$(find "${debs_dir}/common" -type d -name ${dir})
@@ -35,6 +38,9 @@ rk35xx_gpu_vpu_tweaks()
 		elif [[ $BOARDFAMILY == "rockchip-rk356x" ]]; then
 			dpkg_install_deb_chroot "${debs_dir}/common/libmali/libmali-bifrost-g52-g13p0-x11-gbm_1.9-1_arm64.deb"
 			dpkg_install_deb_chroot "${debs_dir}/common/rkaiq/camera_engine_rkaiq_rk3568_arm64.deb"
+		elif [[ $BOARDFAMILY == "rk3399" ]]; then
+			dpkg_install_deb_chroot "${debs_dir}/common/libmali/libmali-midgard-t86x-r18p0-x11-gbm_1.9-1_arm64.deb"
+			dpkg_install_deb_chroot "${debs_dir}/common/rkisp/camera_engine_rkisp_v2.3.0_arm64.deb"
 		fi
 
 		cp ${EXTER}/packages/bsp/rk3588/etc/mpv/mpv.conf $SDCARD/etc/mpv/

@@ -501,6 +501,12 @@ if [[ ${IGNORE_UPDATES} != yes ]]; then
 	After sources are fetched, build host-side tools needed for the build.
 	BUILD_HOST_TOOLS
 
+	if [[ ${BOARDFAMILY} == "rockchip-rk3588" ]]; then
+		local rkbin_url="https://github.com/orangepi-xunlong/rk-rootfs-build/raw/rkbin/rk35"
+		wget -qnc -P ${EXTER}/cache/sources/rkbin-tools/rk35/ ${rkbin_url}/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.15.bin
+		wget -qnc -P ${EXTER}/cache/sources/rkbin-tools/rk35/ ${rkbin_url}/rk3588_bl31_v1.44.elf
+	fi
+
 fi
 
 for option in $(tr ',' ' ' <<< "$CLEAN_LEVEL"); do

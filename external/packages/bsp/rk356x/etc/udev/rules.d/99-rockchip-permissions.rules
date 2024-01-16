@@ -16,5 +16,13 @@ KERNEL=="rga", MODE="0660", GROUP="video"
 # MALI devices (/dev/mali for mali400)
 KERNEL=="mali*", MODE="0660", GROUP="video"
 
+# DMA heap devices
+KERNEL=="cma", MODE="0660", GROUP="video"
+KERNEL=="cma-uncached", MODE="0660", GROUP="video"
+KERNEL=="system", MODE="0660", GROUP="video"
+KERNEL=="system-dma32", MODE="0660", GROUP="video"
+KERNEL=="system-uncached", MODE="0660", GROUP="video"
+KERNEL=="system-uncached-dma32", MODE="0660", GROUP="video"
+
 LABEL="permissions_end"
 

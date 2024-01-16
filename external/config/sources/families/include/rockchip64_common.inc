@@ -11,7 +11,7 @@ BOOTENV_FILE='rockchip.txt'
 UBOOT_TARGET_MAP=";;idbloader.bin uboot.img trust.bin"
 BOOTDELAY=0
 OVERLAY_PREFIX='rockchip'
-SERIALCON=${SERIALCON:=$([ $BRANCH == "legacy" ] && echo "ttyFIQ0:1500000" || echo "ttyS2:1500000")}
+SERIALCON=${SERIALCON:=$([[ $BRANCH == "legacy" || $BOARDFAMILY == "rockchip-rk3588" && $BRANCH == "current" ]] && echo "ttyFIQ0:1500000" || echo "ttyS2:1500000")}
 GOVERNOR="ondemand"
 BOOTBRANCH="branch:v2020.10-rockchip64"
 PACKAGE_LIST_FAMILY="ethtool can-utils"
@@ -61,8 +61,8 @@ if [[ $BOARD =~ orangepir1plus|orangepir1plus-lts ]]; then
 elif [[ $BOARDFAMILY == "rockchip-rk3588" ]]; then
 
 	BOOT_SCENARIO="${BOOT_SCENARIO:=spl-blobs}"
-	DDR_BLOB="${DDR_BLOB:=rk35/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.13.bin}"
-	BL31_BLOB='rk35/rk3588_bl31_v1.42.elf'
+	DDR_BLOB="${DDR_BLOB:=rk35/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.15.bin}"
+	BL31_BLOB='rk35/rk3588_bl31_v1.44.elf'
 
 elif [[ $BOARD =~ orangepicm4|orangepi3b ]]; then
 
@@ -267,7 +267,7 @@ family_tweaks()
 
 	[[ "$BRANCH" =~ legacy ]] && rk3399_gpu_vpu_tweaks
 	[[ "$BRANCH" =~ current && $BOARDFAMILY == "rk3399" ]] && rk35xx_gpu_vpu_tweaks
-	[[ "$BRANCH" =~ legacy && $BOARDFAMILY == "rockchip-rk3588" ]] && rk35xx_gpu_vpu_tweaks
+	[[ "$BRANCH" =~ legacy|current && $BOARDFAMILY == "rockchip-rk3588" ]] && rk35xx_gpu_vpu_tweaks
 	[[ "$BRANCH" == legacy && $BOARDFAMILY == "rockchip-rk356x" ]] && rk35xx_gpu_vpu_tweaks
 
 	#if [[ ${BOARD} == orangepi800 && ${SELECTED_CONFIGURATION} == desktop && ${RELEASE} =~ bullseye|bookworm ]]; then

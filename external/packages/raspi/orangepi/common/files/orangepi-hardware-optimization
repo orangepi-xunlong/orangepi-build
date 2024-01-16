@@ -33,6 +33,7 @@ prepare_board() {
 			fi
 			;;
 		orangepicm4|orangepi3b)
+			echo host > /sys/devices/platform/fe8a0000.usb2-phy/otg_mode
 			if [[ -c /dev/mpp_service ]]; then
 				chmod 666 /dev/mpp_service
 

@@ -253,7 +253,7 @@ dpkg_install_debs_chroot()
 
 	[ ! -d "$deb_dir" ] && return
 
-	deb_packages=($(find "${deb_dir}" -type f -name "*.deb"))
+	deb_packages=($(find "${deb_dir}/" -mindepth 1 -maxdepth 1 -type f -name "*.deb"))
 
 	find_in_array() {
 		local target="$1"

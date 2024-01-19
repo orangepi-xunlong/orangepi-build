@@ -97,7 +97,7 @@ prepare_board() {
 		rockpro64|renegade-elite|pinebook-pro|station-p1)
 			BOARDFAMILY=rk3399
 			;;
-		orangepi5|orangepicm5|orangepi5b|orangepi5plus|orangepi5pro|orangepitab|orangepi900)
+		orangepi5|orangepicm5|orangepi5b|orangepi5plus|orangepi5pro|orangepi5max|orangepitab|orangepi900)
 			[[ $BOARD =~ orangepi5|orangepi5b ]] && echo host > /sys/kernel/debug/usb/fc000000.usb/mode
 
 			if [[ $BOARD =~ orangepi900 ]]; then
@@ -154,6 +154,12 @@ prepare_board() {
 				rfkill unblock all
 				brcm_patchram_plus --bd_addr_rand --enable_hci --no2bytes --use_baudrate_for_download --tosleep 200000 \
 				        --baudrate 1500000 --patchram /lib/firmware/BCM4345C0.hcd /dev/ttyS9 &
+
+			elif [[ $BOARD =~ orangepi5max ]]; then
+
+				rfkill unblock all
+				brcm_patchram_plus --bd_addr_rand --enable_hci --no2bytes --use_baudrate_for_download --tosleep 200000 \
+				        --baudrate 1500000 --patchram /lib/firmware/SYN43711A0.hcd /dev/ttyS7 &
 			fi
 			;;
 		orangepi3-lts)

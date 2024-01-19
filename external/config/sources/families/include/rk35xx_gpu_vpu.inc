@@ -34,7 +34,7 @@ rk35xx_gpu_vpu_tweaks()
 
 		if [[ $BOARDFAMILY == "rockchip-rk3588" ]]; then
 			dpkg_install_deb_chroot "${debs_dir}/common/libmali/libmali-valhall-g610-g13p0-x11-gbm_1.9-1_arm64.deb"
-			dpkg_install_deb_chroot "${debs_dir}/common/rkaiq/camera-engine-rkaiq_rk3588_arm64.deb"
+			dpkg_install_deb_chroot "${debs_dir}/common/rkaiq/camera_engine_rkaiq_rk3588_arm64.deb"
 		elif [[ $BOARDFAMILY == "rockchip-rk356x" ]]; then
 			dpkg_install_deb_chroot "${debs_dir}/common/libmali/libmali-bifrost-g52-g13p0-x11-gbm_1.9-1_arm64.deb"
 			dpkg_install_deb_chroot "${debs_dir}/common/rkaiq/camera_engine_rkaiq_rk3568_arm64.deb"

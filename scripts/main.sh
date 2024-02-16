@@ -44,7 +44,7 @@ fi
 
 [[ -z $REVISION ]] && REVISION="3.0.8"
 
-[[ $DOWNLOAD_MIRROR == "china" ]] && NTP_SERVER="cn.pool.ntp.org"
+[[ $DOWNLOAD_MIRROR == "china" ]] && NTP_SERVER="ru.pool.ntp.org"
 
 if [[ $BUILD_ALL != "yes" ]]; then
 	# override stty size

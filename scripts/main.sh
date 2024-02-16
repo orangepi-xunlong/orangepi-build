@@ -286,7 +286,23 @@ if [[ -z $BRANCH ]]; then
 
 fi
 
-if [[ -z ${MEM_TYPE} && ${BOARD} =~ orangepizero3|orangepir1b|orangepizero2w && ${BUILD_OPT} =~ u-boot|image && ${BRANCH} == next|master ]]; then
+if [[ -z ${MEM_TYPE} && ${BOARD} =~ orangepizero3|orangepir1b|orangepizero2w && ${BUILD_OPT} =~ u-boot|image && ${BRANCH} == next ]]; then
+
+	options+=("1500MB"    "1.5 GB Memory")
+	options+=("Others"    "1/2/4 GB Memory")
+
+	menustr="Please choose memory size for ${BOARD}."
+	MEM_TYPE=$(whiptail --title "${titlestr}" --backtitle "${backtitle}" \
+			  --menu "${menustr}" "${TTY_Y}" "${TTY_X}" $((TTY_Y - 8))  \
+			  --cancel-button Exit --ok-button Select "${options[@]}" \
+			  3>&1 1>&2 2>&3)
+
+	unset options
+	[[ -z $MEM_TYPE ]] && exit_with_error "No option selected"
+fi
+
+
+if [[ -z ${MEM_TYPE} && ${BOARD} =~ orangepizero3|orangepir1b|orangepizero2w && ${BUILD_OPT} =~ u-boot|image && ${BRANCH} == master ]]; then
 
 	options+=("1500MB"    "1.5 GB Memory")
 	options+=("Others"    "1/2/4 GB Memory")

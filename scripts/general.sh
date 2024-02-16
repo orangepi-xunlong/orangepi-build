@@ -882,7 +882,7 @@ function distro_menu ()
 					[[ -z "${DISTRIB_TYPE_CURRENT}" ]] && DISTRIB_TYPE="bullseye bookworm focal jammy"
 				fi
     			elif [[ "${BRANCH}" == "master" ]]; then
-					DISTRIB_TYPE="${DISTRIB_TYPE_MASTER}"
+					DISTRIB_TYPE="${DISTRIB_TYPE_NEXT}"
 			fi
 
 			if [[ "${DISTRIB_TYPE}" =~ "${distro_codename}" ]]; then

@@ -20,7 +20,7 @@ HOSTRELEASE=$(cat /etc/os-release | grep VERSION_CODENAME | cut -d"=" -f2)
 [[ -z $HOSTRELEASE ]] && HOSTRELEASE=$(cut -d'/' -f1 /etc/debian_version)
 [[ -z $EXIT_PATCHING_ERROR ]] && EXIT_PATCHING_ERROR="" # exit patching if failed
 [[ -z $HOST ]] && HOST="$BOARD" # set hostname to the board
-[[ -z $CHINA_DOWNLOAD_MIRROR ]] && CHINA_DOWNLOAD_MIRROR=huawei
+[[ -z $CHINA_DOWNLOAD_MIRROR ]] && CHINA_DOWNLOAD_MIRROR=yandex
 cd "${SRC}" || exit
 [[ -z "${ROOTFSCACHE_VERSION}" ]] && ROOTFSCACHE_VERSION=11
 [[ -z "${CHROOT_CACHE_VERSION}" ]] && CHROOT_CACHE_VERSION=7

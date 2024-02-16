@@ -286,7 +286,7 @@ if [[ -z $BRANCH ]]; then
 
 fi
 
-if [[ -z ${MEM_TYPE} && ${BOARD} =~ orangepizero3|orangepir1b|orangepizero2w && ${BUILD_OPT} =~ u-boot|image && ${BRANCH} == next ]]; then
+if [[ -z ${MEM_TYPE} && ${BOARD} =~ orangepizero3|orangepir1b|orangepizero2w && ${BUILD_OPT} =~ u-boot|image && ${BRANCH} == next|master ]]; then
 
 	options+=("1500MB"    "1.5 GB Memory")
 	options+=("Others"    "1/2/4 GB Memory")
@@ -300,6 +300,8 @@ if [[ -z ${MEM_TYPE} && ${BOARD} =~ orangepizero3|orangepir1b|orangepizero2w && 
 	unset options
 	[[ -z $MEM_TYPE ]] && exit_with_error "No option selected"
 fi
+
+
 
 if [[ $BUILD_OPT =~ rootfs|image && -z $RELEASE ]]; then
 

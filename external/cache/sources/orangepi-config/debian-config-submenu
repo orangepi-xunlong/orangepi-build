@@ -75,7 +75,7 @@ while true; do
 
 	[[ -d ${OVERLAYDIR} ]] && \
 	LIST+=( "Hardware" "Toggle hardware configuration: UART, I2C, etc." )
-	[[ "$LINUXFAMILY" = cubox && "$BRANCH" = "next" ]] && LIST+=( "DTB" "Switch board .dtb configuration" )
+	[[ "$LINUXFAMILY" = cubox && "$BRANCH" = "next"|"master" ]] && LIST+=( "DTB" "Switch board .dtb configuration" )
 	# this is avaliable only in kernel higher than 4.10
 	testvercomp "$(uname -r | sed 's/-.*//')" "4.10.0" ">"
 	[[ "$LINUXFAMILY" = odroidxu4 && $? == 0 ]] && LIST+=( "DTB" "Select optimised board configuration" )

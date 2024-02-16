@@ -213,10 +213,10 @@ install_common()
 			fi
 		fi
 
-		[[ -n $OVERLAY_PREFIX && -f "${SDCARD}"/boot/orangepiEnv.txt && ($BRANCH =~ current|next || $BOARDFAMILY =~ "rockchip-rk3588"|"rockchip-rk356x") ]] && \
+		[[ -n $OVERLAY_PREFIX && -f "${SDCARD}"/boot/orangepiEnv.txt && ($BRANCH =~ current|next|master || $BOARDFAMILY =~ "rockchip-rk3588"|"rockchip-rk356x") ]] && \
 			echo "overlay_prefix=$OVERLAY_PREFIX" >> "${SDCARD}"/boot/orangepiEnv.txt
 
-		[[ -n $DEFAULT_OVERLAYS && -f "${SDCARD}"/boot/orangepiEnv.txt && ($BRANCH =~ current|next || $BOARDFAMILY =~ "rockchip-rk3588"|"rockchip-rk356x") ]] && \
+		[[ -n $DEFAULT_OVERLAYS && -f "${SDCARD}"/boot/orangepiEnv.txt && ($BRANCH =~ current|next|master || $BOARDFAMILY =~ "rockchip-rk3588"|"rockchip-rk356x") ]] && \
 			echo "overlays=${DEFAULT_OVERLAYS//,/ }" >> "${SDCARD}"/boot/orangepiEnv.txt
 
 		[[ -n $BOOT_FDT_FILE && -f "${SDCARD}"/boot/orangepiEnv.txt ]] && \
@@ -988,10 +988,10 @@ install_opi_specific()
 		fi
 	fi
 
-	[[ -n $OVERLAY_PREFIX && -f "${SDCARD}"/boot/orangepiEnv.txt && ($BRANCH =~ current|next || $BOARDFAMILY =~ "rockchip-rk3588"|"rockchip-rk356x") ]] && \
+	[[ -n $OVERLAY_PREFIX && -f "${SDCARD}"/boot/orangepiEnv.txt && ($BRANCH =~ current|next|master || $BOARDFAMILY =~ "rockchip-rk3588"|"rockchip-rk356x") ]] && \
 		echo "overlay_prefix=$OVERLAY_PREFIX" >> "${SDCARD}"/boot/orangepiEnv.txt
 
-	[[ -n $DEFAULT_OVERLAYS && -f "${SDCARD}"/boot/orangepiEnv.txt && ($BRANCH =~ current|next || $BOARDFAMILY =~ "rockchip-rk3588"|"rockchip-rk356x") ]] && \
+	[[ -n $DEFAULT_OVERLAYS && -f "${SDCARD}"/boot/orangepiEnv.txt && ($BRANCH =~ current|next|master || $BOARDFAMILY =~ "rockchip-rk3588"|"rockchip-rk356x") ]] && \
 		echo "overlays=${DEFAULT_OVERLAYS//,/ }" >> "${SDCARD}"/boot/orangepiEnv.txt
 
 	[[ -n $BOOT_FDT_FILE && -f "${SDCARD}"/boot/orangepiEnv.txt ]] && \

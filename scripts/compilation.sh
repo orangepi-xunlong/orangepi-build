@@ -229,7 +229,6 @@ compile_uboot()
 
    			if [[ ${BOARDFAMILY} == "sun50iw9" && ${BRANCH} == "master" ]]; then
 					sed -i 's/^.*CONFIG_DRAM_SUN50I_H616_TRIM_SIZE*/# CONFIG_DRAM_SUN50I_H616_TRIM_SIZE is not set/g' .config
-    					#local uboot_name=${CHOSEN_UBOOT}_${REVISION}_${ARCH}
 			fi
 
 			[[ -f tools/logos/udoo.bmp ]] && cp "${EXTER}"/packages/blobs/splash/udoo.bmp tools/logos/udoo.bmp

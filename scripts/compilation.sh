@@ -68,7 +68,7 @@ compile_atf()
 	target_patchdir=$(cut -d';' -f2 <<< "${ATF_TARGET_MAP}")
 	target_files=$(cut -d';' -f3 <<< "${ATF_TARGET_MAP}")
 
-	advanced_patch "atf" "${ATFPATCHDIR}" "$BOARD" "$target_patchdir" "$BRANCH" "${LINUXFAMILY}-${BOARD}-${BRANCH}"
+	advanced_patch "atf" "${ATFPATCHDIR}" "$BOARD" "$target_patchdir" "$KERNELBRANCH" "${LINUXFAMILY}-${BOARD}-${KERNELBRANCH}"
 
 	# create patch for manual source changes
 	[[ $CREATE_PATCHES == yes ]] && userpatch_create "atf"
@@ -417,7 +417,7 @@ compile_kernel()
 	# build 3rd party drivers
 	# compilation_prepare
 
-	advanced_patch "kernel" "$KERNELPATCHDIR" "$BOARD" "" "$BRANCH" "$LINUXFAMILY-$BRANCH"
+	advanced_patch "kernel" "$KERNELPATCHDIR" "$BOARD" "" "$KERNELBRANCH" "$LINUXFAMILY-$KERNELBRANCH"
 
 	# create patch for manual source changes in debug mode
 	[[ $CREATE_PATCHES == yes ]] && userpatch_create "kernel"
@@ -425,12 +425,14 @@ compile_kernel()
 	# re-read kernel version after patching
 	local version
 	version=$(grab_version "$kerneldir")
+ 	
+  	display_alert "Тут я что-то вставил"
+  	KERNELBRANCH="$version"
+	display_alert "Теперь KERNELBRANCH = " "$KERNELBRANCH"
+ 	sleep 10
+	
+ 	display_alert "Compiling $BRANCH kernel" "$version" "info"
 
-	display_alert "Compiling $BRANCH kernel" "$version" "info"
- 	display_alert "Тут я что-то вставил"
-  	#KERNELBRANCH="branch:linux-6.7.y"
-	BRANCH="$version"
-	display_alert "Теперь BRANCH = " "$BRANCH"
  	# compare with the architecture of the current Debian node
 	# if it matches we use the system compiler
 	if $(dpkg-architecture -e "${ARCH}"); then
@@ -541,7 +543,7 @@ CUSTOM_KERNEL_CONFIG
 		'make $CTHREADS $kernel_packing \
 		KDEB_PKGVERSION=$REVISION \
 		KDEB_COMPRESS=${DEB_COMPRESS} \
-		BRANCH=$BRANCH \
+		BRANCH=$KERNELBRANCH \
 		LOCALVERSION="-${LINUXFAMILY}" \
 		KBUILD_DEBARCH=$ARCH \
 		ARCH=$ARCHITECTURE \
@@ -1019,7 +1021,7 @@ userpatch_create()
 	git add .
 	git -c user.name='Orange Pi User' -c user.email='user@example.org' commit -q -m "Cleaning working copy"
 
-	local patch="$DEST/patch/$1-$LINUXFAMILY-$BRANCH.patch"
+	local patch="$DEST/patch/$1-$LINUXFAMILY-$KERNELBRANCH.patch"
 
 	# apply previous user debug mode created patches
 	if [[ -f $patch ]]; then

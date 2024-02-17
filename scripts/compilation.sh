@@ -134,11 +134,6 @@ compile_uboot()
 	fi
 	cd "${ubootdir}" || exit
 
-	# read uboot version
-	local version hash
-	version=$(grab_version "$ubootdir")
-	hash=$(improved_git --git-dir="$ubootdir"/.git rev-parse HEAD)
-
 	display_alert "Compiling u-boot" "v$version" "info"
 
 	# build aarch64

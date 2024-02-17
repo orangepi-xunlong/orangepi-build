@@ -25,6 +25,9 @@ cd "${SRC}" || exit
 [[ -z "${ROOTFSCACHE_VERSION}" ]] && ROOTFSCACHE_VERSION=11
 [[ -z "${CHROOT_CACHE_VERSION}" ]] && CHROOT_CACHE_VERSION=7
 [[ -z $PLYMOUTH ]] && PLYMOUTH="yes"
+#This Const for main.sh and right choice for const  CHOSEN_KERNEL=linux-image-${KERNELDEB}-${LINUXFAMILY} and CHOSEN_KSRC=linux-source-${KERNELDEB}-${LINUXFAMILY}
+KERNELDEB="Привет Андрей"
+
 
 cd ${SRC}/scripts
 BUILD_REPOSITORY_URL=$(improved_git remote get-url $(improved_git remote 2>/dev/null | grep origin) 2>/dev/null)

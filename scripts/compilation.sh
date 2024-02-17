@@ -134,7 +134,7 @@ compile_uboot()
 	fi
 	cd "${ubootdir}" || exit
 
-	display_alert "Compiling u-boot" "v$version" "info"
+	#display_alert "Compiling u-boot" "$version" "info"
 
 	# build aarch64
 	if [[ $(dpkg --print-architecture) == amd64 ]]; then

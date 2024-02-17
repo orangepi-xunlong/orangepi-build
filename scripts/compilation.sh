@@ -431,7 +431,7 @@ compile_kernel()
  	display_alert "Тут я что-то вставил"
   	#KERNELBRANCH="branch:linux-6.7.y"
 	BRANCH="$version"
-	
+	display_alert "Теперь BRANCH = " "$BRANCH"
  	# compare with the architecture of the current Debian node
 	# if it matches we use the system compiler
 	if $(dpkg-architecture -e "${ARCH}"); then

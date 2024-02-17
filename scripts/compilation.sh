@@ -134,7 +134,12 @@ compile_uboot()
 	fi
 	cd "${ubootdir}" || exit
 
-	#display_alert "Compiling u-boot" "$version" "info"
+	# read uboot version
+	local version hash
+	version=$(grab_version "$ubootdir")
+	hash=$(improved_git --git-dir="$ubootdir"/.git rev-parse HEAD)
+
+	display_alert "Compiling u-boot" "v$version" "info"
 
 	# build aarch64
 	if [[ $(dpkg --print-architecture) == amd64 ]]; then
@@ -227,9 +232,9 @@ compile_uboot()
 				fi
 			fi
 
-   			if [[ ${BOARDFAMILY} == "sun50iw9" && ${BRANCH} == "master" ]]; then
-					sed -i 's/^.*CONFIG_DRAM_SUN50I_H616_TRIM_SIZE*/# CONFIG_DRAM_SUN50I_H616_TRIM_SIZE is not set/g' .config
-			fi
+   			#if [[ ${BOARDFAMILY} == "sun50iw9" && ${BRANCH} == "master" ]]; then
+				#	sed -i 's/^.*CONFIG_DRAM_SUN50I_H616_TRIM_SIZE*/# CONFIG_DRAM_SUN50I_H616_TRIM_SIZE is not set/g' .config
+			#fi
 
 			[[ -f tools/logos/udoo.bmp ]] && cp "${EXTER}"/packages/blobs/splash/udoo.bmp tools/logos/udoo.bmp
 			touch .scmversion

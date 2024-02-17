@@ -234,6 +234,7 @@ compile_uboot()
 
    			if [[ ${BOARDFAMILY} == "sun50iw9" && ${BRANCH} == "master" ]]; then
 					sed -i 's/^.*CONFIG_DRAM_SUN50I_H616_TRIM_SIZE*/# CONFIG_DRAM_SUN50I_H616_TRIM_SIZE is not set/g' .config
+    					#local uboot_name=${CHOSEN_UBOOT}_${REVISION}_${ARCH}
 			fi
 
 			[[ -f tools/logos/udoo.bmp ]] && cp "${EXTER}"/packages/blobs/splash/udoo.bmp tools/logos/udoo.bmp
@@ -427,8 +428,11 @@ compile_kernel()
 	version=$(grab_version "$kerneldir")
 
 	display_alert "Compiling $BRANCH kernel" "$version" "info"
-
-	# compare with the architecture of the current Debian node
+ 	display_alert "Тут я что-то вставил"
+  	#KERNELBRANCH="branch:linux-6.7.y"
+	BRANCH="$version"
+	
+ 	# compare with the architecture of the current Debian node
 	# if it matches we use the system compiler
 	if $(dpkg-architecture -e "${ARCH}"); then
 		display_alert "Native compilation"

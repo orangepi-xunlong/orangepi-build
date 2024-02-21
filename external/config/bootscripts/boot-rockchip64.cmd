@@ -45,12 +45,18 @@ load ${devtype} ${devnum} ${kernel_addr_r} ${prefix}Image
 load ${devtype} ${devnum} ${fdt_addr_r} ${prefix}dtb/${fdtfile}
 fdt addr ${fdt_addr_r}
 fdt resize 65536
+
+if test "${yt8531c_phy_level}" = "3v3"; then
+	setenv overlays "vccio5_3v3 $overlays"
+fi
+
 for overlay_file in ${overlays}; do
 	if load ${devtype} ${devnum} ${load_addr} ${prefix}dtb/rockchip/overlay/${overlay_prefix}-${overlay_file}.dtbo; then
 		echo "Applying kernel provided DT overlay ${overlay_prefix}-${overlay_file}.dtbo"
 		fdt apply ${load_addr} || setenv overlay_error "true"
 	fi
 done
+
 for overlay_file in ${user_overlays}; do
 	if load ${devtype} ${devnum} ${load_addr} ${prefix}overlay-user/${overlay_file}.dtbo; then
 		echo "Applying user provided DT overlay ${overlay_file}.dtbo"

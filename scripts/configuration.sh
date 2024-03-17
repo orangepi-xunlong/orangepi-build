@@ -587,6 +587,12 @@ if [[ $DOWNLOAD_MIRROR == "china" ]] ; then
 		UBUNTU_MIRROR='mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/'
 	fi
 
+ 	if [[ ${CHINA_DOWNLOAD_MIRROR} == ustc ]]; then
+		DEBIAN_MIRROR='mirrors.ustc.edu.cn/debian'
+		DEBIAN_SECURTY='mirrors.ustc.edu.cn/debian-security'
+		UBUNTU_MIRROR='mirrors.ustc.edu.cn/ubuntu-ports/'
+	fi
+
 	if [[ ${CHINA_DOWNLOAD_MIRROR} == huawei ]]; then
 		DEBIAN_MIRROR='repo.huaweicloud.com/debian'
 		DEBIAN_SECURTY='repo.huaweicloud.com/debian-security'

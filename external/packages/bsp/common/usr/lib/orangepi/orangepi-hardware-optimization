@@ -336,6 +336,11 @@ prepare_board() {
 				        --baudrate 1500000 --patchram /lib/firmware/BCM4345C0.hcd /dev/ttyS1 &
 			fi
 			;;
+		orangepi3plus)
+			gpio mode 28 in
+			gpio mode 28 up
+			gpio read 28
+			;;
 
 	esac
 

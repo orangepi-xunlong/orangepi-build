@@ -97,8 +97,26 @@ prepare_board() {
 		rockpro64|renegade-elite|pinebook-pro|station-p1)
 			BOARDFAMILY=rk3399
 			;;
-		orangepi5|orangepicm5|orangepi5b|orangepi5plus|orangepi5pro|orangepi5max|orangepitab|orangepi900)
+		orangepi5|orangepicm5|orangepicm5-tablet|orangepi5b|orangepi5plus|orangepi5pro|orangepi5max|orangepitab|orangepi900)
 			[[ $BOARD =~ orangepi5|orangepi5b ]] && echo host > /sys/kernel/debug/usb/fc000000.usb/mode
+
+			if [[ ${BOARD}x == orangepicm5x ]]; then
+
+				declare -A led_map=(
+				    ["lan2"]="end|eth"
+				    ["lan1"]="enP3"
+				    ["wan"]="enP4"
+				)
+
+				for led in "${!led_map[@]}"; do
+				    interface=$(ls /sys/class/net/ | grep -E "${led_map[$led]}" | sed -n 1p)
+				    echo netdev > "/sys/class/leds/$led/trigger"
+				    echo "$interface" > "/sys/class/leds/$led/device_name"
+				    echo 1 > "/sys/class/leds/$led/tx"
+				    echo 1 > "/sys/class/leds/$led/rx"
+				    echo 1 > "/sys/class/leds/$led/link"
+				done
+			fi
 
 			if [[ $BOARD =~ orangepi900 ]]; then
 				es8388_card=$(aplay -l | grep "es8388" | cut -d ':' -f 1 | cut -d ' ' -f 2)
@@ -149,7 +167,7 @@ prepare_board() {
 					--baudrate 1500000 --patchram /lib/firmware/ap6275p/BCM4362A2.hcd /dev/ttyS9 &
 			fi
 
-			if [[ $BOARD =~ orangepi5pro ]]; then
+			if [[ $BOARD =~ orangepi5pro|orangepicm5-tablet ]]; then
 
 				es8388_card=$(aplay -l | grep "es8388" | cut -d ':' -f 1 | cut -d ' ' -f 2)
 				tinymix -D ${es8388_card} 37 1

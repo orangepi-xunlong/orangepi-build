@@ -100,21 +100,26 @@ prepare_board() {
 		orangepi5|orangepicm5|orangepicm5-tablet|orangepi5b|orangepi5plus|orangepi5pro|orangepi5max|orangepitab|orangepi900)
 			[[ $BOARD =~ orangepi5|orangepi5b ]] && echo host > /sys/kernel/debug/usb/fc000000.usb/mode
 
+			if [[ ${BOARD}x == orangepicm5-tabletx ]]; then
+				tinymix -D 2 aw87xxx_profile_switch_0 Music
+				tinymix -D 2 aw87xxx_profile_switch_1 Music
+			fi
+
 			if [[ ${BOARD}x == orangepicm5x ]]; then
 
 				declare -A led_map=(
-				    ["lan2"]="end|eth"
-				    ["lan1"]="enP3"
-				    ["wan"]="enP4"
+					["lan2"]="end|eth"
+					["lan1"]="enP3"
+					["wan"]="enP4"
 				)
 
 				for led in "${!led_map[@]}"; do
-				    interface=$(ls /sys/class/net/ | grep -E "${led_map[$led]}" | sed -n 1p)
-				    echo netdev > "/sys/class/leds/$led/trigger"
-				    echo "$interface" > "/sys/class/leds/$led/device_name"
-				    echo 1 > "/sys/class/leds/$led/tx"
-				    echo 1 > "/sys/class/leds/$led/rx"
-				    echo 1 > "/sys/class/leds/$led/link"
+					interface=$(ls /sys/class/net/ | grep -E "${led_map[$led]}" | sed -n 1p)
+					echo netdev > "/sys/class/leds/$led/trigger"
+					echo "$interface" > "/sys/class/leds/$led/device_name"
+					echo 1 > "/sys/class/leds/$led/tx"
+					echo 1 > "/sys/class/leds/$led/rx"
+					echo 1 > "/sys/class/leds/$led/link"
 				done
 			fi
 

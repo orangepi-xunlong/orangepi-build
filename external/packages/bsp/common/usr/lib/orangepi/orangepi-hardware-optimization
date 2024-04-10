@@ -567,7 +567,7 @@ case $1 in
 		prepare_board &
 
 		# add usb quirks
-		add_usb_storage_quirks &
+		# add_usb_storage_quirks &
 
 		# branch naming workaround
 		branch_naming_workaround &

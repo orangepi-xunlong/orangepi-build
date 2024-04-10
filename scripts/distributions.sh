@@ -746,6 +746,7 @@ install_distribution_specific()
 
 			# by using default lz4 initrd compression leads to corruption, go back to proven method
 			sed -i "s/^COMPRESS=.*/COMPRESS=gzip/" "${SDCARD}"/etc/initramfs-tools/initramfs.conf
+			echo -e "\n[Install]\nWantedBy=multi-user.target" >> "${SDCARD}"/lib/systemd/system/lightdm.service
 
 			# cleanup motd services and related files
 			chroot "${SDCARD}" /bin/bash -c "systemctl disable  motd-news.service >/dev/null 2>&1"

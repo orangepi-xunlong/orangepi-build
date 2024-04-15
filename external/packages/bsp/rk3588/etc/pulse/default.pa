@@ -141,4 +141,3 @@ load-module module-filter-apply
 #set-default-sink output
 set-default-source alsa_input.platform-es8388-sound.HiFi__hw_rockchipes8388__source
 set-default-sink alsa_output.platform-es8388-sound.HiFi__hw_rockchipes8388__sink
-set-card-profile 0 HDMI

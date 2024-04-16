@@ -19,7 +19,7 @@ rk35xx_gpu_vpu_tweaks()
 			packages_to_install=("gstreamer" "gst-plugins-base1.0" "gst-plugins-good1.0")
 			packages_to_install+=("gst-plugins-bad1.0" "gstreamer-rockchip")
 			packages_to_install+=("libv4l_gnome" "chromium" "chromium_gnome" "mesa")
-			packages_to_install+=("ffmpeg" "mpv" "mpv_wayland" "kodi" "gst-rkmpp")
+			packages_to_install+=("ffmpeg" "mpv_wayland" "kodi" "gst-rkmpp")
 
 			[[ -f $SDCARD/etc/profile.d/x11.sh ]] && rm $SDCARD/etc/profile.d/x11.sh
 			echo "PAN_MESA_DEBUG=gofaster" >> $SDCARD/etc/environment

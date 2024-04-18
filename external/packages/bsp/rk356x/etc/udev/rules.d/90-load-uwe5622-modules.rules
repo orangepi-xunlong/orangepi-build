@@ -1,0 +1,1 @@
+ACTION=="add", SUBSYSTEM=="sdio", SUBSYSTEMS=="sdio", ENV{SDIO_ID}=="0000:0000", RUN+="/sbin/modprobe -a sprdwl_ng sprdbt_tty"

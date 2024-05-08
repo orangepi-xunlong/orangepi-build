@@ -61,8 +61,14 @@ if [[ $BOARD =~ orangepir1plus|orangepir1plus-lts ]]; then
 elif [[ $BOARDFAMILY == "rockchip-rk3588" ]]; then
 
 	BOOT_SCENARIO="${BOOT_SCENARIO:=spl-blobs}"
-	DDR_BLOB="${DDR_BLOB:=rk35/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.15.bin}"
-	BL31_BLOB='rk35/rk3588_bl31_v1.44.elf'
+
+	if [[ "${BOARD}x" =~ orangepi5maxx|orangepi5prox ]]; then
+		DDR_BLOB="${DDR_BLOB:=rk35/rk3588_ddr_lp4_2112MHz_lp5_2400MHz_v1.16.bin}"
+		BL31_BLOB='rk35/rk3588_bl31_v1.45_20240422.elf'
+	else
+		DDR_BLOB="${DDR_BLOB:=rk35/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.11.bin}"
+		BL31_BLOB='rk35/rk3588_bl31_v1.38.elf'
+	fi
 
 elif [[ $BOARD =~ orangepicm4|orangepi3b ]]; then
 

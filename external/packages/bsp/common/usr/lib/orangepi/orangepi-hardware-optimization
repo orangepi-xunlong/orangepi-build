@@ -391,6 +391,18 @@ prepare_board() {
 			gpio mode 28 up
 			gpio read 28
 			;;
+		orangepirv)
+			echo 30 > /sys/class/gpio/export
+			echo out > /sys/class/gpio/gpio30/direction
+			echo 0 > /sys/class/gpio/gpio30/value
+			sleep 1
+			echo 1 > /sys/class/gpio/gpio30/value
+			/usr/bin/brcm_patchram_plus -d --enable_hci --no2bytes --tosleep 200000 \
+				--baudrate 115200 --patchram /lib/firmware/BCM4345C5.hcd /dev/ttyS1 &
+			media-ctl --set-v4l2 '"imx219 6-0010":0[fmt:SRGGB10_1X10/1920x1080]'
+			/opt/media-ctl-pipeline.sh -d /dev/media0 -i csiphy0 -s ISP0 -a start
+			/opt/ISP/stf_isp_ctrl -m imx219mipi -j 0 -a 1 &
+			;;
 
 	esac
 

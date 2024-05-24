@@ -218,10 +218,11 @@ create_sources_list()
 
 	sid) # sid is permanent unstable development and has no such thing as updates or security
 	cat <<- EOF > "${basedir}"/etc/apt/sources.list
-	deb http://${DEBIAN_MIRROR} $release main contrib non-free non-free-firmware
+	deb https://snapshot.debian.org/archive/debian-ports/20221225T084846Z unstable main
+	#deb http://${DEBIAN_MIRROR} $release main contrib non-free non-free-firmware
 	#deb-src http://${DEBIAN_MIRROR} $release main contrib non-free non-free-firmware
 
-	deb http://${DEBIAN_MIRROR} unstable main contrib non-free non-free-firmware
+	#deb http://${DEBIAN_MIRROR} unstable main contrib non-free non-free-firmware
 	#deb-src http://${DEBIAN_MIRROR} unstable main contrib non-free non-free-firmware
 	EOF
 	;;
@@ -1869,7 +1870,7 @@ show_checklist_variables ()
 
 install_wiringop()
 {
-	install_deb_chroot "$EXTER/cache/debs/arm64/wiringpi_2.55.deb"
+	install_deb_chroot "$EXTER/cache/debs/${ARCH}/wiringpi_2.55.deb"
 	chroot "${SDCARD}" /bin/bash -c "apt-mark hold wiringpi" >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
 
 	if [[ ${IGNORE_UPDATES} != yes ]]; then

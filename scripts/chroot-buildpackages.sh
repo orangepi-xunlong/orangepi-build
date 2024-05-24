@@ -42,7 +42,7 @@ create_chroot()
 	components['buster']='main,contrib'
 	components['bullseye']='main,contrib'
 	components['bookworm']='main,contrib'
-	components['sid']='main,contrib'
+	components['sid']='main'
 	components['xenial']='main,universe,multiverse'
 	components['bionic']='main,universe,multiverse'
 	components['focal']='main,universe,multiverse'

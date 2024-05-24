@@ -202,11 +202,20 @@ create_rootfs_cache()
 		# Lets export the value of the pipe inside eval so we know outside what happened:
 		# ONEVAR="testing" eval 'bash -e -c "echo value once $ONEVAR && false && echo value twice $ONEVAR"' '| grep value'  '| grep value' ';EVALPIPE=(${PIPESTATUS[@]})' ; echo ${EVALPIPE[*]}
 
+		local release_version=${RELEASE}
+
+		if [[ ${RELEASE} == "sid" ]]; then
+			release_version=unstable
+			apt_mirror="https://snapshot.debian.org/archive/debian-ports/20221225T084846Z"
+			DEBOOTSTRAP_OPTION="--no-check-gpg --no-merged-usr"
+			PACKAGE_LIST_EXCLUDE="usr-is-merged"
+		fi
+
 		display_alert "Installing base system" "Stage 1/2" "info"
 		cd $SDCARD # this will prevent error sh: 0: getcwd() failed
 
 		eval 'debootstrap --variant=minbase --include=${DEBOOTSTRAP_LIST// /,} ${PACKAGE_LIST_EXCLUDE:+ --exclude=${PACKAGE_LIST_EXCLUDE// /,}} \
-			--arch=$ARCH --components=${DEBOOTSTRAP_COMPONENTS} $DEBOOTSTRAP_OPTION --foreign $RELEASE $SDCARD/ $apt_mirror' \
+			--arch=$ARCH --components=${DEBOOTSTRAP_COMPONENTS} $DEBOOTSTRAP_OPTION --foreign ${release_version} $SDCARD/ ${apt_mirror}' \
 			${PROGRESS_LOG_TO_FILE:+' | tee -a $DEST/${LOG_SUBPATH}/debootstrap.log'} \
 			${OUTPUT_DIALOG:+' | dialog --backtitle "$backtitle" --progressbox "Debootstrap (stage 1/2)..." $TTY_Y $TTY_X'} \
 			${OUTPUT_VERYSILENT:+' >/dev/null 2>/dev/null'} ';EVALPIPE=(${PIPESTATUS[@]})'
@@ -227,6 +236,14 @@ create_rootfs_cache()
 		[[ ${EVALPIPE[0]} -ne 0 || ! -f $SDCARD/bin/bash ]] && exit_with_error "Debootstrap base system for ${BRANCH} ${BOARD} ${RELEASE} ${DESKTOP_APPGROUPS_SELECTED} ${DESKTOP_ENVIRONMENT} ${BUILD_MINIMAL} second stage failed"
 
 		mount_chroot "$SDCARD"
+
+		if [[ ${RELEASE} == "sid" ]]; then
+			mkdir -p $SDCARD/etc/apt/apt.conf.d/
+		        echo "Acquire::Check-Valid-Until no;" > $SDCARD/etc/apt/apt.conf.d/99-no-check-valid-until
+			wget -qnc -P ${EXTER}/cache/debs/ https://snapshot.debian.org/archive/debian-ports/20220616T194833Z/pool-riscv64/main/i/icu/libicu71_71.1-3_riscv64.deb
+		        cp -v ${EXTER}/cache/debs/libicu71_71.1-3_riscv64.deb $SDCARD/
+		        LC_ALL=C LANG=C chroot $SDCARD /bin/bash -c "dpkg -i /libicu71_71.1-3_riscv64.deb" &> /dev/null
+		fi
 
 		display_alert "Diverting" "initctl/start-stop-daemon" "info"
 		# policy-rc.d script prevents starting or reloading services during image creation

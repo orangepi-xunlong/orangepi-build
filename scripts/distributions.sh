@@ -168,21 +168,22 @@ install_common()
 	# NOTE: this needs to be executed before family_tweaks
 	local bootscript_src=${BOOTSCRIPT%%:*}
 	local bootscript_dst=${BOOTSCRIPT##*:}
+	local bootdir=$([[ "$BOOTFS_TYPE" == "fat" ]] || echo "/boot")
 
 	# create extlinux config file
 	if [[ $SRC_EXTLINUX == yes ]]; then
 		mkdir -p $SDCARD/boot/extlinux
 		cat <<-EOF > "$SDCARD/boot/extlinux/extlinux.conf"
 		label ${VENDOR}
-		  kernel /boot/$NAME_KERNEL
-		  initrd /boot/$NAME_INITRD
+		  kernel $bootdir/$NAME_KERNEL
+		  initrd $bootdir/$NAME_INITRD
 	EOF
 		if [[ -n $BOOT_FDT_FILE ]]; then
 			if [[ $BOOT_FDT_FILE != "none" ]]; then
-				echo "  fdt /boot/dtb/$BOOT_FDT_FILE" >> "$SDCARD/boot/extlinux/extlinux.conf"
+				echo "  fdt $bootdir/dtb/$BOOT_FDT_FILE" >> "$SDCARD/boot/extlinux/extlinux.conf"
 			fi
 		else
-			echo "  fdtdir /boot/dtb/" >> "$SDCARD/boot/extlinux/extlinux.conf"
+			echo "  fdtdir $bootdir/dtb/" >> "$SDCARD/boot/extlinux/extlinux.conf"
 		fi
 	else
 

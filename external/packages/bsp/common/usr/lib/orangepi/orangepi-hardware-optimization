@@ -98,7 +98,7 @@ prepare_board() {
 			BOARDFAMILY=rk3399
 			;;
 		orangepi5|orangepicm5|orangepicm5-tablet|orangepi5b|orangepi5plus|orangepi5pro|orangepi5max|orangepitab|orangepi900)
-			[[ $BOARD =~ orangepi5|orangepi5b ]] && echo host > /sys/kernel/debug/usb/fc000000.usb/mode
+			[[ $BOARD =~ orangepi5|orangepi5b|orangepicm5 ]] && echo host > /sys/kernel/debug/usb/fc000000.usb/mode
 
 			if [[ ${BOARD}x == orangepicm5-tabletx ]]; then
 				tinymix -D 2 aw87xxx_profile_switch_0 Music

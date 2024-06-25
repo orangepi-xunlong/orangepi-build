@@ -98,7 +98,30 @@ prepare_board() {
 			BOARDFAMILY=rk3399
 			;;
 		orangepi5|orangepicm5|orangepicm5-tablet|orangepi5b|orangepi5plus|orangepi5pro|orangepi5max|orangepitab|orangepi900)
-			[[ $BOARD =~ orangepi5|orangepi5b|orangepicm5 ]] && echo host > /sys/kernel/debug/usb/fc000000.usb/mode
+			[[ $BOARD =~ orangepi5|orangepi5b ]] && echo host > /sys/kernel/debug/usb/fc000000.usb/mode
+			if [[ $BOARD =~ orangepicm5 ]]; then
+				while true; do
+				        echo "set host!"
+				        echo host > /sys/kernel/debug/usb/fc000000.usb/mode
+				        sleep 0.5
+
+				        count=0
+				        for i in {1..3}; do
+				                sleep 0.5
+				                echo "check"
+				                if [[ "$(cat /sys/kernel/debug/usb/fc000000.usb/mode)" == "host" ]]; then
+				                        ((count++))
+				                else
+				                        break
+				                fi
+				                echo "check host $count"
+				        done
+
+				        [[ $count -eq 3 ]] && break
+				        echo "fail"
+				done
+			fi
+
 
 			if [[ ${BOARD}x == orangepicm5-tabletx ]]; then
 				tinymix -D 2 aw87xxx_profile_switch_0 Music
@@ -108,9 +131,9 @@ prepare_board() {
 			if [[ ${BOARD}x == orangepicm5x ]]; then
 
 				declare -A led_map=(
-					["lan2"]="end|eth"
-					["lan1"]="enP3"
-					["wan"]="enP4"
+					["wan"]="end|eth"
+					["lan1"]="enP4"
+					["lan2"]="enP3"
 				)
 
 				for led in "${!led_map[@]}"; do

@@ -505,7 +505,7 @@ if [[ ${IGNORE_UPDATES} != yes ]]; then
 
 	if [[ ${BOARDFAMILY} == "rockchip-rk3588" ]]; then
 		local rkbin_url="https://github.com/orangepi-xunlong/rk-rootfs-build/raw/rkbin/rk35"
-		wget -qnc -P ${EXTER}/cache/sources/rkbin-tools/rk35/ ${rkbin_url}/rk3588_bl31_v1.45_20240422.elf
+		wget -nc -P ${EXTER}/cache/sources/rkbin-tools/rk35/ ${rkbin_url}/rk3588_bl31_v1.45_20240422.elf
 	fi
 
 fi

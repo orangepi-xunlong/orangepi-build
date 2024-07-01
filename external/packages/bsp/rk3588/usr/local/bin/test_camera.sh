@@ -23,3 +23,16 @@ for device_id in "${devices_id[@]}"; do
 			video/x-raw,format=NV12,width=720,height=576,framerate=15/1 ! xvimagesink > /dev/null 2>&1 &
 	fi
 done
+
+echo "[Ctrl + C] exit"
+	while true
+	do
+	sleep 10
+done
+
+trap 'onCtrlC' INT
+function onCtrlC () {
+	echo 'Ctrl+C is captured'
+	killall gst-launch-1.0
+	exit 0
+}

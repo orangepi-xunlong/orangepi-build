@@ -207,6 +207,7 @@ prepare_board() {
 			elif [[ $BOARD =~ orangepi5max|orangepi5ultra ]]; then
 
 				rfkill unblock all
+				sleep 2
 				brcm_patchram_plus --bd_addr_rand --enable_hci --no2bytes --use_baudrate_for_download --tosleep 200000 \
 				        --baudrate 1500000 --patchram /lib/firmware/SYN43711A0.hcd /dev/ttyS7 &
 			fi

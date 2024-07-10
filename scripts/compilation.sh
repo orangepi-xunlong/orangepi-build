@@ -223,15 +223,6 @@ compile_uboot()
 
 			fi
 
-			if [[ ${BOARDFAMILY} == "sun50iw9" && ${BRANCH} == "next" ]]; then
-				if [[ ${MEM_TYPE} == "1500MB" ]]; then
-
-					sed -i 's/^.*CONFIG_DRAM_SUN50I_H616_TRIM_SIZE*/CONFIG_DRAM_SUN50I_H616_TRIM_SIZE=y/g' .config
-				else
-					sed -i 's/^.*CONFIG_DRAM_SUN50I_H616_TRIM_SIZE*/# CONFIG_DRAM_SUN50I_H616_TRIM_SIZE is not set/g' .config
-				fi
-			fi
-
 			[[ -f tools/logos/udoo.bmp ]] && cp "${EXTER}"/packages/blobs/splash/udoo.bmp tools/logos/udoo.bmp
 			touch .scmversion
 

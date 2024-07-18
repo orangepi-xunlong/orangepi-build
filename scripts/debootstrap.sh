@@ -328,6 +328,8 @@ create_rootfs_cache()
 			[[ ${PIPESTATUS[0]} -ne 0 ]] && exit_with_error "Installation of Orange Pi desktop packages for ${BRANCH} ${BOARD} ${RELEASE} ${DESKTOP_APPGROUPS_SELECTED} ${DESKTOP_ENVIRONMENT} ${BUILD_MINIMAL} failed"
 		fi
 
+		install_docker
+
 		# Remove packages from packages.uninstall
 
 		display_alert "Uninstall packages" "$PACKAGE_LIST_UNINSTALL" "info"

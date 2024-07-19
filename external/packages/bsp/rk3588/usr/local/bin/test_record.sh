@@ -11,6 +11,9 @@ source /etc/orangepi-release
 
 card=$(aplay -l | grep "es8388" | cut -d ':' -f 1 | cut -d ' ' -f 2)
 hdmi0_card=$(aplay -l | grep "hdmi0" | cut -d ':' -f 1 | cut -d ' ' -f 2)
+if [[ ${BOARD} == orangepi5ultra ]]; then
+	hdmi1_card=$(aplay -l | grep "hdmi1" | cut -d ':' -f 1 | cut -d ' ' -f 2)
+fi
 
 if [[ $type == "main" ]]; then
 
@@ -53,4 +56,8 @@ arecord -D hw:${card},0 -d 5 -f cd -t wav /tmp/test.wav
 
 echo "Start playing"
 aplay /tmp/test.wav -D hw:${card},0
-aplay /tmp/test.wav -D hw:${hdmi0_card},0
+if [[ ${BOARD} == orangepi5ultra ]]; then
+	aplay /tmp/test.wav -D hw:${hdmi1_card},0
+else
+	aplay /tmp/test.wav -D hw:${hdmi0_card},0
+fi

@@ -7,6 +7,8 @@ function onCtrlC () {
 	exit 0
 }
 
+source /etc/orangepi-release
+
 device_id=$(v4l2-ctl --list-devices | grep -A1 hdmirx | grep -v hdmirx | awk -F ' ' '{print $NF}')
 v4l2-ctl -d $device_id --set-dv-bt-timings query 2>&1 > /dev/null
 width=$(v4l2-ctl -d $device_id --get-dv-timings | grep "Active width" |awk -F ' ' '{print $NF}')
@@ -29,10 +31,16 @@ else
 
 fi
 
-gst-launch-1.0 alsasrc device=hw:${hdmiin_card},0 ! audioconvert ! audioresample ! queue \
-	! tee name=t ! queue ! alsasink device="hw:${hdmi0_card},0" \
-	t. ! queue ! alsasink device="hw:${hdmi1_card},0" \
-	t. ! queue ! alsasink device="hw:${es8388_card},0" &
+if [[ ${BOARD} == orangepi5ultra ]]; then
+	gst-launch-1.0 alsasrc device=hw:${hdmiin_card},0 ! audioconvert ! audioresample ! queue \
+		! tee name=t ! queue ! alsasink device="hw:${hdmi1_card},0" \
+		t. ! queue ! alsasink device="hw:${es8388_card},0" &
+else
+	gst-launch-1.0 alsasrc device=hw:${hdmiin_card},0 ! audioconvert ! audioresample ! queue \
+		! tee name=t ! queue ! alsasink device="hw:${hdmi0_card},0" \
+		t. ! queue ! alsasink device="hw:${hdmi1_card},0" \
+		t. ! queue ! alsasink device="hw:${es8388_card},0" &
+fi
 
 while true
 do

@@ -97,7 +97,7 @@ prepare_board() {
 		rockpro64|renegade-elite|pinebook-pro|station-p1)
 			BOARDFAMILY=rk3399
 			;;
-		orangepi5|orangepicm5|orangepicm5-tablet|orangepi5b|orangepi5plus|orangepi5pro|orangepi5max|orangepi5ultra|orangepitab|orangepi900)
+		orangepi5|orangepicm5|orangepicm5-tablet|orangepi5b|orangepi5plus|orangepiaimax|orangepi5pro|orangepi5max|orangepi5ultra|orangepitab|orangepi900)
 			[[ $BOARD =~ orangepi5|orangepi5b ]] && echo host > /sys/kernel/debug/usb/fc000000.usb/mode
 			if [[ $BOARD =~ orangepicm5 ]]; then
 				while true; do
@@ -157,7 +157,7 @@ prepare_board() {
 					tinymix -D ${es8388_card} 25 0
 					tinymix -D ${es8388_card} 27 0
 				fi
-			elif [[ $BOARD =~ orangepi5plus ]]; then
+			elif [[ $BOARD =~ orangepi5plus|orangepiaimax ]]; then
 				amixer -c ${es8388_card} cset name='PCM Volume' 190 >/dev/null 2>&1
 				amixer -c ${es8388_card} cset name='Right Mixer Right Playback Switch' off >/dev/null 2>&1
 			fi

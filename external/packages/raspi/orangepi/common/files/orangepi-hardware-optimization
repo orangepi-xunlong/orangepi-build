@@ -6,7 +6,7 @@ prepare_board() {
 
 	case ${BOARD} in
 
-		orangepi5|orangepi5b|orangepi5plus|orangepitab|orangepi900)
+		orangepi5|orangepi5b|orangepi5plus|orangepiaimax|orangepitab|orangepi900)
 
 			[[ $BOARD =~ orangepi5|orangepi5b ]] && echo host > /sys/kernel/debug/usb/fc000000.usb/mode
 			if [[ -c /dev/mpp_service ]]; then

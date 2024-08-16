@@ -1885,6 +1885,22 @@ install_wiringop()
 	rm $SDCARD/root/*.deb >/dev/null 2>&1
 }
 
+
+install_310b-npu-driver()
+{
+	local driver_path="$EXTER/cache/sources/ascend-driver"
+	local driver_name="Ascend-hdk-310b-npu-driver_23.0.5_linux-aarch64-opiaimax.run"
+	local driver=${driver_path}/${driver_name}
+
+	if [[ -f "${driver}" ]]; then
+		display_alert "Installing" "$driver_name" "info"
+		cp "${driver}" "${SDCARD}/opt/"
+		chmod +x "${SDCARD}/opt/Ascend-hdk-310b-npu-driver_23.0.5_linux-aarch64-opiaimax.run"
+		chroot "${SDCARD}" /bin/bash -c "/opt/${driver_name} --chroot --full --install-username=orangepi --install-usergroup=orangepi --install-for-all"
+	fi
+}
+
+
 install_docker() {
 
 	[[ $install_docker != yes ]] && return

@@ -449,6 +449,12 @@ if [[ ${IGNORE_UPDATES} != yes ]]; then
 
 	fi
 
+	if [[ ${BOARD} =~ orangepiaimax ]]; then
+
+		[[ $BUILD_OPT =~ image ]] && fetch_from_repo "https://github.com/orangepi-xunlong/ascend-driver.git" "${EXTER}/cache/sources/ascend-driver" "branch:main"
+
+	fi
+
 	if [[ ${BOARD} =~ orangepi4|orangepi4-lts|orangepi800 && $RELEASE =~ focal|buster|bullseye|bookworm ]]; then
 
 		[[ ${BUILD_OPT} == image ]] && fetch_from_repo "https://github.com/orangepi-xunlong/rk-rootfs-build.git" "${EXTER}/cache/sources/rk-rootfs-build-${RELEASE}" "branch:rk-rootfs-build-${RELEASE}"

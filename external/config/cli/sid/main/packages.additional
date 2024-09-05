@@ -5,6 +5,7 @@ i2c-tools
 jq
 libcrack2
 lsof
+lm-sensors
 mc
 mmc-utils
 nano

@@ -346,6 +346,7 @@ create_rootfs_cache()
 		fi
 
 		install_docker
+		[[ ${BOARDFAMILY} == "starfive2" ]] && jh7110_install_libs
 
 		# Remove packages from packages.uninstall
 

@@ -1870,7 +1870,7 @@ show_checklist_variables ()
 
 install_wiringop()
 {
-	install_deb_chroot "$EXTER/cache/debs/${ARCH}/wiringpi_2.56.deb"
+	install_deb_chroot "$EXTER/cache/debs/${ARCH}/wiringpi_2.57.deb"
 	chroot "${SDCARD}" /bin/bash -c "apt-mark hold wiringpi" >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
 
 	if [[ ${IGNORE_UPDATES} != yes ]]; then

@@ -71,4 +71,23 @@ if [[ $version == "ros2" && $release =~ jammy ]]; then
 
 fi
 
+if [[ $version == "ros2" && $release =~ noble ]]; then
+
+        sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+        echo "deb [arch=$(dpkg --print-architecture)] ${mirror_url}/ros2/ubuntu $(source /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list
+
+        sudo apt update
+        sudo apt install -y ros-jazzy-desktop
+        sudo apt install -y ros-dev-tools
+
+        sudo sh -c 'echo "source /opt/ros/jazzy/setup.bash" >> /root/.bashrc'
+        echo "source /opt/ros/jazzy/setup.bash" >> /home/orangepi/.bashrc
+
+        source /opt/ros/jazzy/setup.bash
+        ros2 -h
+
+        exit
+
+fi
+
 echo "Unsupported System!"

@@ -416,7 +416,7 @@ BOOTCONFIG_VAR_NAME=BOOTCONFIG_${BRANCH^^}
 [[ -z $ATFPATCHDIR ]] && ATFPATCHDIR="atf-$LINUXFAMILY"
 [[ -z $KERNELPATCHDIR ]] && KERNELPATCHDIR="$LINUXFAMILY-$BRANCH"
 
-if [[ "$RELEASE" =~ ^(xenial|bionic|focal|hirsute|impish|jammy)$ ]]; then
+if [[ "$RELEASE" =~ ^(xenial|bionic|focal|hirsute|impish|jammy|noble)$ ]]; then
 		DISTRIBUTION="Ubuntu"
 elif [[ "$RELEASE" == raspi ]]; then
 		DISTRIBUTION="Bullseye"

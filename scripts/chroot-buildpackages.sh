@@ -39,6 +39,7 @@ create_chroot()
 	apt_mirror['impish']="$UBUNTU_MIRROR"
 	components['stretch']='main,contrib'
 	apt_mirror['jammy']="$UBUNTU_MIRROR"
+	apt_mirror['noble']="$UBUNTU_MIRROR"
 	components['buster']='main,contrib'
 	components['bullseye']='main,contrib'
 	components['bookworm']='main,contrib'
@@ -49,6 +50,7 @@ create_chroot()
 	components['hirsute']='main,universe,multiverse'
 	components['impish']='main,universe,multiverse'
 	components['jammy']='main,universe,multiverse'
+	components['noble']='main,universe,multiverse'
 	display_alert "Creating build chroot" "$release/$arch" "info"
 	local includes="ccache,locales,git,ca-certificates,devscripts,libfile-fcntllock-perl,debhelper,rsync,python3,distcc,apt-utils"
 
@@ -140,6 +142,7 @@ chroot_prepare_distccd()
 	gcc_version['bionic']='5.4'
 	gcc_version['focal']='9.2'
 	gcc_version['jammy']='10.2'
+	gcc_version['noble']='13.2'
 	gcc_version['hirsute']='10.2'
 	gcc_version['sid']='10.2'
 	gcc_type['armhf']='arm-linux-gnueabihf-'
@@ -176,7 +179,7 @@ chroot_build_packages()
 		target_arch="${ARCH}"
 	else
 		# only make packages for recent releases. There are no changes on older
-		target_release="stretch bionic buster bullseye bookworm focal hirsute jammy sid"
+		target_release="stretch bionic buster bullseye bookworm focal hirsute jammy noble sid"
 		target_arch="armhf arm64"
 	fi
 

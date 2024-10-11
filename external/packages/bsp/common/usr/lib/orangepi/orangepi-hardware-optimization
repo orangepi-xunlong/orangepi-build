@@ -253,7 +253,7 @@ prepare_board() {
 
 			if [[ $BOARD == orangepizero2w ]]; then
 
-				if [[ ${DISTRIBUTION_CODENAME} == "bookworm" ]]; then
+				if [[ ${DISTRIBUTION_CODENAME} == "bookworm" || ${DISTRIBUTION_CODENAME} == "noble" ]]; then
 					interface_100m="end0"
 				else
 					interface_100m="eth0"

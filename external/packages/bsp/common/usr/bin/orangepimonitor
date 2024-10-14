@@ -700,8 +700,8 @@ InstallRPiMonitor() {
 	fi
 	echo -e "Installing RPi-Monitor. This can take up to 5 minutes. Be patient please\c"
 
-	echo "deb http://mirrors.tuna.tsinghua.edu.cn/armbian $(lsb_release -sc) main $(lsb_release -sc)-utils $(lsb_release -sc)-desktop" > /etc/apt/sources.list.d/armbian.list
-	wget -P /tmp http://mirrors.tuna.tsinghua.edu.cn/armbian/armbian.key > /dev/null 2>&1
+	echo "deb http://mirrors.ustc.edu.cn/armbian $(lsb_release -sc) main $(lsb_release -sc)-utils $(lsb_release -sc)-desktop" > /etc/apt/sources.list.d/armbian.list
+	wget -P /tmp http://mirrors.ustc.edu.cn/armbian/armbian.key > /dev/null 2>&1
 	cat /tmp/armbian.key | apt-key add - > /dev/null 2>&1
 
 	apt-get -qq -y update

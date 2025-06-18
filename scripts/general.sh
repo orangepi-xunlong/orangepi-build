@@ -1642,8 +1642,8 @@ function webseed ()
 	# list of mirrors that host our files
 	unset text
 	# Hardcoded to EU mirrors since
-	local CCODE=$(curl -s redirect.armbian.com/geoip | jq '.continent.code' -r)
-	WEBSEED=($(curl -s https://redirect.armbian.com/mirrors | jq -r '.'${CCODE}' | .[] | values'))
+	local CCODE=$(curl -s dl.armbian.com/geoip | jq '.continent.code' -r)
+	WEBSEED=($(curl -s https://dl.armbian.com/mirrors | jq -r '.'${CCODE}' | .[] | values'))
 	# aria2 simply split chunks based on sources count not depending on download speed
 	# when selecting china mirrors, use only China mirror, others are very slow there
 	if [[ $DOWNLOAD_MIRROR == china ]]; then

@@ -1560,7 +1560,6 @@ prepare_host()
 			# download external Linaro compiler and missing special dependencies since they are needed for certain sources
 
 		local toolchains=(
-			"ky-toolchain-linux-glibc-x86_64-v1.0.1.tar.xz"
 			"gcc-linaro-aarch64-none-elf-4.8-2013.11_linux.tar.xz"
 			"gcc-linaro-arm-none-eabi-4.8-2014.04_linux.tar.xz"
 			"gcc-linaro-arm-linux-gnueabihf-4.8-2014.04_linux.tar.xz"
@@ -1683,11 +1682,6 @@ download_and_verify()
 
 	if [[ -f ${localdir}/${dirname}/.download-complete ]]; then
 		return
-	fi
-
-	if [[ ${filename} == *ky* ]]; then
-		server="http://www.iplaystore.cn/"
-		remotedir=""
 	fi
 
 	# switch to china mirror if US timeouts

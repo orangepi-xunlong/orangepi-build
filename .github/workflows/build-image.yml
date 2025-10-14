@@ -28,7 +28,7 @@ jobs:
           CONFIG=userpatches/config-orangepi4a.conf ./build.sh docker
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: orangepi-image
           path: output/images

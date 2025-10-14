@@ -1,0 +1,34 @@
+name: Build Orange Pi Image
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Create build config
+        run: |
+          mkdir -p userpatches
+          cat <<EOF > userpatches/config-orangepi4a.conf
+          BOARD=orangepi4a
+          BRANCH=current
+          RELEASE=bookworm
+          BUILD_MINIMAL=yes
+          BUILD_DESKTOP=no
+          KERNEL_CONFIGURE=no
+          COMPRESS_OUTPUTIMAGE=yes
+          EOF
+
+      - name: Run build script
+        run: |
+          CONFIG=userpatches/config-orangepi4a.conf ./build.sh docker
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: orangepi-image
+          path: output/images

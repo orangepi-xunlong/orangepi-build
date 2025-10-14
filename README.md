@@ -4,6 +4,7 @@ Soc | Boards |
 |:--|:--|
 | Allwinner H6 | Orange Pi 3/3 LTS |
 | Allwinner H616 | Orange Pi Zero2/Zero2w/Zero3 | 
+| Allwinner T527 | Orange Pi 4A |
 | Rockchip RK3399 | Orange Pi 4/4B/4 LTS/800 |
 | Rockchip RK3566 | Orange Pi 3B/CM4 |
 | Rockchip RK3588S | Orange Pi 5/5B |

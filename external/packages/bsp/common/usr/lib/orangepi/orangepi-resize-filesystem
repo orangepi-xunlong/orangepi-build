@@ -24,7 +24,8 @@ do_expand_partition()
 
 	# trim any btrfs subvolume identifier given in square brackets (e.g. /dev/mapper/orangepi-root[/@])
 	local rootsource=$(findmnt -n -o SOURCE / | sed 's~\[.*\]~~') # i.e. /dev/mmcblk0p1 or /dev/mapper/orangepi-root
-	
+	old_partuuid=$(sudo blkid ${rootsource} -s PARTUUID -o value)
+
 	# check for device type
 	local roottype=$(lsblk -n -o TYPE $rootsource) # crypt, part or disk
 	case ${roottype} in
@@ -160,6 +161,17 @@ do_expand_partition()
 			btrfs filesystem resize max / >> ${Log} 2>&1
 			;;
 	esac
+
+	if [[ ${BOARD} == orangepi6plus ]]; then
+		new_partuuid=$(sudo blkid ${rootsource} -s PARTUUID -o value)
+		if [[ ${rootdevice} == *sd* ]]; then
+			mount ${rootdevicepath}1 /mnt/
+		else
+			mount ${rootdevicepath}p1 /mnt/
+		fi
+		sed -i "s/root=PARTUUID=${old_partuuid}/root=PARTUUID=${new_partuuid}/g" /mnt/GRUB/GRUB.CFG
+		umount /mnt/
+	fi
 }
 
 do_resize_crypt()

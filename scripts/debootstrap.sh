@@ -90,8 +90,13 @@ PRE_INSTALL_DISTRIBUTION_SPECIFIC
 		display_alert "Starting FEL boot" "$BOARD" "info"
 		source $SRC/scripts/fel-load.sh
 	else
-		prepare_partitions
-		create_image
+		if [[ $BOARDFAMILY == "cix" ]]; then
+			create_cix_rootfs
+			create_cix_image
+		else
+			prepare_partitions
+			create_image
+		fi
 	fi
 
 	# stage: unmount tmpfs
@@ -215,7 +220,7 @@ create_rootfs_cache()
 		cd $SDCARD # this will prevent error sh: 0: getcwd() failed
 
 		eval 'debootstrap --variant=minbase --include=${DEBOOTSTRAP_LIST// /,} ${PACKAGE_LIST_EXCLUDE:+ --exclude=${PACKAGE_LIST_EXCLUDE// /,}} \
-			--arch=$ARCH --components=${DEBOOTSTRAP_COMPONENTS} $DEBOOTSTRAP_OPTION --foreign ${release_version} $SDCARD/ ${apt_mirror}' \
+			--no-check-gpg --arch=$ARCH --components=${DEBOOTSTRAP_COMPONENTS} $DEBOOTSTRAP_OPTION --foreign ${release_version} $SDCARD/ ${apt_mirror}' \
 			${PROGRESS_LOG_TO_FILE:+' | tee -a $DEST/${LOG_SUBPATH}/debootstrap.log'} \
 			${OUTPUT_DIALOG:+' | dialog --backtitle "$backtitle" --progressbox "Debootstrap (stage 1/2)..." $TTY_Y $TTY_X'} \
 			${OUTPUT_VERYSILENT:+' >/dev/null 2>/dev/null'} ';EVALPIPE=(${PIPESTATUS[@]})'
@@ -347,6 +352,7 @@ create_rootfs_cache()
 
 		install_docker
 		[[ ${BOARDFAMILY} == "starfive2" ]] && jh7110_install_libs
+		[[ ${BOARDFAMILY} == "cix" ]] && install_cix_debs
 
 		# Remove packages from packages.uninstall
 

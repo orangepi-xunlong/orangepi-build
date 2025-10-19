@@ -84,6 +84,8 @@ source "${SRC}"/scripts/general.sh		# general functions
 source "${SRC}"/scripts/chroot-buildpackages.sh	# chroot packages building
 # shellcheck source=pack.sh
 source "${SRC}"/scripts/pack-uboot.sh
+# shellcheck source=build-cix-image.sh
+source "${SRC}"/scripts/build-cix-image.sh
 
 
 # set log path
@@ -159,48 +161,6 @@ fi
 
 
 
-# if BUILD_OPT, KERNEL_CONFIGURE, BOARD, BRANCH or RELEASE are not set, display selection menu
-if [[ -z $BUILD_OPT ]]; then
-
-	options+=("u-boot"	 "U-boot package")
-	options+=("kernel"	 "Kernel package")
-	options+=("rootfs"	 "Rootfs and all deb packages")
-	options+=("image"	 "Full OS image for flashing")
-
-	menustr="Compile image | rootfs | kernel | u-boot"
-	BUILD_OPT=$(whiptail --title "${titlestr}" --backtitle "${backtitle}" --notags \
-			  --menu "${menustr}" "${TTY_Y}" "${TTY_X}" $((TTY_Y - 8))  \
-			  --cancel-button Exit --ok-button Select "${options[@]}" \
-			  3>&1 1>&2 2>&3)
-
-	unset options
-	[[ -z $BUILD_OPT ]] && exit_with_error "No option selected"
-	[[ $BUILD_OPT == rootfs ]] && ROOT_FS_CREATE_ONLY="yes"
-fi
-
-
-
-
-if [[ ${BUILD_OPT} =~ kernel|image ]]; then
-
-	if [[ -z $KERNEL_CONFIGURE ]]; then
-
-		options+=("no" "Do not change the kernel configuration")
-		options+=("yes" "Show a kernel configuration menu before compilation")
-
-		menustr="Select the kernel configuration."
-		KERNEL_CONFIGURE=$(whiptail --title "${titlestr}" --backtitle "$backtitle" --notags \
-						 --menu "${menustr}" $TTY_Y $TTY_X $((TTY_Y - 8)) \
-						 --cancel-button Exit --ok-button Select "${options[@]}" \
-						 3>&1 1>&2 2>&3)
-
-		unset options
-		[[ -z $KERNEL_CONFIGURE ]] && exit_with_error "No option selected"
-	fi
-fi
-
-
-
 
 if [[ -z $BOARD ]]; then
 
@@ -246,6 +206,7 @@ if [[ -z $BOARD ]]; then
 	options+=("orangepi5plus"                 "Rockchip  RK3588 octa core 4-32GB RAM 2.5GBE USB3 USB-C WiFi/BT NVMe eMMC")
 	options+=("orangepicm4"                 "Rockchip  RK3566 quad core 2-8GB RAM GBE eMMC USB3 NvMe WiFi/BT")
 	options+=("orangepi3b"                  "Rockchip  RK3566 quad core 2-8GB RAM GBE eMMC USB3 NvMe WiFi/BT")
+	options+=("orangepi6plus"                 "Cix P1 12-core 16-64GB RAM 5GBE USB3 USB-C WiFi/BT NVMe")
 	options+=("orangepirv"                  "Starfive  JH7110 quad core 2-8GB RAM GBE USB3 NvMe WiFi/BT")
 	options+=("orangepirv2"                  "Ky X1 octa core 2-8GB RAM GBE USB3 WiFi/BT NVMe eMMC")
 	#options+=("orangepir2s"                  "Ky X1 octa core 2-8GB RAM 2.5GBE USB3 eMMC")
@@ -268,6 +229,55 @@ source "${EXTER}/config/boards/${BOARD}.${BOARD_TYPE}"
 LINUXFAMILY="${BOARDFAMILY}"
 
 [[ -z $KERNEL_TARGET ]] && exit_with_error "Board configuration does not define valid kernel config"
+
+# if BUILD_OPT, KERNEL_CONFIGURE, BOARD, BRANCH or RELEASE are not set, display selection menu
+if [[ -z $BUILD_OPT ]]; then
+
+	if [[ $BOARDFAMILY != "cix" ]]; then
+		options+=("u-boot"	 "U-boot package")
+	fi
+	options+=("kernel"	 "Kernel package")
+	options+=("rootfs"	 "Rootfs and all deb packages")
+	options+=("image"	 "Full OS image for flashing")
+
+	if [[ $BOARDFAMILY != "cix" ]]; then
+		menustr="Compile image | rootfs | kernel | u-boot"
+	else
+		menustr="Compile image | rootfs | kernel"
+	fi
+	BUILD_OPT=$(whiptail --title "${titlestr}" --backtitle "${backtitle}" --notags \
+			  --menu "${menustr}" "${TTY_Y}" "${TTY_X}" $((TTY_Y - 8))  \
+			  --cancel-button Exit --ok-button Select "${options[@]}" \
+			  3>&1 1>&2 2>&3)
+
+	unset options
+	[[ -z $BUILD_OPT ]] && exit_with_error "No option selected"
+	[[ $BUILD_OPT == rootfs ]] && ROOT_FS_CREATE_ONLY="yes"
+fi
+
+
+
+
+if [[ ${BUILD_OPT} =~ kernel|image ]]; then
+
+	if [[ -z $KERNEL_CONFIGURE ]]; then
+
+		options+=("no" "Do not change the kernel configuration")
+		options+=("yes" "Show a kernel configuration menu before compilation")
+
+		menustr="Select the kernel configuration."
+		KERNEL_CONFIGURE=$(whiptail --title "${titlestr}" --backtitle "$backtitle" --notags \
+						 --menu "${menustr}" $TTY_Y $TTY_X $((TTY_Y - 8)) \
+						 --cancel-button Exit --ok-button Select "${options[@]}" \
+						 3>&1 1>&2 2>&3)
+
+		unset options
+		[[ -z $KERNEL_CONFIGURE ]] && exit_with_error "No option selected"
+	fi
+fi
+
+
+
 
 if [[ -z $BRANCH ]]; then
 
@@ -438,7 +448,18 @@ if [[ ${IGNORE_UPDATES} != yes ]]; then
 
 	display_alert "Downloading sources" "" "info"
 
-	[[ $BUILD_OPT =~ u-boot|image ]] && fetch_from_repo "$BOOTSOURCE" "$BOOTDIR" "$BOOTBRANCH" "yes"
+	if [[ $BOARDFAMILY != "cix" ]]; then
+
+		[[ $BUILD_OPT =~ u-boot|image ]] && fetch_from_repo "$BOOTSOURCE" "$BOOTDIR" "$BOOTBRANCH" "yes"
+
+	fi
+
+	if [[ $BOARDFAMILY == "cix" ]]; then
+
+		fetch_from_repo "https://github.com/orangepi-xunlong/component_cix-$BRANCH.git" "${EXTER}/cache/sources/component_cix-$BRANCH" "branch:main"
+
+	fi
+
 	[[ $BUILD_OPT =~ kernel|image ]] && fetch_from_repo "$KERNELSOURCE" "$KERNELDIR" "$KERNELBRANCH" "yes"
 
 	if [[ -n ${ATFSOURCE} ]]; then
@@ -520,18 +541,20 @@ done
 # Compile u-boot if packed .deb does not exist or use the one from Orange Pi
 if [[ $BUILD_OPT == u-boot || $BUILD_OPT == image ]]; then
 
-	if [[ ! -f "${DEB_STORAGE}"/u-boot/${CHOSEN_UBOOT}_${REVISION}_${ARCH}.deb ]]; then
+	if [[ $BOARDFAMILY != "cix" ]]; then
+		if [[ ! -f "${DEB_STORAGE}"/u-boot/${CHOSEN_UBOOT}_${REVISION}_${ARCH}.deb ]]; then
 
-		[[ -n "${ATFSOURCE}" && "${REPOSITORY_INSTALL}" != *u-boot* ]] && compile_atf
-		
-		[[ ${REPOSITORY_INSTALL} != *u-boot* ]] && compile_uboot
-	fi
+			[[ -n "${ATFSOURCE}" && "${REPOSITORY_INSTALL}" != *u-boot* ]] && compile_atf
 
-	if [[ $BUILD_OPT == "u-boot" ]]; then
-		unset BUILD_MINIMAL BUILD_DESKTOP COMPRESS_OUTPUTIMAGE
-		display_alert "U-boot build done" "@host" "info"
-		display_alert "Target directory" "${DEB_STORAGE}/u-boot" "info"
-		display_alert "File name" "${CHOSEN_UBOOT}_${REVISION}_${ARCH}.deb" "info"
+			[[ ${REPOSITORY_INSTALL} != *u-boot* ]] && compile_uboot
+		fi
+
+		if [[ $BUILD_OPT == "u-boot" ]]; then
+			unset BUILD_MINIMAL BUILD_DESKTOP COMPRESS_OUTPUTIMAGE
+			display_alert "U-boot build done" "@host" "info"
+			display_alert "Target directory" "${DEB_STORAGE}/u-boot" "info"
+			display_alert "File name" "${CHOSEN_UBOOT}_${REVISION}_${ARCH}.deb" "info"
+		fi
 	fi
 fi
 
@@ -567,7 +590,7 @@ if [[ $BUILD_OPT == rootfs || $BUILD_OPT == image ]]; then
 	fi
 
 	# Compile plymouth-theme-orangepi if packed .deb does not exist or use the one from repository
-	if [[ ! -f ${DEB_STORAGE}/plymouth-theme-orangepi_${REVISION}_all.deb ]]; then
+	if [[ ! -f ${DEB_STORAGE}/plymouth-theme-orangepi_${REVISION}_all.deb && $PLYMOUTH == yes ]]; then
 
 		[[ "${REPOSITORY_INSTALL}" != *plymouth-theme-orangepi* ]] && compile_plymouth-theme-orangepi
 	fi

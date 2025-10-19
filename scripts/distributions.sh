@@ -460,9 +460,6 @@ POST_INSTALL_KERNEL_DEBS
 	[[ -f "${SDCARD}"/usr/bin/gnome-session ]] && sed -i "s/user-session.*/user-session=ubuntu-wayland/" ${SDCARD}/etc/lightdm/lightdm.conf.d/22-orangepi-autologin.conf > /dev/null 2>&1
 	[[ -f "${SDCARD}"/usr/bin/startplasma-x11 ]] && sed -i "s/user-session.*/user-session=plasma-x11/" ${SDCARD}/etc/lightdm/lightdm.conf.d/22-orangepi-autologin.conf
 
-	# execute $LINUXFAMILY-specific tweaks
-	[[ $(type -t family_tweaks) == function ]] && family_tweaks
-
 	call_extension_method "post_family_tweaks" << 'FAMILY_TWEAKS'
 *customize the tweaks made by $LINUXFAMILY-specific family_tweaks*
 It is run after packages are installed in the rootfs, but before enabling additional services.
@@ -636,6 +633,8 @@ FAMILY_TWEAKS
 	# disable MOTD for first boot - we want as clean 1st run as possible
 	chmod -x "${SDCARD}"/etc/update-motd.d/*
 
+	# execute $LINUXFAMILY-specific tweaks
+	[[ $(type -t family_tweaks) == function ]] && family_tweaks
 }
 
 install_rclocal()

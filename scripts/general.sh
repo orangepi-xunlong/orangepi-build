@@ -1425,7 +1425,8 @@ prepare_host()
 	nfs-kernel-server ntpdate p7zip-full parted patchutils pigz pixz          \
 	pkg-config pv python3-dev python3-distutils qemu-user-static rsync swig   \
 	systemd-container u-boot-tools udev unzip uuid-dev wget whiptail zip      \
-	zlib1g-dev gcc-riscv64-linux-gnu"
+	zlib1g-dev gcc-riscv64-linux-gnu uuid-runtime fatattr git-lfs scons       \
+	mtools"
 
   if [[ $(dpkg --print-architecture) == amd64 ]]; then
 
@@ -1559,21 +1560,30 @@ prepare_host()
 			display_alert "Checking for external GCC compilers" "" "info"
 			# download external Linaro compiler and missing special dependencies since they are needed for certain sources
 
-		local toolchains=(
-			"ky-toolchain-linux-glibc-x86_64-v1.0.1.tar.xz"
-			"gcc-linaro-aarch64-none-elf-4.8-2013.11_linux.tar.xz"
-			"gcc-linaro-arm-none-eabi-4.8-2014.04_linux.tar.xz"
-			"gcc-linaro-arm-linux-gnueabihf-4.8-2014.04_linux.tar.xz"
-			"gcc-linaro-4.9.4-2017.01-x86_64_arm-linux-gnueabi.tar.xz"
-			"gcc-linaro-4.9.4-2017.01-x86_64_aarch64-linux-gnu.tar.xz"
-			"gcc-linaro-5.5.0-2017.10-x86_64_arm-linux-gnueabihf.tar.xz"
-			"gcc-linaro-7.4.1-2019.02-x86_64_arm-linux-gnueabi.tar.xz"
-			"gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu.tar.xz"
-			"gcc-arm-9.2-2019.12-x86_64-arm-none-linux-gnueabihf.tar.xz"
-			"gcc-arm-9.2-2019.12-x86_64-aarch64-none-linux-gnu.tar.xz"
-			"gcc-arm-11.2-2022.02-x86_64-arm-none-linux-gnueabihf.tar.xz"
-			"gcc-arm-11.2-2022.02-x86_64-aarch64-none-linux-gnu.tar.xz"
-			)
+		case ${BOARDFAMILY} in
+			cix)
+			local toolchains=(
+				"arm-gnu-toolchain-12.3.rel1-x86_64-aarch64-none-linux-gnu.tar.xz"
+				)
+			;;
+			*)
+			local toolchains=(
+				"ky-toolchain-linux-glibc-x86_64-v1.0.1.tar.xz"
+				"gcc-linaro-aarch64-none-elf-4.8-2013.11_linux.tar.xz"
+				"gcc-linaro-arm-none-eabi-4.8-2014.04_linux.tar.xz"
+				"gcc-linaro-arm-linux-gnueabihf-4.8-2014.04_linux.tar.xz"
+				"gcc-linaro-4.9.4-2017.01-x86_64_arm-linux-gnueabi.tar.xz"
+				"gcc-linaro-4.9.4-2017.01-x86_64_aarch64-linux-gnu.tar.xz"
+				"gcc-linaro-5.5.0-2017.10-x86_64_arm-linux-gnueabihf.tar.xz"
+				"gcc-linaro-7.4.1-2019.02-x86_64_arm-linux-gnueabi.tar.xz"
+				"gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu.tar.xz"
+				"gcc-arm-9.2-2019.12-x86_64-arm-none-linux-gnueabihf.tar.xz"
+				"gcc-arm-9.2-2019.12-x86_64-aarch64-none-linux-gnu.tar.xz"
+				"gcc-arm-11.2-2022.02-x86_64-arm-none-linux-gnueabihf.tar.xz"
+				"gcc-arm-11.2-2022.02-x86_64-aarch64-none-linux-gnu.tar.xz"
+				)
+			;;
+		esac
 
 		USE_TORRENT_STATUS=${USE_TORRENT}
 		USE_TORRENT="no"
@@ -1655,6 +1665,11 @@ function webseed ()
 		https://mirrors.bfsu.edu.cn/armbian-releases/
 		)
 	fi
+	if [[ ${filename} == *ky* ]] || [[ ${filename} == *arm-gnu-toolchain* ]]; then
+		WEBSEED=(
+		http://www.iplaystore.cn/upload/
+		)
+	fi
 	for toolchain in ${WEBSEED[@]}; do
 		text="${text} ${toolchain}${1}"
 	done
@@ -1681,13 +1696,12 @@ download_and_verify()
 			local server=${ARMBIAN_MIRROR}
         fi
 
-	if [[ -f ${localdir}/${dirname}/.download-complete ]]; then
-		return
+	if [[ ${filename} == *ky* ]] || [[ ${filename} == *arm-gnu-toolchain* ]]; then
+		server="http://www.iplaystore.cn/upload/"
 	fi
 
-	if [[ ${filename} == *ky* ]]; then
-		server="http://www.iplaystore.cn/"
-		remotedir=""
+	if [[ -f ${localdir}/${dirname}/.download-complete ]]; then
+		return
 	fi
 
 	# switch to china mirror if US timeouts
@@ -1695,15 +1709,20 @@ download_and_verify()
 	if [[ $? -ne 7 && $? -ne 22 && $? -ne 0 ]]; then
 		display_alert "Timeout from $server" "retrying" "info"
 		server="https://mirrors.tuna.tsinghua.edu.cn/armbian-releases/"
+		if [[ ${filename} == *ky* ]] || [[ ${filename} == *arm-gnu-toolchain* ]]; then
+			server="http://www.iplaystore.cn/upload/"
+		fi
 
 		# switch to another china mirror if tuna timeouts
 		timeout 10 curl --head --fail --silent ${server}${remotedir}/${filename} 2>&1 >/dev/null
 		if [[ $? -ne 7 && $? -ne 22 && $? -ne 0 ]]; then
 			display_alert "Timeout from $server" "retrying" "info"
 			server="https://mirrors.bfsu.edu.cn/armbian-releases/"
+			if [[ ${filename} == *ky* ]] || [[ ${filename} == *arm-gnu-toolchain* ]]; then
+				server="http://www.iplaystore.cn/upload/"
+			fi
 		fi
 	fi
-
 
 	# check if file exists on remote server before running aria2 downloader
 	[[ ! `timeout 10 curl --head --fail --silent ${server}${remotedir}/${filename}` ]] && return
@@ -1925,9 +1944,9 @@ install_docker() {
 	esac
 
 	#if [[ ${SELECTED_CONFIGURATION} == desktop ]]; then
-		mirror_url=https://repo.huaweicloud.com
+	#	mirror_url=https://repo.huaweicloud.com
 	#else
-	#	mirror_url=https://mirrors.aliyun.com
+		mirror_url=https://mirrors.aliyun.com
 	#fi
 
 	chroot "${SDCARD}" /bin/bash -c "curl -fsSL ${mirror_url}/docker-ce/linux/${distributor_id}/gpg | apt-key add -"

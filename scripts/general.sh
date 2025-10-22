@@ -1893,6 +1893,15 @@ show_checklist_variables ()
 	done
 }
 
+get_orangepi_url()
+{
+	if [[ ${GITEE_SERVER} == yes ]]; then
+		echo "https://gitee.com/orangepi-xunlong"
+	else
+		echo "https://github.com/orangepi-xunlong"
+	fi
+}
+
 install_wiringop()
 {
 	install_deb_chroot "$EXTER/cache/debs/${ARCH}/wiringpi-2.58-1.deb"
@@ -1900,8 +1909,9 @@ install_wiringop()
 
 	if [[ ${IGNORE_UPDATES} != yes ]]; then
 
-		fetch_from_repo "https://github.com/orangepi-xunlong/wiringOP.git" "${EXTER}/cache/sources/wiringOP" "branch:next" "yes"
-		fetch_from_repo "https://github.com/orangepi-xunlong/wiringOP-Python.git" "${EXTER}/cache/sources/wiringOP-Python" "branch:next" "yes"
+		local url=$(get_orangepi_url)
+		fetch_from_repo "${url}/wiringOP.git" "${EXTER}/cache/sources/wiringOP" "branch:next" "yes"
+		fetch_from_repo "${url}/wiringOP-Python.git" "${EXTER}/cache/sources/wiringOP-Python" "branch:next" "yes"
 
 	fi
 

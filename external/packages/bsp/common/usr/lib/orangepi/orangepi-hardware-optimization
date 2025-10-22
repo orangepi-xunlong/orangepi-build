@@ -241,7 +241,7 @@ prepare_board() {
 
 			/usr/bin/pwm-fan.sh &
 			;;
-		orangepizero2|orangepizero2-lts|orangepizero2-b|orangepizero3|orangepir1b|orangepizero2w)
+		orangepizero2|orangepizero2-lts|orangepizero2-b|orangepizero3|orangepizero3plus|orangepir1b|orangepizero2w)
 			kv=$(uname -r)
 
 			#if [[ $BRANCH == current ]]; then
@@ -302,8 +302,13 @@ prepare_board() {
 				aplay /usr/share/sounds/alsa/audio.wav -D hw:2,0 > /dev/null 2>&1
 			fi
 
-			rfkill unblock all
-			/usr/bin/hciattach_opi -n -s 1500000 /dev/ttyBT0 sprd &
+			if [[ $BOARD == orangepizero3plus ]]; then
+				(while [[ ! -e /proc/bluetooth/sleep/btwrite ]]; do sleep 1; done; echo 1 > /proc/bluetooth/sleep/btwrite; \
+					/usr/bin/hciattach_opi -n -s 1500000 /dev/ttyAS1 aic) &
+			else
+				rfkill unblock all
+				/usr/bin/hciattach_opi -n -s 1500000 /dev/ttyBT0 sprd &
+			fi
 			;;
 		orangepi400)
 			rfkill unblock all
@@ -427,6 +432,33 @@ prepare_board() {
 			echo 4096 > /sys/class/net/enP2p1s0/queues/rx-0/rps_flow_cnt
 			echo 4096 > /sys/class/net/enP1p1s0/queues/rx-0/rps_flow_cnt
 
+			;;
+		aipcliteb)
+			echo usb_host > /sys/devices/platform/soc@3000000/10.usbc0/otg_role
+
+			(
+				echo 1 > /sys/bus/pci/rescan
+				if lspci | grep -q BCM43752; then
+					rfkill unblock all
+						sleep 5
+					brcm_patchram_plus --enable_hci \
+					--no2bytes --use_baudrate_for_download --tosleep 200000 --baudrate 1500000 \
+					--patchram /lib/firmware/ap6275p/BCM4362A2.hcd /dev/ttyAS1
+				fi
+			) &
+
+			;;
+		orangepi4pro)
+			/sbin/insmod /opt/pvrsrvkm.ko
+			echo 40 > /sys/class/gpio/export
+			echo out > /sys/class/gpio/gpio40/direction
+			echo 1 > /sys/class/gpio/gpio40/value
+			echo usb_host > /sys/devices/platform/soc@3000000/10.usbc0/otg_role
+			(while [[ ! -e /proc/bluetooth/sleep/btwrite ]]; do sleep 1; done; echo 1 > /proc/bluetooth/sleep/btwrite; \
+				/usr/bin/hciattach_opi -n -s 1500000 /dev/ttyS1 aic) &
+			#/sbin/rmmod sunxi_stmmac && /sbin/modprobe sunxi_stmmac
+			amixer -c 1 cset name='ADCL PGA Volume' 10 >/dev/null 2>&1
+			amixer -c 1 cset name='ADCR PGA Volume' 10 >/dev/null 2>&1
 			;;
 
 	esac

@@ -62,7 +62,7 @@ function main(){
 	[[ "$LINUXFAMILY" == "rockchip-rk3588" ]] && OVERLAYDIR="/boot/dtb/rockchip/overlay";
 	[[ "$LINUXFAMILY" == "sun50iw9" && "$BRANCH" == "current" ]] && OVERLAYDIR="/boot/dtb/sunxi/overlay";
 	[[ "$LINUXFAMILY" == "sun50iw9" && "$BRANCH" == "next" ]] && OVERLAYDIR="/boot/dtb/allwinner/overlay";
-	[[ "$LINUXFAMILY" == "sun55iw3" ]] && OVERLAYDIR="/boot/dtb/allwinner/overlay";
+	[[ "$LINUXFAMILY" =~ "sun55iw3"|"sun60iw2" ]] && OVERLAYDIR="/boot/dtb/allwinner/overlay";
 	[[ "$LINUXFAMILY" == "rockchip-rk356x" ]] && OVERLAYDIR="/boot/dtb/rockchip/overlay";
 	[[ "$LINUXFAMILY" == "ky" ]] && OVERLAYDIR="/boot/dtb/ky/overlay";
 	# detect desktop

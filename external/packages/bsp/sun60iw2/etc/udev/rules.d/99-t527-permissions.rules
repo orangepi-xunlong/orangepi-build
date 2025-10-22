@@ -1,0 +1,5 @@
+KERNEL=="system", SUBSYSTEM=="dma_heap", GROUP="video", MODE="0660"
+KERNEL=="reserved", SUBSYSTEM=="dma_heap", GROUP="video", MODE="0660"
+KERNEL=="sunxi_soc_info", MODE="0666"
+KERNEL=="renderD128", SUBSYSTEM=="drm", MODE="0666"
+KERNEL=="cedar_dev", MODE="0666"

@@ -31,6 +31,10 @@ else
 	setenv consoleargs "splash=verbose ${consoleargs}"
 fi
 
+part uuid ${devtype} ${devnum}:1 partuuid
+
+if test -z "${rootdev}"; then rootdev=PARTUUID="${partuuid}"; fi
+
 setenv bootargs "root=${rootdev} rootwait rootfstype=${rootfstype} ${consoleargs} consoleblank=0 loglevel=${verbosity} clk_ignore_unused swiotlb=65536 usb-storage.quirks=${usbstoragequirks} ${extraargs} ${extraboardargs}"
 
 if test "${docker_optimizations}" = "on"; then setenv bootargs "${bootargs} cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory swapaccount=1"; fi

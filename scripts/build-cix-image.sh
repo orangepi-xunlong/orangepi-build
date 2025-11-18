@@ -35,7 +35,6 @@ function create_cix_rootfs()
     local ROOT_FREE_SIZE=4096000
     rootfs_ext4=${PATH_OUT}/images/rootfs.ext4
 
-    rm -rf ${PATH_OUT} > /dev/null 2>&1
     mkdir -p ${PATH_OUT}/images > /dev/null 2>&1
 
     mount --bind --make-private $SDCARD $MOUNT/
@@ -139,16 +138,16 @@ function create_cix_image()
     local dtb_args=()
     while IFS= read -r -d $'\0' dtb; do
         dtb_args+=("${dtb}" "/$(basename "${dtb}")")
-    done < <(find "${LINUXSOURCEDIR}/arch/arm64/boot/dts/cix/" -maxdepth 1 -name "*.dtb" -print0)
+    done < <(find "${SRC}/output/cix/" -maxdepth 1 -name "*.dtb" -print0)
 
-    sed -i '3cset default="0"' "${PATH_OUT}/images/grub.cfg"
+    #sed -i '3cset default="0"' "${PATH_OUT}/images/grub.cfg"
     "${SCRIPT_DIR}/tools/mk-part-fat" \
         -o "${PATH_OUT}/images/boot.img" \
         -s "${boot_size}" \
         -l "ESP" \
         "${SCRIPT_DIR}/grub.efi" "/EFI/BOOT/BOOTAA64.EFI" \
         "${PATH_OUT}/images/grub.cfg" "/grub/grub.cfg" \
-        "${LINUXSOURCEDIR}/arch/arm64/boot/Image" "/Image" \
+        "${SRC}/output/cix/Image" "/Image" \
         "${SCRIPT_DIR}/cix_binary/device/images/rootfs.cpio.gz" "/rootfs.cpio.gz" \
         "${dtb_args[@]}" > /dev/null 2>&1
 

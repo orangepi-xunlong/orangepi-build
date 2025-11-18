@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo usb_device > /sys/devices/platform/soc@3000000/10.usbc0/otg_role
+
 disable_udc="/etc/.disable_udc"
 udc_config=/sys/kernel/config/usb_gadget/g1/UDC
 

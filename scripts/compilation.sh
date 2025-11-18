@@ -506,6 +506,13 @@ CUSTOM_KERNEL_CONFIG
 		exit_with_error "Kernel was not built" "@host"
 	fi
 
+	if [[ ${BOARDFAMILY} == cix ]]; then
+		[[ -d ${SRC}/output/cix ]] && rm -rf ${SRC}/output/cix
+		mkdir -p ${SRC}/output/cix/ > /dev/null 2>&1
+		cp ${kerneldir}/arch/arm64/boot/Image ${SRC}/output/cix/
+		cp ${kerneldir}/arch/arm64/boot/dts/cix/sky1-*dtb ${SRC}/output/cix/
+	fi
+
 	# different packaging for 4.3+
 	if linux-version compare "${version}" ge 4.3; then
 		local kernel_packing="bindeb-pkg"

@@ -61,6 +61,13 @@ sudo dpkg -i *.deb
 sudo apt install --fix-broken
 reboot
 ```
+
+# Appendix: Build kernel and install boot image.
+A bit tricky.  
+https://github.com/crackerjacques/orangepi-build/blob/orangepi6plus/bootloader.md
+
+
+
 ## Donation
 
 For those like me who love splashing out on AliExpress

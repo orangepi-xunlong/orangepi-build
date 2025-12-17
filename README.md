@@ -68,7 +68,6 @@ reboot
 
 For those like me who love splashing out on AliExpress
 
-https://cdn.buymeacoffee.com/uploads/profile_pictures/2025/12/aMyc5KgFzFw5NbVz.png@300w_0e.webp
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/jaxxworkshv) 
 
 

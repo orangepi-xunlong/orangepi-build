@@ -382,27 +382,27 @@ POST_INSTALL_KERNEL_DEBS
 		fi
 	fi
 
-	# install orangepi-zsh
-	if [[ "${PACKAGE_LIST_RM}" != *orangepi-zsh* ]]; then
-		if [[ "${REPOSITORY_INSTALL}" != *orangepi-zsh* ]]; then
-			if [[ $BUILD_MINIMAL != yes ]]; then
-				install_deb_chroot "${DEB_STORAGE}/orangepi-zsh_${REVISION}_all.deb"
-			fi
-		else
-			if [[ $BUILD_MINIMAL != yes ]]; then
-				install_deb_chroot "orangepi-zsh" "remote"
-			fi
-		fi
-	fi
+	# # install orangepi-zsh
+	# if [[ "${PACKAGE_LIST_RM}" != *orangepi-zsh* ]]; then
+	# 	if [[ "${REPOSITORY_INSTALL}" != *orangepi-zsh* ]]; then
+	# 		if [[ $BUILD_MINIMAL != yes ]]; then
+	# 			install_deb_chroot "${DEB_STORAGE}/orangepi-zsh_${REVISION}_all.deb"
+	# 		fi
+	# 	else
+	# 		if [[ $BUILD_MINIMAL != yes ]]; then
+	# 			install_deb_chroot "orangepi-zsh" "remote"
+	# 		fi
+	# 	fi
+	# fi
 
-	# install plymouth-theme-orangepi
-	if [[ $PLYMOUTH == yes && $BUILD_DESKTOP == yes && $RELEASE != buster ]]; then
-		if [[ "${REPOSITORY_INSTALL}" != *plymouth-theme-orangepi* ]]; then
-			install_deb_chroot "${DEB_STORAGE}/orangepi-plymouth-theme_${REVISION}_all.deb"
-		else
-			install_deb_chroot "orangepi-plymouth-theme" "remote"
-		fi
-	fi
+	# # install plymouth-theme-orangepi
+	# if [[ $PLYMOUTH == yes && $BUILD_DESKTOP == yes && $RELEASE != buster ]]; then
+	# 	if [[ "${REPOSITORY_INSTALL}" != *plymouth-theme-orangepi* ]]; then
+	# 		install_deb_chroot "${DEB_STORAGE}/orangepi-plymouth-theme_${REVISION}_all.deb"
+	# 	else
+	# 		install_deb_chroot "orangepi-plymouth-theme" "remote"
+	# 	fi
+	# fi
 
 	# install kernel sources
 	if [[ -f ${DEB_STORAGE}/${CHOSEN_KSRC}_${REVISION}_all.deb && $INSTALL_KSRC == yes ]]; then

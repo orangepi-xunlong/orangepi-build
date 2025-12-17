@@ -201,20 +201,31 @@ create_sources_list()
 	;;
 
 	bookworm)
-	cat <<- EOF > "${basedir}"/etc/apt/sources.list
-	deb http://${DEBIAN_MIRROR} $release main contrib non-free non-free-firmware
-	#deb-src http://${DEBIAN_MIRROR} $release main contrib non-free non-free-firmware
+        cat <<EOF > "${basedir}"/etc/apt/sources.list
+        # Official Debian Global CDN
+        deb http://deb.debian.org/debian ${release} main contrib non-free non-free-firmware
+        deb-src http://deb.debian.org/debian ${release} main contrib non-free non-free-firmware
 
-	deb http://${DEBIAN_MIRROR} ${release}-updates main contrib non-free non-free-firmware
-	#deb-src http://${DEBIAN_MIRROR} ${release}-updates main contrib non-free non-free-firmware
+        # Updates
+        deb http://deb.debian.org/debian ${release}-updates main contrib non-free non-free-firmware
+        deb-src http://deb.debian.org/debian ${release}-updates main contrib non-free non-free-firmware
 
-	deb http://${DEBIAN_MIRROR} ${release}-backports main contrib non-free non-free-firmware
-	#deb-src http://${DEBIAN_MIRROR} ${release}-backports main contrib non-free non-free-firmware
+        # Backports
+        deb http://deb.debian.org/debian ${release}-backports main contrib non-free non-free-firmware
+        deb-src http://deb.debian.org/debian ${release}-backports main contrib non-free non-free-firmware
 
-	deb http://${DEBIAN_SECURTY} ${release}-security main contrib non-free non-free-firmware
-	#deb-src http://${DEBIAN_SECURTY} ${release}-security main contrib non-free non-free-firmware
-	EOF
-	;;
+        # Original Settings
+
+        # deb http://repo.huaweicloud.com/debian bookworm main contrib non-free non-free-firmware
+        # deb-src http://repo.huaweicloud.com/debian bookworm main contrib non-free non-free-firmware
+
+        # deb http://repo.huaweicloud.com/debian bookworm-updates main contrib non-free non-free-firmware
+        # deb-src http://repo.huaweicloud.com/debian bookworm-updates main contrib non-free non-free-firmware
+
+        # deb http://repo.huaweicloud.com/debian bookworm-backports main contrib non-free non-free-firmware
+        # deb-src http://repo.huaweicloud.com/debian bookworm-backports main contrib non-free non-free-firmware
+EOF
+        ;;
 
 	sid) # sid is permanent unstable development and has no such thing as updates or security
 	cat <<- EOF > "${basedir}"/etc/apt/sources.list

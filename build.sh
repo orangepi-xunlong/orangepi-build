@@ -208,6 +208,92 @@ EXTER="${SRC}/external"
 mkdir -p "${SRC}"/userpatches
 
 
+# Generate customize-image.sh (Security Fix & README via /etc/skel)
+mkdir -p "${SRC}"/userpatches/overlay/etc/skel/Desktop
+
+cat <<'EOF' > "${SRC}"/userpatches/customize-image.sh
+#!/bin/bash
+
+# ---------------------------------------------------------
+# ファイルの中身を一時ファイルとして定義
+# ---------------------------------------------------------
+
+cat <<'SCRIPT' > /tmp/patch_missings.sh
+#!/bin/bash
+echo "Adding missing Security repositories..."
+
+cat <<REPO | sudo tee -a /etc/apt/sources.list
+
+# Security
+deb http://security.debian.org/debian-security bookworm-security main contrib non-free non-free-firmware
+deb-src http://security.debian.org/debian-security bookworm-security main contrib non-free non-free-firmware
+REPO
+
+echo "Updating package lists..."
+sudo apt-get update
+echo "Done. Security repositories added."
+sleep 3
+SCRIPT
+
+cat <<'README' > /tmp/README.md
+
+# Changes
+
+# Kernel 
+- Enable /dev/hidraw*
+- Change timer freq 250 to 1000
+- yurex driver(for test)
+
+# Software
+- delete some unnecessary softwares, orangepi-config, orangepi-zsh, plymouth-theme-orangepi
+- put readme and patch_missings.sh on desktop
+
+# Security Repository Fix
+Run './patch_missings.sh' to add security repositories.
+README
+
+# ---------------------------------------------------------
+# 1. /etc/skel への配置 (今後作成されるユーザー用)
+# ---------------------------------------------------------
+mkdir -p /etc/skel/Desktop
+cp /tmp/patch_missings.sh /etc/skel/Desktop/
+cp /tmp/README.md /etc/skel/Desktop/
+chmod +x /etc/skel/Desktop/patch_missings.sh
+
+# ---------------------------------------------------------
+# 2. /home/orangepi への配置 (現在のユーザー用) [重要]
+# ---------------------------------------------------------
+if [ -d "/home/orangepi" ]; then
+    mkdir -p /home/orangepi/Desktop
+    
+    # ファイルをコピー
+    cp /tmp/patch_missings.sh /home/orangepi/Desktop/
+    cp /tmp/README.md /home/orangepi/Desktop/
+    
+    # 実行権限を付与
+    chmod +x /home/orangepi/Desktop/patch_missings.sh
+    
+    # 【最重要】所有者を orangepi に変更する (これがないとroot所有になり編集できない)
+    chown -R orangepi:orangepi /home/orangepi/Desktop
+fi
+
+# 一時ファイルの削除
+rm /tmp/patch_missings.sh /tmp/README.md
+
+EOF
+
+chmod +x "${SRC}"/userpatches/customize-image.sh
+
+# Create lib.config if none found in userpatches
+if [[ ! -f "${SRC}"/userpatches/lib.config ]]; then
+	cat <<-EOF > "${SRC}"/userpatches/lib.config
+	# Remove unnecessary packages for Orange Pi
+	PACKAGE_LIST_RM="orangepi-config orangepi-zsh plymouth-theme-orangepi"
+	REPOSITORY_INSTALL="orangepi-config,orangepi-zsh,plymouth-theme-orangepi"
+	PLYMOUTH="no"
+	EOF
+fi
+
 # Create example configs if none found in userpatches
 if ! ls "${SRC}"/userpatches/{config-example.conf,config-docker.conf,config-vagrant.conf} 1> /dev/null 2>&1; then
 

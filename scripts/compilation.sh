@@ -465,9 +465,9 @@ CUSTOM_KERNEL_CONFIG
 		fi
 	else
 		eval CCACHE_BASEDIR="$(pwd)" env PATH="${toolchain}:${PATH}" \
-			'make $CTHREADS ARCH=$ARCHITECTURE CROSS_COMPILE="$CCACHE $KERNEL_COMPILER" oldconfig'
+			'make $CTHREADS ARCH=$ARCHITECTURE CROSS_COMPILE="$CCACHE $KERNEL_COMPILER" olddefconfig'
 		eval CCACHE_BASEDIR="$(pwd)" env PATH="${toolchain}:${PATH}" \
-			'make $CTHREADS ARCH=$ARCHITECTURE CROSS_COMPILE="$CCACHE $KERNEL_COMPILER" ${KERNEL_MENUCONFIG:-menuconfig}'
+			'make $CTHREADS ARCH=$ARCHITECTURE CROSS_COMPILE="$CCACHE $KERNEL_COMPILER" menuconfig'
 
 		[[ ${PIPESTATUS[0]} -ne 0 ]] && exit_with_error "Error kernel menuconfig failed"
 
@@ -488,6 +488,10 @@ CUSTOM_KERNEL_CONFIG
 	if [[ $BUILD_KSRC != no ]]; then
 		create_linux-source_package
 	fi
+
+	# for stop auto versioning
+	sed -i 's/^CONFIG_LOCALVERSION_AUTO=.*/# CONFIG_LOCALVERSION_AUTO is not set/' .config
+	touch .scmversion
 
 	echo -e "\n\t== kernel ==\n" >> "${DEST}"/${LOG_SUBPATH}/compilation.log
 	eval CCACHE_BASEDIR="$(pwd)" env PATH="${toolchain}:${PATH}" \

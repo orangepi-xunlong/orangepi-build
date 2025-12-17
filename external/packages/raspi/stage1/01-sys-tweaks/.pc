@@ -1,1 +1,0 @@
-/home/test/orangepi-build/output/raspi/01-sys-tweaks-pc

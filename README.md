@@ -31,7 +31,6 @@ sudo ./build.sh GITEE_SERVER=yes
 # in the opi6_build dir
 chmod +x docker-run.sh
 ./run-docker.sh
-
 ```
 
 # After Install
@@ -40,7 +39,6 @@ chmod +x docker-run.sh
 # Add debian-security to sources.list
 cd ~/Desktop
 ./patch_missing.sh
-
 ```
 
 ## Install Driver
@@ -62,13 +60,11 @@ sudo apt update
 sudo dpkg -i *.deb
 sudo apt install --fix-broken
 reboot
-
 ```
 ## Donation
 
 For those like me who love splashing out on AliExpress
 
-https://cdn.buymeacoffee.com/uploads/profile_pictures/2025/12/aMyc5KgFzFw5NbVz.png@300w_0e.webp
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/jaxxworkshv) 
 
 

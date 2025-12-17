@@ -31,7 +31,6 @@ sudo ./build.sh GITEE_SERVER=yes
 # in the opi6_build dir
 chmod +x docker-run.sh
 ./run-docker.sh
-
 ```
 
 # After Install
@@ -40,7 +39,6 @@ chmod +x docker-run.sh
 # Add debian-security to sources.list
 cd ~/Desktop
 ./patch_missing.sh
-
 ```
 
 ## Install Driver
@@ -62,7 +60,6 @@ sudo apt update
 sudo dpkg -i *.deb
 sudo apt install --fix-broken
 reboot
-
 ```
 ## Donation
 

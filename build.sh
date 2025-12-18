@@ -230,6 +230,8 @@ rm -f /etc/resolv.conf
 echo "nameserver 8.8.8.8" > /etc/resolv.conf
 echo "nameserver 1.1.1.1" >> /etc/resolv.conf
 
+ssh-keygen -A
+
 # DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \
 #     python3-venv pkgconf mesa-utils libgl1 libglx0 \
 #     alsa-ucm-conf anacron apt-xapian-index at-spi2-core \

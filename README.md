@@ -57,7 +57,7 @@ sudo systemctl enable --now NetworkManager
 sudo reboot
 
 # test
-ping -t 3 google.com
+ping -c 3 google.com
 sudo apt install nano
 sudo apt update
 

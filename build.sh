@@ -207,6 +207,46 @@ EXTER="${SRC}/external"
 # Create userpatches directory if not exists
 mkdir -p "${SRC}"/userpatches
 
+# Copy selected CIX debs to overlay
+CIX_DEBS_SOURCE="${SRC}/external/cache/sources/component_cix-next/debs"
+CIX_DEBS_TARGET="${SRC}/userpatches/overlay/tmp/cix_debs"
+
+CIX_PACKAGES=(
+    "cix-audio-dsp_1.0.0_arm64.deb"
+    "cix-isp-umd_1.0.0_arm64_orangepi.deb"
+    "cix-common-misc_1.0.0_arm64.deb"
+    "cix-libdrm_1.0.0_arm64.deb"
+    "cix-cpipe_1.0.0_arm64.deb"
+    "cix-libglvnd_1.7.0_arm64.deb"
+    "cix-debian-misc_1.0.0_arm64.deb"
+    "cix-env_1.0.0_arm64.deb"
+    "cix-mesa_24.0.4_arm64.deb"
+    "cix-firmware_1.0.0_arm64.deb"
+    "cix-mnn_1.2.1_arm64.deb"
+    "cix-gpu-dkms_1.0.0_arm64.deb"
+    "cix-gpu-test_1.0.0_arm64.deb"
+    "cix-gpu-umd_2.0.0_arm64.deb"
+    "cix-optee_1.0.0_arm64.deb"
+    "cix-grubcfg_1.0.0_arm64.deb"
+    "cix-tools_1.0.0_arm64.deb"
+    "cix-gstreamer_1.22.1_arm64.deb"
+    "cix-vpu-test_1.0.0_arm64.deb"
+)
+
+if [ -d "$CIX_DEBS_SOURCE" ]; then
+    echo "Copying selected CIX debs to overlay..."
+    mkdir -p "$CIX_DEBS_TARGET"
+    
+    for deb in "${CIX_PACKAGES[@]}"; do
+        if [ -f "$CIX_DEBS_SOURCE/$deb" ]; then
+            cp -f "$CIX_DEBS_SOURCE/$deb" "$CIX_DEBS_TARGET/"
+        else
+            echo "[\e[0;35m WARN \x1B[0m] Package not found: $deb"
+        fi
+    done
+else
+    echo "[\e[0;31m ERROR \x1B[0m] Source directory not found: $CIX_DEBS_SOURCE"
+fi
 
 # Generate customize-image.sh
 mkdir -p "${SRC}"/userpatches/overlay/etc/skel/Desktop
@@ -232,41 +272,15 @@ echo "nameserver 1.1.1.1" >> /etc/resolv.conf
 
 ssh-keygen -A
 
-# DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \
-#     python3-venv pkgconf mesa-utils libgl1 libglx0 \
-#     alsa-ucm-conf anacron apt-xapian-index at-spi2-core \
-#     bleachbit bluetooth build-essential \
-#     cheese cifs-utils clang cmake clpeak colord command-not-found cups \
-#     dbus-x11 dconf-cli dmz-cursor-theme \
-#     eject emacs \
-#     fbi fcitx5 fcitx5-chinese-addons fcitx5-config-qt fcitx5-rime filezilla \
-#     fonts-noto-cjk fonts-wqy-zenhei foomatic-db-compressed-ppds \
-#     gdebi geany gimp gnome-bluetooth gnome-calculator gnome-control-center \
-#     gnome-desktop3-data gnome-disk-utility gnome-keyring gnome-mahjongg \
-#     gnome-menus gnome-mines gnome-remote-desktop gnome-session gnome-shell \
-#     gnome-sudoku gnome-system-monitor gnome-terminal gparted grub-efi-arm64 grub2-common \
-#     gstreamer1.0-alsa gstreamer1.0-libav gstreamer1.0-packagekit gstreamer1.0-plugins-base-apps \
-#     hexchat inputattach kazam keyutils kmscube \
-#     libegl1-mesa-dev libfdk-aac-dev libfdk-aac2 libffi-dev libgles2-mesa-dev \
-#     libnotify-bin libpulsedsp libpython3-dev libqt6opengl6 \
-#     libv4l2rds0 libvulkan-dev libwayland-dev libyaml-0-2 \
-#     lm-sensors locales meld mesa-utils-extra mpv \
-#     nautilus netwox nfs-common \
-#     pavucontrol pipewalker pithos pkg-config profile-sync-daemon putty \
-#     python3-pip qbittorrent quadrapassel \
-#     remmina rpcbind \
-#     sgt-puzzles smplayer software-properties-gtk synaptic system-config-printer \
-#     telegram-desktop terminator tracker tracker-extract tracker-miner-fs \
-#     transmission transmission-remote-gtk tree \
-#     udhcpc unrar upower \
-#     v4l-utils vim vsftpd vulkan-tools \
-#     x11-apps x11-session-utils x11-utils x11-xserver-utils xarchiver xbitmaps \
-#     xdg-user-dirs xdg-user-dirs-gtk xfce4-screenshooter xfonts-base xfonts-intl-chinese xfonts-wqy \
-#     xserver-xorg xserver-xorg-input-mouse xterm xwayland \
-#     zenity
+if [ -d "/tmp/cix_debs" ]; then
+    echo "[\e[0;32m INSTALL \x1B[0m] Installing CIX packages..."
+    DEBIAN_FRONTEND=noninteractive apt install -y /tmp/cix_debs/*.deb
+    rm -rf /tmp/cix_debs
+else
+    echo "[\e[0;33m WARN \x1B[0m] No CIX packages found to install."
+fi
 
 echo "[\e[0;32m FIX \x1B[0m] Customization Complete"
-# display_alert "FIX" "Customization Complete" "info"
 
 exit 0
 EOF

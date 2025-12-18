@@ -208,78 +208,64 @@ EXTER="${SRC}/external"
 mkdir -p "${SRC}"/userpatches
 
 
-# Generate customize-image.sh (Security Fix & README via /etc/skel)
+# Generate customize-image.sh
 mkdir -p "${SRC}"/userpatches/overlay/etc/skel/Desktop
 
 cat <<'EOF' > "${SRC}"/userpatches/customize-image.sh
 #!/bin/bash
 
-# ---------------------------------------------------------
-# ファイルの中身を一時ファイルとして定義
-# ---------------------------------------------------------
+echo "[\e[0;32m FIX \x1B[0m] Applying Time & Network Fixes"
 
-cat <<'SCRIPT' > /tmp/patch_missings.sh
-#!/bin/bash
-echo "Adding missing Security repositories..."
+apt update
 
-cat <<REPO | sudo tee -a /etc/apt/sources.list
+DEBIAN_FRONTEND=noninteractive apt install -y fake-hwclock
 
-# Security
-deb http://security.debian.org/debian-security bookworm-security main contrib non-free non-free-firmware
-deb-src http://security.debian.org/debian-security bookworm-security main contrib non-free non-free-firmware
-REPO
+date -u +'%Y-%m-%d %H:%M:%S' > /etc/fake-hwclock.data
+chmod 644 /etc/fake-hwclock.data
 
-echo "Updating package lists..."
-sudo apt-get update
-echo "Done. Security repositories added."
-sleep 3
-SCRIPT
+systemctl enable systemd-timesyncd
 
-cat <<'README' > /tmp/README.md
+rm -f /etc/resolv.conf
+echo "nameserver 8.8.8.8" > /etc/resolv.conf
+echo "nameserver 1.1.1.1" >> /etc/resolv.conf
 
-# Changes
+# DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \
+#     python3-venv pkgconf mesa-utils libgl1 libglx0 \
+#     alsa-ucm-conf anacron apt-xapian-index at-spi2-core \
+#     bleachbit bluetooth build-essential \
+#     cheese cifs-utils clang cmake clpeak colord command-not-found cups \
+#     dbus-x11 dconf-cli dmz-cursor-theme \
+#     eject emacs \
+#     fbi fcitx5 fcitx5-chinese-addons fcitx5-config-qt fcitx5-rime filezilla \
+#     fonts-noto-cjk fonts-wqy-zenhei foomatic-db-compressed-ppds \
+#     gdebi geany gimp gnome-bluetooth gnome-calculator gnome-control-center \
+#     gnome-desktop3-data gnome-disk-utility gnome-keyring gnome-mahjongg \
+#     gnome-menus gnome-mines gnome-remote-desktop gnome-session gnome-shell \
+#     gnome-sudoku gnome-system-monitor gnome-terminal gparted grub-efi-arm64 grub2-common \
+#     gstreamer1.0-alsa gstreamer1.0-libav gstreamer1.0-packagekit gstreamer1.0-plugins-base-apps \
+#     hexchat inputattach kazam keyutils kmscube \
+#     libegl1-mesa-dev libfdk-aac-dev libfdk-aac2 libffi-dev libgles2-mesa-dev \
+#     libnotify-bin libpulsedsp libpython3-dev libqt6opengl6 \
+#     libv4l2rds0 libvulkan-dev libwayland-dev libyaml-0-2 \
+#     lm-sensors locales meld mesa-utils-extra mpv \
+#     nautilus netwox nfs-common \
+#     pavucontrol pipewalker pithos pkg-config profile-sync-daemon putty \
+#     python3-pip qbittorrent quadrapassel \
+#     remmina rpcbind \
+#     sgt-puzzles smplayer software-properties-gtk synaptic system-config-printer \
+#     telegram-desktop terminator tracker tracker-extract tracker-miner-fs \
+#     transmission transmission-remote-gtk tree \
+#     udhcpc unrar upower \
+#     v4l-utils vim vsftpd vulkan-tools \
+#     x11-apps x11-session-utils x11-utils x11-xserver-utils xarchiver xbitmaps \
+#     xdg-user-dirs xdg-user-dirs-gtk xfce4-screenshooter xfonts-base xfonts-intl-chinese xfonts-wqy \
+#     xserver-xorg xserver-xorg-input-mouse xterm xwayland \
+#     zenity
 
-# Kernel 
-- Enable /dev/hidraw*
-- Change timer freq 250 to 1000
-- yurex driver(for test)
+echo "[\e[0;32m FIX \x1B[0m] Customization Complete"
+# display_alert "FIX" "Customization Complete" "info"
 
-# Software
-- delete some unnecessary softwares, orangepi-config, orangepi-zsh, plymouth-theme-orangepi
-- put readme and patch_missings.sh on desktop
-
-# Security Repository Fix
-Run './patch_missings.sh' to add security repositories.
-README
-
-# ---------------------------------------------------------
-# 1. /etc/skel への配置 (今後作成されるユーザー用)
-# ---------------------------------------------------------
-mkdir -p /etc/skel/Desktop
-cp /tmp/patch_missings.sh /etc/skel/Desktop/
-cp /tmp/README.md /etc/skel/Desktop/
-chmod +x /etc/skel/Desktop/patch_missings.sh
-
-# ---------------------------------------------------------
-# 2. /home/orangepi への配置 (現在のユーザー用) [重要]
-# ---------------------------------------------------------
-if [ -d "/home/orangepi" ]; then
-    mkdir -p /home/orangepi/Desktop
-    
-    # ファイルをコピー
-    cp /tmp/patch_missings.sh /home/orangepi/Desktop/
-    cp /tmp/README.md /home/orangepi/Desktop/
-    
-    # 実行権限を付与
-    chmod +x /home/orangepi/Desktop/patch_missings.sh
-    
-    # 【最重要】所有者を orangepi に変更する (これがないとroot所有になり編集できない)
-    chown -R orangepi:orangepi /home/orangepi/Desktop
-fi
-
-# 一時ファイルの削除
-rm /tmp/patch_missings.sh /tmp/README.md
-
+exit 0
 EOF
 
 chmod +x "${SRC}"/userpatches/customize-image.sh

@@ -27,3 +27,5 @@ unattended-upgrades
 unicode-data
 vnstat
 wpasupplicant
+network-manager
+nano

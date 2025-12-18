@@ -32,6 +32,7 @@ create_chroot()
 	apt_mirror['buster']="$DEBIAN_MIRROR"
 	apt_mirror['bullseye']="$DEBIAN_MIRROR"
 	apt_mirror['bookworm']="$DEBIAN_MIRROR"
+	apt_mirror['trixie']="$DEBIAN_MIRROR" #
 	apt_mirror['xenial']="$UBUNTU_MIRROR"
 	apt_mirror['bionic']="$UBUNTU_MIRROR"
 	apt_mirror['focal']="$UBUNTU_MIRROR"
@@ -43,6 +44,7 @@ create_chroot()
 	components['buster']='main,contrib'
 	components['bullseye']='main,contrib'
 	components['bookworm']='main,contrib'
+	components['trixie']='main,contrib,non-free-firmware' #
 	components['sid']='main'
 	components['xenial']='main,universe,multiverse'
 	components['bionic']='main,universe,multiverse'

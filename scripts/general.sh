@@ -227,6 +227,22 @@ create_sources_list()
 EOF
         ;;
 
+trixie)
+	cat <<-EOF > "${basedir}"/etc/apt/sources.list
+	# Official Debian Global CDN
+	deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+	deb-src http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+
+	# Updates
+	deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+	deb-src http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+
+	# Security
+	deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+	deb-src http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+	EOF
+	;;
+
 	sid) # sid is permanent unstable development and has no such thing as updates or security
 	cat <<- EOF > "${basedir}"/etc/apt/sources.list
 	deb https://snapshot.debian.org/archive/debian-ports/20221225T084846Z unstable main
@@ -885,13 +901,13 @@ function distro_menu ()
 				[[ -z "${DISTRIB_TYPE_LEGACY}" ]] && DISTRIB_TYPE="buster bionic focal"
 			elif [[ "${BRANCH}" == "current" ]]; then
 				DISTRIB_TYPE="${DISTRIB_TYPE_CURRENT}"
-				[[ -z "${DISTRIB_TYPE_CURRENT}" ]] && DISTRIB_TYPE="bullseye bookworm focal jammy noble"
+				[[ -z "${DISTRIB_TYPE_CURRENT}" ]] && DISTRIB_TYPE="bullseye bookworm trixie focal jammy noble"
 			elif [[ "${BRANCH}" == "next" ]]; then
 				if [[ -n "${DISTRIB_TYPE_NEXT}" ]]; then
 					DISTRIB_TYPE="${DISTRIB_TYPE_NEXT}"
 				else
 					DISTRIB_TYPE="${DISTRIB_TYPE_CURRENT}"
-					[[ -z "${DISTRIB_TYPE_CURRENT}" ]] && DISTRIB_TYPE="bullseye bookworm focal jammy noble"
+					[[ -z "${DISTRIB_TYPE_CURRENT}" ]] && DISTRIB_TYPE="bullseye bookworm trixie focal jammy noble"
 				fi
 			fi
 

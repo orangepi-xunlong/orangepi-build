@@ -1,25 +1,30 @@
-# Build script for OrangePi6Plus
+# Debian 13 Trixie Build script for OrangePi6Plus
 
-The official build script is...
-- Fails to boot when kernel options are altered
-- Includes numerous pieces of software that are utterly useless
-
-The official image was built using an outdated kernel configuration, with features such as hidraw disabled,   
-resulting in issues like drawing tablets failing to function.  
-Therefore, I have provisionally enabled kernel option configuration and removed superfluous software.  
-
-Once distribution of EDK2 for OrangePi6Plus commences, the boot-related issues will be resolved.   
-However, at present, the bootloader only supports the naming convention 6.6.89-cix,  
-and it has been rewritten to prevent this from being altered.  
+Custom script for consolidating package contents for Debian Trixie builds.  
+It works, but sort of. No guarantees. This is an extremely irresponsible release.  
 
 In other words, **this modded script is merely a stopgap until it is released,**  
 **or until Armbian or other third-party images become available.**
 
+## Issues
+
+There are others, but the most notable ones are...
+
+- **Slow Build.** The configuration of base package is particularly sluggish. (Monitoring disk access and CPU usage)
+- **Drivers.**  I'd like to manage to implement at least the publicly available ones. There's no helping it regarding proprietary drivers.
+- **Boot Loader** Still does not support kernel version notation.
+- **NO X11, NO SDDM, NO LightDM.** These DEs did not work.
+- **Deprecated packages.** Dependency issues and deprecation on the repository.
+
+I intend to devise a clever solution for the drivers when I find the time.  
+
+---
+
 # Usage
 
 ```
-git clone -b orangepi6plus https://github.com/crackerjacques/orangepi-build.git opi6_build
-cd opi6_build
+git clone -b trixie-test https://github.com/crackerjacques/orangepi-build.git opi6_build_trixie
+cd opi6_build_trixie
 sudo ./build.sh GITEE_SERVER=yes
 
 # It is essentially exclusive to the OrangePi6Plus. Other single-board computers cannot be selected.
@@ -51,7 +56,7 @@ scp -O -r external/cache/sources/component_cix_next/debs orangepi6plus.local:~/
 
 # or plan B in OrangePi6plus, download directly.
 wget https://github.com/orangepi-xunlong/${comp_name}/archive/refs/heads/main.zip
-unzip main
+unzip main.zip
 
 # In OrangePi6Plus
 

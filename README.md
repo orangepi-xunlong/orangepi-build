@@ -1,4 +1,6 @@
-# Debian 13 Trixie Build script for OrangePi6Plus
+# TOTALLY WIP.
+
+## Debian 13 Trixie Build script for OrangePi6Plus
 
 Custom script for consolidating package contents for Debian Trixie builds.  
 It works, but sort of. No guarantees. This is an extremely irresponsible release.  

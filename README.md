@@ -52,7 +52,8 @@ sudo ip link set [Your_NIC] up
 
 # new setup resolv.conf
 sudo rm /etc/resolv.conf
-echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf
+echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf # or your provider's
+sudo systemctl enable --now NetworkManager
 sudo reboot
 
 # test
@@ -92,21 +93,21 @@ unzip main.zip
 
 cd ~/debs
 sudo apt update
-sudo dpkg -i cix-audio-dsp_1.0.0_arm64.deb \ cix-gpu-umd_2.0.0_arm64.deb 
-cix-mnn_1.2.1_arm64.deb \ cix-common-misc_1.0.0_arm64.deb cix-grubcfg_1.0.0_arm64.deb \
+sudo dpkg -i cix-audio-dsp_1.0.0_arm64.deb cix-gpu-umd_2.0.0_arm64.deb cix-mnn_1.2.1_arm64.deb \
+cix-common-misc_1.0.0_arm64.deb cix-grubcfg_1.0.0_arm64.deb \
 cix-cpipe_1.0.0_arm64.deb cix-debian-misc_1.0.0_arm64.deb cix-isp-umd_1.0.0_arm64_orangepi.deb cix-optee_1.0.0_arm64.deb \
 cix-env_1.0.0_arm64.deb cix-libdrm_1.0.0_arm64.deb cix-tools_1.0.0_arm64.deb \
 cix-firmware_1.0.0_arm64.deb cix-libglvnd_1.7.0_arm64.deb cix-vpu-test_1.0.0_arm64.deb \
 cix-gpu-dkms_1.0.0_arm64.deb cix-llama-cpp_1.2.4_arm64.debcix-gpu-test_1.0.0_arm64.deb cix-mesa_24.0.4_arm64.deb
 
-sudo apt --fix-broken
+sudo apt --fix-broken install
 reboot
 ```
 
 # Appendix: Build kernel and install boot image.
 A bit tricky.  
+Please read:  
 https://github.com/crackerjacques/orangepi-build/blob/orangepi6plus/bootloader.md
-
 
 
 ## Donation

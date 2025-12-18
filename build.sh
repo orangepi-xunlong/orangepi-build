@@ -224,6 +224,7 @@ date -u +'%Y-%m-%d %H:%M:%S' > /etc/fake-hwclock.data
 chmod 644 /etc/fake-hwclock.data
 
 systemctl enable systemd-timesyncd
+systemctl enable NetworkManager
 
 rm -f /etc/resolv.conf
 echo "nameserver 8.8.8.8" > /etc/resolv.conf

@@ -29,3 +29,5 @@ vnstat
 wpasupplicant
 network-manager
 nano
+fastfetch
+net-tools

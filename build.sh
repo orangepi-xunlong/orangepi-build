@@ -254,16 +254,16 @@ mkdir -p "${SRC}"/userpatches/overlay/etc/skel/Desktop
 cat <<'EOF' > "${SRC}"/userpatches/customize-image.sh
 #!/bin/bash
 
-echo "[\e[0;32m FIX \x1B[0m] Applying Time & Network Fixes"
+# echo "[\e[0;32m FIX \x1B[0m] Applying Time & Network Fixes"
 
-apt update
+# apt update
 
-DEBIAN_FRONTEND=noninteractive apt install -y fake-hwclock
+# DEBIAN_FRONTEND=noninteractive apt install -y fake-hwclock
 
-date -u +'%Y-%m-%d %H:%M:%S' > /etc/fake-hwclock.data
-chmod 644 /etc/fake-hwclock.data
+# date -u +'%Y-%m-%d %H:%M:%S' > /etc/fake-hwclock.data
+# chmod 644 /etc/fake-hwclock.data
 
-systemctl enable systemd-timesyncd
+# systemctl enable systemd-timesyncd
 systemctl enable NetworkManager
 
 rm -f /etc/resolv.conf
@@ -271,10 +271,15 @@ echo "nameserver 8.8.8.8" > /etc/resolv.conf
 echo "nameserver 1.1.1.1" >> /etc/resolv.conf
 
 ssh-keygen -A
+systemctl enable ssh
 
 if [ -d "/tmp/cix_debs" ]; then
     echo "[\e[0;32m INSTALL \x1B[0m] Installing CIX packages..."
-    DEBIAN_FRONTEND=noninteractive apt install -y /tmp/cix_debs/*.deb
+
+    apt-get update
+    DEBIAN_FRONTEND=noninteractive apt-get install -y /tmp/cix_debs/*.deb
+	echo "[\e[0;32m FIX \x1B[0m] Fixing broken dependencies if any..."
+    DEBIAN_FRONTEND=noninteractive apt-get install --fix-broken -y
     rm -rf /tmp/cix_debs
 else
     echo "[\e[0;33m WARN \x1B[0m] No CIX packages found to install."

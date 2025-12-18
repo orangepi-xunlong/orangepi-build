@@ -14,11 +14,14 @@ In other words, **this modded script is merely a stopgap until it is released,**
 
 There are others, but the most notable ones are...
 
-- **Slow Build.** The configuration of base package is particularly sluggish. (Monitoring disk access and CPU usage)
-- **Drivers.**  I'd like to manage to implement at least the publicly available ones. There's no helping it regarding proprietary drivers.
-- **Boot Loader** Still does not support kernel version notation.
-- **NO X11, NO SDDM, NO LightDM.** These DEs did not work.
-- **Deprecated packages.** Dependency issues and deprecation on the repository.
+- ✅️A fairly turnkey "boot to desktop" as Official Image.  
+- ✅️GPU/Audio and misc drivers are gradually being supported.  
+- ✅️Discontinuation of packages that do not move or restrict users.  
+- ✅️Can be build with custom kernel(but **DO NOT change suffix**)  
+- ❌️Still WIP.  
+- ❌️Detailed operational testing.  
+- ❌️not tested for NPU,GPIO,DSP as HW fuctions.  
+- ❔️Should I place the prebuilt image somewhere? 
 
 I intend to devise a clever solution for the drivers when I find the time.  
 
@@ -32,6 +35,7 @@ cd opi6_build_trixie
 sudo ./build.sh GITEE_SERVER=yes
 
 # It is essentially exclusive to the OrangePi6Plus. Other single-board computers cannot be selected.
+# !!DO NOT EDIT KERNEL SUFFIXES, It cannot boot unless the kernel name "6.6.8.9-cix"!!
 ```
 
 ## Docker
@@ -73,6 +77,10 @@ sudo systemctl enable --now chrony
 ```
 
 ## Install Driver
+
+The debs directory contains a fair number of items that break dependencies.  
+Note that in version 20251219,  
+these have been fixed and are built with the driver installed from the outset.  
 
 ```
 # transfer files from opi6_build/external/cache/sources/component_cix_next/debs

@@ -44,7 +44,7 @@ fi
 
 [[ -z $REVISION ]] && REVISION="3.0.8"
 
-[[ $DOWNLOAD_MIRROR == "china" ]] && NTP_SERVER="pool.ntp.org"
+[[ $DOWNLOAD_MIRROR == "china" ]] && NTP_SERVER="cn.pool.ntp.org"
 
 if [[ $BUILD_ALL != "yes" ]]; then
 	# override stty size
@@ -412,6 +412,58 @@ if [[ ${IGNORE_UPDATES} != yes ]]; then
 		if [[ ! -d "${comp_dest}" ]]; then
 			display_alert "Fallback to Gitee" "Cloning ${comp_name}..." "wrn"
 			fetch_from_repo "https://gitee.com/orangepi-xunlong/${comp_name}.git" "${comp_dest}" "branch:main"
+		fi
+		
+		# Copy selected CIX deb packages to overlay
+
+		# echo "DEBUG: comp_dest is '${comp_dest}'"
+		# echo "DEBUG: Checking source dir: '${comp_dest}/debs'"
+
+		CIX_DEBS_SOURCE="${comp_dest}/debs"
+		CIX_DEBS_TARGET="${SRC}/userpatches/overlay/opt/cix_debs"
+		mkdir -p "${CIX_DEBS_TARGET}"
+
+		CIX_PACKAGES=(
+			"cix-audio-dsp_1.0.0_arm64.deb"
+			"cix-isp-umd_1.0.0_arm64_orangepi.deb"
+			"cix-common-misc_1.0.0_arm64.deb"
+			"cix-libdrm_1.0.0_arm64.deb"
+			"cix-cpipe_1.0.0_arm64.deb"
+			"cix-libglvnd_1.7.0_arm64.deb"
+			"cix-debian-misc_1.0.0_arm64.deb"
+			"cix-env_1.0.0_arm64.deb"
+			"cix-mesa_24.0.4_arm64.deb"
+			"cix-firmware_1.0.0_arm64.deb"
+			"cix-mnn_1.2.1_arm64.deb"
+			"cix-gpu-dkms_1.0.0_arm64.deb"
+			"cix-gpu-test_1.0.0_arm64.deb"
+			"cix-gpu-umd_2.0.0_arm64.deb"
+			"cix-optee_1.0.0_arm64.deb"
+			"cix-grubcfg_1.0.0_arm64.deb"
+			"cix-tools_1.0.0_arm64.deb"
+			"cix-gstreamer_1.22.1_arm64.deb"
+			"cix-vpu-test_1.0.0_arm64.deb"
+		)
+
+		if [ -d "$CIX_DEBS_SOURCE" ]; then
+			display_alert "Custom Patch" "Copying selected CIX debs to overlay..." "info"
+			
+			count=0
+			
+			for deb in "${CIX_PACKAGES[@]}"; do
+				if [ -f "$CIX_DEBS_SOURCE/$deb" ]; then
+					cp -f "$CIX_DEBS_SOURCE/$deb" "$CIX_DEBS_TARGET/"
+					((count++))
+				else
+					echo "WARN: Package not found: $deb"
+				fi
+			done
+			
+			echo "DEBUG: Copied $count files to $CIX_DEBS_TARGET"
+			ls -l "$CIX_DEBS_TARGET"
+		else
+			display_alert "ERROR" "Source directory not found: $CIX_DEBS_SOURCE" "err"
+			ls -ld "${comp_dest}"
 		fi
 	fi
 

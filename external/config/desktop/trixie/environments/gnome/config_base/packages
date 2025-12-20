@@ -1,4 +1,5 @@
 alsa-ucm-conf
+alsa-utils
 anacron
 at-spi2-core
 bluetooth
@@ -110,3 +111,16 @@ xserver-xorg-input-mouse
 xterm
 xwayland
 zenity
+network-manager
+nano
+avahi-daemon
+openssh-server
+fastfetch
+net-tools
+git
+curl
+wget
+usbutils
+cryptsetup
+lshw
+cloud-guest-utils

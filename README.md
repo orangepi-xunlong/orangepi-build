@@ -1,5 +1,3 @@
-# TOTALLY WIP.
-
 ## Debian 13 Trixie Build script for OrangePi6Plus
 
 Custom script for consolidating package contents for Debian Trixie builds.  
@@ -14,11 +12,13 @@ In other words, **this modded script is merely a stopgap until it is released,**
 
 There are others, but the most notable ones are...
 
-- ✅️A fairly turnkey "boot to desktop" as Official Image.  
-- ✅️GPU/Audio and misc drivers are gradually being supported.  
+- ✅️A fairly turnkey "boot to desktop" system as Official Image.  
+- ✅️GPU/Audio and misc drivers are preinstalled.  
 - ✅️Discontinuation of packages that do not move or restrict users.  
-- ✅️Can be build with custom kernel(but **DO NOT change suffix**)  
-- ❌️Still WIP.  
+- ✅️Can be build with custom kernel(but **DO NOT CHANGE SUFFIXES**)  
+- ❌️Still need tweak.  
+- ❌️Still doesn't work X11,LightDM,SDDM,GDM & Wayland Only.  
+- ❌️Incidentally, Console doesn't appear either.
 - ❌️Detailed operational testing.  
 - ❌️not tested for NPU,GPIO,DSP as HW fuctions.  
 - ❔️Should I place the prebuilt image somewhere? 
@@ -29,6 +29,7 @@ I intend to devise a clever solution for the drivers when I find the time.
 
 # Usage
 
+It will not run on anything other than Ubuntu 22.04.
 ```
 git clone -b trixie-test https://github.com/crackerjacques/orangepi-build.git opi6_build_trixie
 cd opi6_build_trixie
@@ -46,59 +47,23 @@ chmod +x docker-run.sh
 ./run-docker.sh
 ```
 
-# Network Setup
-
-When Trixie launched,often network was dead.
-```
-
-sudo ip link # get your nic name
-sudo ip link set [Your_NIC] up
-
-# new setup resolv.conf
-sudo rm /etc/resolv.conf
-echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf # or your provider's
-sudo systemctl enable --now NetworkManager
-sudo reboot
-
-# test
-ping -c 3 google.com
-sudo apt install nano
-sudo apt update
-
-# if apt update caught error with update
-# set clock to now
-sudo date -s "year-month-day hour:min:sec" # exam, "2025-12-18 16:30:00"
-sudo timedatectl set-ntp true #if available
-
-# or 
-sudo apt install -y chrony
-sudo systemctl enable --now chrony
-
-```
-
 ## Install Driver
 
-The debs directory contains a fair number of items that break dependencies.  
-Note that in version 20251219,  
-these have been fixed and are built with the driver installed from the outset.  
+The drivers are already installed, so they are not really necessary,  
+but the default packages are available for download.  
+However, be aware that many of these packages may break dependencies.  
 
 ```
-# transfer files from opi6_build/external/cache/sources/component_cix_next/debs
-# to OrangePi6Plus with scp,smb,sftp or physical media
 
-scp -O -r external/cache/sources/component_cix_next/debs orangepi6plus.local:~/
-
-# or plan B in OrangePi6plus, download directly.
-wget https://github.com/orangepi-xunlong/${comp_name}/archive/refs/heads/main.zip
+# Download directly.
+wget https://github.com/orangepi-xunlong/component_cix-next/archive/refs/heads/main.zip
 unzip main.zip
 
-# In OrangePi6Plus
-
-# DO NOT INSTALL!!
+# DO NOT INSTALL FOLLOW DRIVER PACKAGES!!
 # cix-npu-onnxruntime_1.1.0_arm64.deb
 # cix-noe-umd
 
-cd ~/debs
+cd component_cix-next-main/debs
 sudo apt update
 
 # Drivers
@@ -113,9 +78,29 @@ cix-gstreamer_1.22.1_arm64.deb cix-vpu-test_1.0.0_arm64.deb
 
 sudo apt --fix-broken install
 reboot
+
 ```
 
-# Appendix: Build kernel and install boot image.
+## After installation
+Verify the partition size using "df -h". If necessary, 
+**use "sudo apt install cloud-guest-utils" to then "growpart" and "resize2fs" to increase the free space.**    
+So, If you installed to NVME SSD.  
+
+```
+sudo fdisk -l #check your system drive
+sudo apt install cloud-guest-utils
+ls /dev/nvme* # or /dev/sd* # find your disk.
+
+#example: Extend the 2nd partition of /dev/nvme0n1 to maximum size.
+sudo growpart /dev/nvme0n1 2
+
+#Then, fill free space to NVME Partition 2. 
+sudo resize2fs /dev/nvme0n1p2
+
+#Please proceed according to your environment.
+```
+
+## Appendix: Build kernel and install boot image.
 A bit tricky.  
 Please read:  
 https://github.com/crackerjacques/orangepi-build/blob/orangepi6plus/bootloader.md

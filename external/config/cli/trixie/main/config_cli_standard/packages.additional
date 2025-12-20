@@ -35,3 +35,5 @@ sunxi-tools
 unzip
 vim
 vlan
+fastfetch
+net-tools

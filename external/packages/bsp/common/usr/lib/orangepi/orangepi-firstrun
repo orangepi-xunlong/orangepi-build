@@ -18,6 +18,14 @@ case "$1" in
 	# read number of cores needed below
 	cpu_cores=$(grep -c '^processor' /proc/cpuinfo | sed 's/^0$/1/')
 
+	cat > /etc/hosts << 'HOSTS'
+127.0.0.1   localhost
+127.0.1.1   orangepi6plus
+::1     localhost ip6-localhost ip6-loopback
+ff02::1     ip6-allnodes
+ff02::2     ip6-allrouters
+HOSTS
+
 	# adjust custom htop initial configuration based on CPU count https://github.com/avafinger/htop-2.1.1_enhanced-version
 	right_meters="Hostname Tasks LoadAverage DiskIO NetworkIO Uptime Systemd CpuFreq"
 	right_meter_modes="2 2 2 2 2 2 2 2"

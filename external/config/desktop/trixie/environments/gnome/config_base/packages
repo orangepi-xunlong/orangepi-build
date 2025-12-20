@@ -1,5 +1,6 @@
 alsa-ucm-conf
 alsa-utils
+alsa-tools
 anacron
 at-spi2-core
 bluetooth
@@ -124,3 +125,4 @@ usbutils
 cryptsetup
 lshw
 cloud-guest-utils
+pipewire-audio-client-libraries

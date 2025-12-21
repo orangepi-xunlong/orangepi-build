@@ -54,6 +54,9 @@ HOSTS
 	# update console info
 	setupcon --save
 
+	# dbus user session setup
+	systemctl --user enable dbus.service
+
 	# add unique installation id to the image release file
 	sed '1s/^/IMAGE_UUID=/' /proc/sys/kernel/random/uuid >> /etc/orangepi-image-release
 
@@ -64,6 +67,38 @@ HOSTS
 	service sshd restart
 	read entropy_after </proc/sys/kernel/random/entropy_avail
 	echo -e "\n### [firstrun] Recreated SSH keys (entropy: ${entropy_before} ${entropy_after})" >>${Log}
+
+	# PipeWire audio setup
+	echo -e "\n### [firstrun] Configuring PipeWire audio system" >>${Log}
+	
+	systemctl --global mask pulseaudio.service pulseaudio.socket 2>/dev/null
+	systemctl --global unmask pipewire.socket pipewire.service 2>/dev/null
+	systemctl --global unmask pipewire-pulse.socket pipewire-pulse.service 2>/dev/null
+	systemctl --global enable pipewire.socket pipewire.service
+	systemctl --global enable pipewire-pulse.socket pipewire-pulse.service
+	systemctl --global enable wireplumber.service
+	
+	for user_home in /home/*; do
+		if [ -d "$user_home" ]; then
+			username=$(basename "$user_home")
+			[ "$username" = "lost+found" ] && continue
+			
+			su - "$username" -c "
+				systemctl --user unmask pipewire.socket pipewire.service 2>/dev/null
+				systemctl --user unmask pipewire-pulse.socket pipewire-pulse.service 2>/dev/null
+				systemctl --user enable pipewire.socket pipewire.service 2>/dev/null
+				systemctl --user enable pipewire-pulse.socket pipewire-pulse.service 2>/dev/null
+				systemctl --user enable wireplumber.service 2>/dev/null
+			" 2>/dev/null
+			
+		fi
+	done
+
+	systemctl --user --global enable pipewire.socket pipewire.service 2>/dev/null
+	systemctl --user --global enable pipewire-pulse.socket pipewire-pulse.service 2>/dev/null
+	systemctl --user --global enable wireplumber.service 2>/dev/null	
+	echo -e "### [firstrun] PipeWire audio system configured successfully" >>${Log}
+
 
 	# get rid of purple background color in newt apps whiptail, partimage, debconf ... Reverting to Debian look.
 	[[ -f /etc/newt/palette ]] && sed -e 's/magenta/blue/g' -i /etc/newt/palette

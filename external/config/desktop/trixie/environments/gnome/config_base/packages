@@ -17,8 +17,6 @@ dhcpcd
 dhcpcd-base
 dmz-cursor-theme
 eject
-fcitx5
-fcitx5-config-qt
 fonts-noto-cjk
 fonts-noto
 fonts-noto-color-emoji
@@ -126,3 +124,13 @@ cryptsetup
 lshw
 cloud-guest-utils
 pipewire-audio-client-libraries
+pipewire
+pipewire-alsa
+pipewire-pulse
+wireplumber
+libspa-0.2-modules
+libspa-0.2-bluetooth
+im-config
+ibus
+pulseaudio-utils
+dbus-user-session

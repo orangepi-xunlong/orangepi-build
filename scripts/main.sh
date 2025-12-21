@@ -44,7 +44,7 @@ fi
 
 [[ -z $REVISION ]] && REVISION="3.0.8"
 
-[[ $DOWNLOAD_MIRROR == "china" ]] && NTP_SERVER="cn.pool.ntp.org"
+[[ $DOWNLOAD_MIRROR == "china" ]] && NTP_SERVER="pool.ntp.org"
 
 if [[ $BUILD_ALL != "yes" ]]; then
 	# override stty size
@@ -413,13 +413,23 @@ if [[ ${IGNORE_UPDATES} != yes ]]; then
 			display_alert "Fallback to Gitee" "Cloning ${comp_name}..." "wrn"
 			fetch_from_repo "https://gitee.com/orangepi-xunlong/${comp_name}.git" "${comp_dest}" "branch:main"
 		fi
-		
+
+		# Clone cix_p1_ubuntu_adaption_debs for additional packages
+		local p1_debs_name="cix_p1_ubuntu_adaption_debs"
+		local p1_debs_dest="${EXTER}/cache/sources/${p1_debs_name}"
+
+		if [[ ! -d "${p1_debs_dest}" ]]; then
+			display_alert "Fetching P1 Ubuntu debs" "${p1_debs_name}..." "info"
+			fetch_from_repo "https://github.com/cixtech/${p1_debs_name}.git" "${p1_debs_dest}" "branch:main"
+		fi
+
 		# Copy selected CIX deb packages to overlay
 
 		# echo "DEBUG: comp_dest is '${comp_dest}'"
 		# echo "DEBUG: Checking source dir: '${comp_dest}/debs'"
 
 		CIX_DEBS_SOURCE="${comp_dest}/debs"
+		CIX_P1_DEBS_SOURCE="${p1_debs_dest}/debs"
 		CIX_DEBS_TARGET="${SRC}/userpatches/overlay/opt/cix_debs"
 		mkdir -p "${CIX_DEBS_TARGET}"
 
@@ -445,11 +455,19 @@ if [[ ${IGNORE_UPDATES} != yes ]]; then
 			"cix-vpu-test_1.0.0_arm64.deb"
 		)
 
+		CIX_P1_PACKAGES=(
+			"cix-alsa-conf_1.0.0_arm64.deb"
+			"cix-npu-driver_2.0.1_arm64.deb"
+			"cix-bt-driver_1.0.0_arm64.deb"
+			"cix-wlan_1.0.0_arm64.deb"
+			"cix-noe-umd_2.0.4_arm64.deb"
+		)
+
 		if [ -d "$CIX_DEBS_SOURCE" ]; then
 			display_alert "Custom Patch" "Copying selected CIX debs to overlay..." "info"
-			
+
 			count=0
-			
+
 			for deb in "${CIX_PACKAGES[@]}"; do
 				if [ -f "$CIX_DEBS_SOURCE/$deb" ]; then
 					cp -f "$CIX_DEBS_SOURCE/$deb" "$CIX_DEBS_TARGET/"
@@ -458,13 +476,33 @@ if [[ ${IGNORE_UPDATES} != yes ]]; then
 					echo "WARN: Package not found: $deb"
 				fi
 			done
-			
-			echo "DEBUG: Copied $count files to $CIX_DEBS_TARGET"
-			ls -l "$CIX_DEBS_TARGET"
+
+			echo "DEBUG: Copied $count files from component_cix to $CIX_DEBS_TARGET"
 		else
 			display_alert "ERROR" "Source directory not found: $CIX_DEBS_SOURCE" "err"
 			ls -ld "${comp_dest}"
 		fi
+
+		if [ -d "$CIX_P1_DEBS_SOURCE" ]; then
+			display_alert "Custom Patch" "Copying selected P1 Ubuntu debs to overlay..." "info"
+
+			count=0
+
+			for deb in "${CIX_P1_PACKAGES[@]}"; do
+				if [ -f "$CIX_P1_DEBS_SOURCE/$deb" ]; then
+					cp -f "$CIX_P1_DEBS_SOURCE/$deb" "$CIX_DEBS_TARGET/"
+					((count++))
+				else
+					echo "WARN: P1 Package not found: $deb"
+				fi
+			done
+
+			echo "DEBUG: Copied $count files from p1_ubuntu_debs to $CIX_DEBS_TARGET"
+		else
+			display_alert "ERROR" "P1 Source directory not found: $CIX_P1_DEBS_SOURCE" "err"
+		fi
+
+		ls -l "$CIX_DEBS_TARGET"
 	fi
 
 	[[ $BUILD_OPT =~ kernel|image ]] && fetch_from_repo "$KERNELSOURCE" "$KERNELDIR" "$KERNELBRANCH" "yes"

@@ -17,7 +17,7 @@ install -Dv /dev/null $profile
 # set default shortcuts
 echo "
 [org/gnome/shell]
-favorite-apps = ['org.gnome.Nautilus.desktop', 'org.gnome.Terminal.desktop', 'chromium.desktop', 'org.gnome.Totem.desktop', 'gparted.desktop', 'org.gnome.Settings.desktop']
+favorite-apps = ['org.gnome.Nautilus.desktop', 'org.gnome.Terminal.desktop',  'chromium.desktop', 'org.gnome.Totem.desktop', 'gnome-disks.desktop', 'org.gnome.Settings.desktop']
 
 [org/gnome/settings-daemon/plugins/power]
 sleep-inactive-ac-timeout='0'

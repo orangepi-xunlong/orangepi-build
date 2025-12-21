@@ -420,7 +420,7 @@ if [[ ${IGNORE_UPDATES} != yes ]]; then
 
 		if [[ ! -d "${p1_debs_dest}" ]]; then
 			display_alert "Fetching P1 Ubuntu debs" "${p1_debs_name}..." "info"
-			fetch_from_repo "https://github.com/cixtech/${p1_debs_name}.git" "${p1_debs_dest}" "branch:main"
+			fetch_from_repo "https://github.com/cixtech/${p1_debs_name}.git" "${p1_debs_dest}" "branch:cix_k6.6_25q4_ubuntu_dev"
 		fi
 
 		# Copy selected CIX deb packages to overlay

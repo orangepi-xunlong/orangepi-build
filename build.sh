@@ -273,8 +273,8 @@ echo "nameserver 1.1.1.1" >> /etc/resolv.conf
 # ff02::2		ip6-allrouters
 # HOSTS
 
-ssh-keygen -A
-systemctl enable ssh
+# ssh-keygen -A
+# systemctl enable ssh
 
 echo -e "[\e[0;32m SEARCH \x1B[0m] Looking for CIX packages..."
 

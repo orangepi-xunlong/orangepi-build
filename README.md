@@ -116,7 +116,9 @@ https://github.com/crackerjacques/orangepi-build/blob/orangepi6plus/bootloader.m
 ## Where is Ubuntu?
 
 **Here**
+https://github.com/crackerjacques/orangepi-build/blob/trixie-test/build_ubuntu.md
 
+<img width="1280" height="720" alt="Screenshot from 2025-12-21 10-44-09" src="https://github.com/user-attachments/assets/36ce5f34-f0d3-48a2-9624-3c5eed28ddcd" />
 
 It works, for the time being. However, it is still too unstable for everyday use.
 

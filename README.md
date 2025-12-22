@@ -1,6 +1,6 @@
-## Debian 13 Trixie Build script for OrangePi6Plus
+## Debian 13 Trixie and Ubuntu Build script for OrangePi6Plus V0.02
 
-<img width="1024" height="1152" alt="22222" src="https://github.com/user-attachments/assets/4d7441db-b5a7-4fbd-bb72-8657598204c4" />
+<img width="768" height="864" alt="22222" src="https://github.com/user-attachments/assets/4d7441db-b5a7-4fbd-bb72-8657598204c4" />
 
 
 Custom script for consolidating package contents for Debian Trixie builds.  
@@ -9,7 +9,12 @@ It works, but sort of. No guarantees. This is an extremely irresponsible release
 In other words, **this modded script is merely a stopgap until it is released,**  
 **or until Armbian or other third-party images become available.**
 
-## Issues
+## Version 0.02 Topics
+
+- ✅️Fix audio
+- ✅️Fix unresponsive X11 applications
+- ✅️Update to behaviour upon initial launch
+- 💫Support for booting Ubuntu(Still very unstable)
 
 **You should not install it yet unless you are brave.**
 
@@ -108,6 +113,12 @@ A bit tricky.
 Please read:  
 https://github.com/crackerjacques/orangepi-build/blob/orangepi6plus/bootloader.md
 
+## Where is Ubuntu?
+
+**Here**
+
+
+It works, for the time being. However, it is still too unstable for everyday use.
 
 ## Donation
 

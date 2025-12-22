@@ -463,6 +463,10 @@ if [[ ${IGNORE_UPDATES} != yes ]]; then
 			"cix-noe-umd_2.0.4_arm64.deb"
 		)
 
+		CIX_GO_PACKAGES=(
+			"xwayland_24.1.1-1+cix_arm64.deb"
+		)
+
 		if [ -d "$CIX_DEBS_SOURCE" ]; then
 			display_alert "Custom Patch" "Copying selected CIX debs to overlay..." "info"
 
@@ -500,6 +504,36 @@ if [[ ${IGNORE_UPDATES} != yes ]]; then
 			echo "DEBUG: Copied $count files from p1_ubuntu_debs to $CIX_DEBS_TARGET"
 		else
 			display_alert "ERROR" "P1 Source directory not found: $CIX_P1_DEBS_SOURCE" "err"
+		fi
+
+		# Extract and copy packages from cix-go tarball
+		CIX_GO_TARBALL="${SRC}/ubuntu/cix_linux_requirements/debs/cix-go-2025q3.tar.gz"
+		CIX_GO_EXTRACTED="${SRC}/ubuntu/cix_linux_requirements/debs/cix-go"
+
+		if [ -f "$CIX_GO_TARBALL" ]; then
+			if [ ! -d "$CIX_GO_EXTRACTED" ]; then
+				display_alert "Extracting" "cix-go-2025q3.tar.gz..." "info"
+				tar -xzf "$CIX_GO_TARBALL" -C "${SRC}/ubuntu/cix_linux_requirements/debs/"
+			fi
+
+			if [ -d "$CIX_GO_EXTRACTED" ]; then
+				display_alert "Custom Patch" "Copying selected CIX GO debs to overlay..." "info"
+
+				count=0
+
+				for deb in "${CIX_GO_PACKAGES[@]}"; do
+					if [ -f "$CIX_GO_EXTRACTED/$deb" ]; then
+						cp -f "$CIX_GO_EXTRACTED/$deb" "$CIX_DEBS_TARGET/"
+						((count++))
+					else
+						echo "WARN: CIX GO Package not found: $deb"
+					fi
+				done
+
+				echo "DEBUG: Copied $count files from cix-go to $CIX_DEBS_TARGET"
+			fi
+		else
+			echo "INFO: cix-go tarball not found at $CIX_GO_TARBALL"
 		fi
 
 		ls -l "$CIX_DEBS_TARGET"

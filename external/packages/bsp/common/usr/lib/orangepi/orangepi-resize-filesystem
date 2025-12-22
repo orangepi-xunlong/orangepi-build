@@ -128,7 +128,7 @@ do_expand_partition()
 		((echo n; echo p; echo ; echo $(( $lastsector + 1 )); echo $secondpartition ; echo w;) | fdisk $rootdevicepath) >>${Log} 2>&1
 	local s=0
 	partprobe $rootdevicepath >>${Log} 2>&1 || s=$?
-
+	sleep 3
 	#
 	# Workaround for Kernel bug in 5.8.y and up. Ignore partprobe returning error and inticating that fs is not expended while it is
 	#

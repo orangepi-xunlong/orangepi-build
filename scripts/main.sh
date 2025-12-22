@@ -44,7 +44,7 @@ fi
 
 [[ -z $REVISION ]] && REVISION="3.0.8"
 
-[[ $DOWNLOAD_MIRROR == "china" ]] && NTP_SERVER="cn.pool.ntp.org"
+[[ $DOWNLOAD_MIRROR == "china" ]] && NTP_SERVER="pool.ntp.org"
 
 if [[ $BUILD_ALL != "yes" ]]; then
 	# override stty size
@@ -163,67 +163,7 @@ fi
 
 
 if [[ -z $BOARD ]]; then
-
-	#options+=("orangepir1"			"Allwinner H2+ quad core 256MB RAM WiFi SPI 2xETH")
-	#options+=("orangepizero"		"Allwinner H2+ quad core 256MB/512MB RAM WiFi SPI")
-	#options+=("orangepipc"			"Allwinner H3 quad core 1GB RAM")
-	#options+=("orangepipcplus"		"Allwinner H3 quad core 1GB RAM WiFi eMMC")
-	#options+=("orangepione"			"Allwinner H3 quad core 512MB RAM")
-	#options+=("orangepilite"		"Allwinner H3 quad core 512MB RAM WiFi")
-	#options+=("orangepiplus"		"Allwinner H3 quad core 1GB/2GB RAM WiFi GBE eMMC")
-	#options+=("orangepiplus2e"		"Allwinner H3 quad core 2GB RAM WiFi GBE eMMC")
-	#options+=("orangepizeroplus2h3" 	"Allwinner H3 quad core 512MB RAM WiFi/BT eMMC")
-	#options+=("orangepipch5"                "Allwinner H5 quad core 1GB RAM")
-	#options+=("orangepipc2"			"Allwinner H5 quad core 1GB RAM GBE SPI")
-	#options+=("orangepioneh5"               "Allwinner H5 quad core 512MB/1GB RAM")
-	#options+=("orangepiprime"		"Allwinner H5 quad core 2GB RAM GBE WiFi/BT")
-	#options+=("orangepizeroplus"		"Allwinner H5 quad core 512MB RAM GBE WiFi SPI")
-	#options+=("orangepizeroplus2h5"		"Allwinner H5 quad core 512MB RAM WiFi/BT eMMC")
-	options+=("orangepi3"			"Allwinner H6 quad core 1GB/2GB RAM GBE WiFi/BT eMMC USB3")
-	options+=("orangepi3-lts"		"Allwinner H6 quad core 2GB RAM GBE WiFi/BT-AW859A eMMC USB3")
-	#options+=("orangepilite2"		"Allwinner H6 quad core 1GB RAM WiFi/BT USB3")
-	#options+=("orangepioneplus"		"Allwinner H6 quad core 1GB RAM GBE")
-	options+=("orangepizero2"		"Allwinner H616 quad core 512MB/1GB RAM WiFi/BT GBE SPI")
-	#options+=("orangepizero2-b"		"Allwinner H616 quad core 512MB/1GB RAM WiFi/BT GBE SPI")
-	#options+=("orangepizero2-lts"           "Allwinner H616 quad core 1.5GB RAM WiFi/BT GBE SPI")
-	options+=("orangepizero3"		"Allwinner H618 quad core 1GB/1.5GB/2GB/4GB RAM WiFi/BT GBE SPI")
-	options+=("orangepizero2w"		"Allwinner H618 quad core 1GB/1.5GB/2GB/4GB RAM WiFi/BT SPI")
-	#options+=("orangepizero3plus"		"Allwinner H618 quad core 1GB/1.5GB/2GB/4GB RAM WiFi/BT GBE eMMC")
-	#options+=("orangepir1b"			"Allwinner H618 quad core 1.5GB/2GB/4GB RAM WiFi/BT GBE SPI")
-	#options+=("orangepi400"			"Allwinner H616 quad core 4GB RAM WiFi/BT GBE eMMC VGA")
-	options+=("orangepi4"                   "Rockchip  RK3399 hexa core 4GB RAM GBE eMMC USB3 USB-C WiFi/BT")
-	options+=("orangepi4a"		"Allwinner T527 octa core 2-4GB RAM GBE WiFi/BT NVMe eMMC")
-	options+=("orangepi4-lts"                 "Rockchip  RK3399 hexa core 4GB RAM GBE eMMC USB3 USB-C WiFi/BT")
-	#options+=("aipcliteb"		"Allwinner T736 octa core 2-4GB RAM GBE WiFi/BT NVMe")
-	options+=("orangepi4pro"		"Allwinner A733 octa core 4-16GB RAM GBE USB3 WiFi/BT NVMe eMMC")
-	options+=("orangepi800"                 "Rockchip  RK3399 hexa core 4GB RAM GBE eMMC USB3 USB-C WiFi/BT VGA")
-	options+=("orangepi5"                 "Rockchip  RK3588S octa core 4-16GB RAM GBE USB3 USB-C NVMe")
-	options+=("orangepicm5"                 "Rockchip  RK3588S octa core 4-16GB RAM GBE USB3 USB-C")
-	options+=("orangepicm5-tablet"           "Rockchip  RK3588S octa core 4-16GB RAM USB3 USB-C WiFi/BT")
-	options+=("orangepi5b"                 "Rockchip  RK3588S octa core 4-16GB RAM GBE USB3 USB-C WiFi/BT eMMC")
-	#options+=("orangepitab"                 "Rockchip  RK3588S octa core 4-16GB RAM USB-C WiFi/BT NVMe")
-	#options+=("orangepi900"                 "Rockchip  RK3588 octa core 4-16GB RAM 2.5GBE USB3 USB-C WiFi/BT NVMe")
-	options+=("orangepi5pro"                 "Rockchip  RK3588S octa core 4-16GB RAM GBE USB3 WiFi/BT NVMe eMMC")
-	options+=("orangepi5max"                 "Rockchip  RK3588 octa core 4-16GB RAM 2.5GBE USB3 WiFi/BT NVMe eMMC")
-	options+=("orangepi5ultra"                "Rockchip  RK3588 octa core 4-16GB RAM 2.5GBE USB3 WiFi/BT NVMe eMMC")
-	options+=("orangepi5plus"                 "Rockchip  RK3588 octa core 4-32GB RAM 2.5GBE USB3 USB-C WiFi/BT NVMe eMMC")
-	options+=("orangepicm4"                 "Rockchip  RK3566 quad core 2-8GB RAM GBE eMMC USB3 NvMe WiFi/BT")
-	options+=("orangepi3b"                  "Rockchip  RK3566 quad core 2-8GB RAM GBE eMMC USB3 NvMe WiFi/BT")
-	options+=("orangepi6plus"                 "Cix P1 12-core 16-64GB RAM 5GBE USB3 USB-C WiFi/BT NVMe")
-	options+=("orangepirv"                  "Starfive  JH7110 quad core 2-8GB RAM GBE USB3 NvMe WiFi/BT")
-	options+=("orangepirv2"                  "Ky X1 octa core 2-8GB RAM GBE USB3 WiFi/BT NVMe eMMC")
-	#options+=("orangepir2s"                  "Ky X1 octa core 2-8GB RAM 2.5GBE USB3 eMMC")
-	#options+=("orangepir1plus"              "Rockchip  RK3328 quad core 1GB RAM 2xGBE USB2 SPI")
-	#options+=("orangepi3plus"              "Amlogic S905D3 quad core 2/4GB RAM SoC eMMC GBE USB3 SPI WiFi/BT")
-
-	menustr="Please choose a Board."
-	BOARD=$(whiptail --title "${titlestr}" --backtitle "${backtitle}" \
-			  --menu "${menustr}" "${TTY_Y}" "${TTY_X}" $((TTY_Y - 8))  \
-			  --cancel-button Exit --ok-button Select "${options[@]}" \
-			  3>&1 1>&2 2>&3)
-
-	unset options
-	[[ -z $BOARD ]] && exit_with_error "No option selected"
+	BOARD="orangepi6plus"
 fi
 
 BOARD_TYPE="conf"
@@ -281,28 +221,10 @@ fi
 
 
 
-
+# 
 if [[ -z $BRANCH ]]; then
-
-	options=()
-	[[ $KERNEL_TARGET == *current* ]] && options+=("current" "Recommended. Come with best support")
-	[[ $KERNEL_TARGET == *legacy* ]] && options+=("legacy" "Old stable / Legacy")
-	[[ $KERNEL_TARGET == *next* ]] && options+=("next" "Use the latest kernel")
-
-	menustr="Select the target kernel branch\nExact kernel versions depend on selected board"
-	# do not display selection dialog if only one kernel branch is available
-	if [[ "${#options[@]}" == 2 ]]; then
-		BRANCH="${options[0]}"
-	else
-		BRANCH=$(whiptail --title "${titlestr}" --backtitle "${backtitle}" \
-				  --menu "${menustr}" "${TTY_Y}" "${TTY_X}" $((TTY_Y - 8))  \
-				  --cancel-button Exit --ok-button Select "${options[@]}" \
-				  3>&1 1>&2 2>&3)
-	fi
-	unset options
-	[[ -z $BRANCH ]] && exit_with_error "No kernel branch selected"
+	BRANCH="next"
 	[[ $BRANCH == dev && $SHOW_WARNING == yes ]] && show_developer_warning
-
 fi
 
 if [[ $BUILD_OPT =~ rootfs|image && -z $RELEASE ]]; then
@@ -458,9 +380,129 @@ if [[ ${IGNORE_UPDATES} != yes ]]; then
 	fi
 
 	if [[ $BOARDFAMILY == "cix" ]]; then
+		local comp_name="component_cix-$BRANCH"
+		local comp_dest="${EXTER}/cache/sources/${comp_name}"
+		
+		local zip_url="https://github.com/orangepi-xunlong/${comp_name}/archive/refs/heads/main.zip"
+		local local_zip="${SRC}/${comp_name}-main.zip"
+		local extracted_dir="${SRC}/${comp_name}-main"
 
-		fetch_from_repo "https://github.com/orangepi-xunlong/component_cix-$BRANCH.git" "${EXTER}/cache/sources/component_cix-$BRANCH" "branch:main"
+		if [[ ! -d "${comp_dest}" ]]; then
+			display_alert "CIX component missing" "Attemping download..." "info"
 
+			if [[ ! -f "${local_zip}" && ! -d "${extracted_dir}" ]]; then
+				display_alert "Downloading ZIP" "${zip_url}" "info"
+				wget -q -O "${local_zip}" "${zip_url}" || rm -f "${local_zip}"
+			fi
+
+			if [[ -f "${local_zip}" ]]; then
+				display_alert "Extracting ZIP" "${local_zip}" "info"
+				unzip -q -o "${local_zip}" -d "${SRC}"
+				
+				if [[ -d "${extracted_dir}" ]]; then
+					display_alert "Setting up source" "${comp_name}" "info"
+					mkdir -p "$(dirname "${comp_dest}")"
+					mv "${extracted_dir}" "${comp_dest}"
+				else
+					display_alert "Extraction failed" "Directory not found" "wrn"
+				fi
+			fi
+		fi
+
+		if [[ ! -d "${comp_dest}" ]]; then
+			display_alert "Fallback to Gitee" "Cloning ${comp_name}..." "wrn"
+			fetch_from_repo "https://gitee.com/orangepi-xunlong/${comp_name}.git" "${comp_dest}" "branch:main"
+		fi
+
+		# Clone cix_p1_ubuntu_adaption_debs for additional packages
+		local p1_debs_name="cix_p1_ubuntu_adaption_debs"
+		local p1_debs_dest="${EXTER}/cache/sources/${p1_debs_name}"
+
+		if [[ ! -d "${p1_debs_dest}" ]]; then
+			display_alert "Fetching P1 Ubuntu debs" "${p1_debs_name}..." "info"
+			fetch_from_repo "https://github.com/cixtech/${p1_debs_name}.git" "${p1_debs_dest}" "branch:cix_k6.6_25q4_ubuntu_dev"
+		fi
+
+		# Copy selected CIX deb packages to overlay
+
+		# echo "DEBUG: comp_dest is '${comp_dest}'"
+		# echo "DEBUG: Checking source dir: '${comp_dest}/debs'"
+
+		CIX_DEBS_SOURCE="${comp_dest}/debs"
+		CIX_P1_DEBS_SOURCE="${p1_debs_dest}/debs"
+		CIX_DEBS_TARGET="${SRC}/userpatches/overlay/opt/cix_debs"
+		mkdir -p "${CIX_DEBS_TARGET}"
+
+		CIX_PACKAGES=(
+			"cix-audio-dsp_1.0.0_arm64.deb"
+			"cix-isp-umd_1.0.0_arm64_orangepi.deb"
+			"cix-common-misc_1.0.0_arm64.deb"
+			"cix-libdrm_1.0.0_arm64.deb"
+			"cix-cpipe_1.0.0_arm64.deb"
+			"cix-libglvnd_1.7.0_arm64.deb"
+			"cix-debian-misc_1.0.0_arm64.deb"
+			"cix-env_1.0.0_arm64.deb"
+			"cix-mesa_24.0.4_arm64.deb"
+			"cix-firmware_1.0.0_arm64.deb"
+			"cix-mnn_1.2.1_arm64.deb"
+			"cix-gpu-dkms_1.0.0_arm64.deb"
+			"cix-gpu-test_1.0.0_arm64.deb"
+			"cix-gpu-umd_2.0.0_arm64.deb"
+			"cix-optee_1.0.0_arm64.deb"
+			"cix-grubcfg_1.0.0_arm64.deb"
+			"cix-tools_1.0.0_arm64.deb"
+			"cix-gstreamer_1.22.1_arm64.deb"
+			"cix-vpu-test_1.0.0_arm64.deb"
+		)
+
+		CIX_P1_PACKAGES=(
+			"cix-alsa-conf_1.0.0_arm64.deb"
+			"cix-npu-driver_2.0.1_arm64.deb"
+			"cix-bt-driver_1.0.0_arm64.deb"
+			"cix-wlan_1.0.0_arm64.deb"
+			"cix-noe-umd_2.0.4_arm64.deb"
+		)
+
+		if [ -d "$CIX_DEBS_SOURCE" ]; then
+			display_alert "Custom Patch" "Copying selected CIX debs to overlay..." "info"
+
+			count=0
+
+			for deb in "${CIX_PACKAGES[@]}"; do
+				if [ -f "$CIX_DEBS_SOURCE/$deb" ]; then
+					cp -f "$CIX_DEBS_SOURCE/$deb" "$CIX_DEBS_TARGET/"
+					((count++))
+				else
+					echo "WARN: Package not found: $deb"
+				fi
+			done
+
+			echo "DEBUG: Copied $count files from component_cix to $CIX_DEBS_TARGET"
+		else
+			display_alert "ERROR" "Source directory not found: $CIX_DEBS_SOURCE" "err"
+			ls -ld "${comp_dest}"
+		fi
+
+		if [ -d "$CIX_P1_DEBS_SOURCE" ]; then
+			display_alert "Custom Patch" "Copying selected P1 Ubuntu debs to overlay..." "info"
+
+			count=0
+
+			for deb in "${CIX_P1_PACKAGES[@]}"; do
+				if [ -f "$CIX_P1_DEBS_SOURCE/$deb" ]; then
+					cp -f "$CIX_P1_DEBS_SOURCE/$deb" "$CIX_DEBS_TARGET/"
+					((count++))
+				else
+					echo "WARN: P1 Package not found: $deb"
+				fi
+			done
+
+			echo "DEBUG: Copied $count files from p1_ubuntu_debs to $CIX_DEBS_TARGET"
+		else
+			display_alert "ERROR" "P1 Source directory not found: $CIX_P1_DEBS_SOURCE" "err"
+		fi
+
+		ls -l "$CIX_DEBS_TARGET"
 	fi
 
 	[[ $BUILD_OPT =~ kernel|image ]] && fetch_from_repo "$KERNELSOURCE" "$KERNELDIR" "$KERNELBRANCH" "yes"
@@ -588,23 +630,23 @@ fi
 
 if [[ $BUILD_OPT == rootfs || $BUILD_OPT == image ]]; then
 
-	# Compile orangepi-config if packed .deb does not exist or use the one from Orange Pi
-	if [[ ! -f ${DEB_STORAGE}/orangepi-config_${REVISION}_all.deb ]]; then
+	# # Compile orangepi-config if packed .deb does not exist or use the one from Orange Pi
+	# if [[ ! -f ${DEB_STORAGE}/orangepi-config_${REVISION}_all.deb ]]; then
 	
-		[[ "${REPOSITORY_INSTALL}" != *orangepi-config* ]] && compile_orangepi-config
-	fi 
+	# 	[[ "${REPOSITORY_INSTALL}" != *orangepi-config* ]] && compile_orangepi-config
+	# fi 
 
-	# Compile orangepi-zsh if packed .deb does not exist or use the one from repository
-	if [[ ! -f ${DEB_STORAGE}/orangepi-zsh_${REVISION}_all.deb ]]; then
+	# # Compile orangepi-zsh if packed .deb does not exist or use the one from repository
+	# if [[ ! -f ${DEB_STORAGE}/orangepi-zsh_${REVISION}_all.deb ]]; then
 
-	        [[ "${REPOSITORY_INSTALL}" != *orangepi-zsh* ]] && compile_orangepi-zsh
-	fi
+	#         [[ "${REPOSITORY_INSTALL}" != *orangepi-zsh* ]] && compile_orangepi-zsh
+	# fi
 
-	# Compile plymouth-theme-orangepi if packed .deb does not exist or use the one from repository
-	if [[ ! -f ${DEB_STORAGE}/plymouth-theme-orangepi_${REVISION}_all.deb && $PLYMOUTH == yes ]]; then
+	# # Compile plymouth-theme-orangepi if packed .deb does not exist or use the one from repository
+	# if [[ ! -f ${DEB_STORAGE}/plymouth-theme-orangepi_${REVISION}_all.deb && $PLYMOUTH == yes ]]; then
 
-		[[ "${REPOSITORY_INSTALL}" != *plymouth-theme-orangepi* ]] && compile_plymouth-theme-orangepi
-	fi
+	# 	[[ "${REPOSITORY_INSTALL}" != *plymouth-theme-orangepi* ]] && compile_plymouth-theme-orangepi
+	# fi
 
 	# Compile orangepi-firmware if packed .deb does not exist or use the one from repository
 	if [[ "${REPOSITORY_INSTALL}" != *orangepi-firmware* ]]; then

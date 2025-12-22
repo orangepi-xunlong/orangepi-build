@@ -6,7 +6,7 @@
 # License version 2. This program is licensed "as is" without any
 # warranty of any kind, whether express or implied.
 
-SIZE=50M
+SIZE=1024M
 USE_RSYNC=true
 ENABLED=false
 

@@ -201,18 +201,45 @@ create_sources_list()
 	;;
 
 	bookworm)
-	cat <<- EOF > "${basedir}"/etc/apt/sources.list
-	deb http://${DEBIAN_MIRROR} $release main contrib non-free non-free-firmware
-	#deb-src http://${DEBIAN_MIRROR} $release main contrib non-free non-free-firmware
+        cat <<EOF > "${basedir}"/etc/apt/sources.list
+        # Official Debian Global CDN
+        deb http://deb.debian.org/debian ${release} main contrib non-free non-free-firmware
+        deb-src http://deb.debian.org/debian ${release} main contrib non-free non-free-firmware
 
-	deb http://${DEBIAN_MIRROR} ${release}-updates main contrib non-free non-free-firmware
-	#deb-src http://${DEBIAN_MIRROR} ${release}-updates main contrib non-free non-free-firmware
+        # Updates
+        deb http://deb.debian.org/debian ${release}-updates main contrib non-free non-free-firmware
+        deb-src http://deb.debian.org/debian ${release}-updates main contrib non-free non-free-firmware
 
-	deb http://${DEBIAN_MIRROR} ${release}-backports main contrib non-free non-free-firmware
-	#deb-src http://${DEBIAN_MIRROR} ${release}-backports main contrib non-free non-free-firmware
+        # Backports
+        deb http://deb.debian.org/debian ${release}-backports main contrib non-free non-free-firmware
+        deb-src http://deb.debian.org/debian ${release}-backports main contrib non-free non-free-firmware
 
-	deb http://${DEBIAN_SECURTY} ${release}-security main contrib non-free non-free-firmware
-	#deb-src http://${DEBIAN_SECURTY} ${release}-security main contrib non-free non-free-firmware
+        # Original Settings
+
+        # deb http://repo.huaweicloud.com/debian bookworm main contrib non-free non-free-firmware
+        # deb-src http://repo.huaweicloud.com/debian bookworm main contrib non-free non-free-firmware
+
+        # deb http://repo.huaweicloud.com/debian bookworm-updates main contrib non-free non-free-firmware
+        # deb-src http://repo.huaweicloud.com/debian bookworm-updates main contrib non-free non-free-firmware
+
+        # deb http://repo.huaweicloud.com/debian bookworm-backports main contrib non-free non-free-firmware
+        # deb-src http://repo.huaweicloud.com/debian bookworm-backports main contrib non-free non-free-firmware
+EOF
+        ;;
+
+trixie)
+	cat <<-EOF > "${basedir}"/etc/apt/sources.list
+	# Official Debian Global CDN
+	deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+	deb-src http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+
+	# Updates
+	deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+	deb-src http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+
+	# Security
+	deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+	deb-src http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
 	EOF
 	;;
 
@@ -874,13 +901,13 @@ function distro_menu ()
 				[[ -z "${DISTRIB_TYPE_LEGACY}" ]] && DISTRIB_TYPE="buster bionic focal"
 			elif [[ "${BRANCH}" == "current" ]]; then
 				DISTRIB_TYPE="${DISTRIB_TYPE_CURRENT}"
-				[[ -z "${DISTRIB_TYPE_CURRENT}" ]] && DISTRIB_TYPE="bullseye bookworm focal jammy noble"
+				[[ -z "${DISTRIB_TYPE_CURRENT}" ]] && DISTRIB_TYPE="bullseye bookworm trixie focal jammy noble"
 			elif [[ "${BRANCH}" == "next" ]]; then
 				if [[ -n "${DISTRIB_TYPE_NEXT}" ]]; then
 					DISTRIB_TYPE="${DISTRIB_TYPE_NEXT}"
 				else
 					DISTRIB_TYPE="${DISTRIB_TYPE_CURRENT}"
-					[[ -z "${DISTRIB_TYPE_CURRENT}" ]] && DISTRIB_TYPE="bullseye bookworm focal jammy noble"
+					[[ -z "${DISTRIB_TYPE_CURRENT}" ]] && DISTRIB_TYPE="bullseye bookworm trixie focal jammy noble"
 				fi
 			fi
 

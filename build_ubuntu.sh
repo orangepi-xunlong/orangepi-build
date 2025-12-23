@@ -640,6 +640,17 @@ useradd -m -G sudo,video,render,audio -s /bin/bash "\${NEW_USER}"
 echo "\${NEW_USER}:\${NEW_PASSWORD}" | chpasswd
 echo "[INFO] User \${NEW_USER} created successfully"
 
+echo "[INFO] Configuring GDM3 autologin..."
+mkdir -p /etc/gdm3
+cat >> /etc/gdm3/custom.conf << EOF
+[daemon]
+AutomaticLoginEnable=true
+AutomaticLogin=\${NEW_USER}
+EOF
+
+echo "[INFO] Installing DKMS to avoid prompts..."
+apt install -y dkms || true
+
 echo "[INFO] Chroot setup complete! The ritual is done."
 CHROOT_SCRIPT
 
@@ -735,6 +746,31 @@ resize_partition() {
     print_msg "Partition resized successfully! You're over!"
 }
 
+setup_dualboot() {
+    echo ""
+    echo "=============================================="
+    echo "  Dual Boot Configuration (Optional)"
+    echo "=============================================="
+    echo ""
+    echo "You can now configure dual boot to add other OS entries"
+    echo "to the boot menu or set a default boot OS."
+    echo ""
+    read -p "Do you want to configure dual boot? (y/N): " dualboot_choice
+
+    if [[ "${dualboot_choice}" == "y" || "${dualboot_choice}" == "Y" ]]; then
+        if [[ -f "${SCRIPT_DIR}/dualboot_enabler.sh" ]]; then
+            print_msg "Launching dual boot configuration..."
+            bash "${SCRIPT_DIR}/dualboot_enabler.sh"
+            print_msg "Dual boot configuration complete!"
+        else
+            print_error "dualboot_enabler.sh not found in ${SCRIPT_DIR}/"
+            print_error "Skipping dual boot setup."
+        fi
+    else
+        print_msg "Skipping dual boot configuration."
+    fi
+}
+
 print_final_message() {
     echo ""
     echo "=============================================="
@@ -783,6 +819,8 @@ main() {
     echo "UPDATE: GPU support is now!"
     # echo "UPDATE: DragonOS Pi64 support."
     echo ""
+    print_important "Don't worry about all the errors popping up during the chroot operation."
+    echo ""
     echo "CAUTION: This script will ERASE ALL DATA on the selected target device."
     echo "Use at your own risk. Data loss may occur."
     echo ""
@@ -809,7 +847,12 @@ main() {
     setup_qemu
     run_chroot_setup
     resize_partition
+    setup_dualboot
     print_final_message
+
+    echo ""
+    print_msg "Done!"
+    echo ""
 }
 
 main "$@"

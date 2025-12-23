@@ -5,7 +5,18 @@ Automate Cix-Tech's tutorial
 https://github.com/cixtech/cix_p1_ubuntu_adaption_debs
 
 ## Usage
-Ubuntu 22.04 is recommended.  
+Host OS are Ubuntu 22.04 is needed for Kernel build.  
+
+The script itself will run even if the host machine is running a different operating system,  
+so it is advisable to copy the necessary packages from another machine or VM and run them from the OrangePi6.  
+
+```
+# from other machine
+# or using samba or sftp.
+
+scp -O -r orangepi_build/output/ orangepi@orangepi6plus.local:~/[your_work_dir]/orangepi_build
+```
+
 ```
 # if you built kernel package or OS image, skip this.
 
@@ -19,8 +30,4 @@ sudo ./build_ubuntu.sh
 
 # Agreements
 
-It is currently under investigation due to being **extremely unstable**.  
-Therefore, unless you are exceptionally brave or on **meth**, you should not install it.  
-The script's flavour is utterly ridiculous to prevent accidental installation.   
-
-Even so, there are far too few drivers and documentation. It's quite a trial and error process.  
+Still not perfect to work...

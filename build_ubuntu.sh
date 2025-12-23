@@ -437,6 +437,21 @@ collect_user_settings() {
         print_msg "DKMS enabled. Preparing the sacrifice..."
     fi
 
+    # Auto-login option
+    echo ""
+    echo "Display Manager Auto-login:"
+    echo "  Enable automatic login for ${NEW_USER}?"
+    echo "  This is convenient but less secure."
+    echo ""
+    read -p "Enable GDM3 auto-login? (Y/n): " autologin_choice
+    if [[ "${autologin_choice}" == "n" || "${autologin_choice}" == "N" ]]; then
+        ENABLE_AUTOLOGIN="false"
+        print_msg "Auto-login disabled. You'll need to login manually."
+    else
+        ENABLE_AUTOLOGIN="true"
+        print_msg "Auto-login enabled for ${NEW_USER}."
+    fi
+
     echo ""
     print_msg "User settings collected. Proceeding to device selection..."
 }
@@ -606,6 +621,7 @@ export DEBIAN_FRONTEND=noninteractive
 NEW_USER="${NEW_USER}"
 NEW_PASSWORD="${NEW_PASSWORD}"
 INSTALL_DKMS="${INSTALL_DKMS}"
+ENABLE_AUTOLOGIN="${ENABLE_AUTOLOGIN}"
 
 echo "[INFO] Updating package lists..."
 apt update
@@ -640,13 +656,18 @@ useradd -m -G sudo,video,render,audio -s /bin/bash "\${NEW_USER}"
 echo "\${NEW_USER}:\${NEW_PASSWORD}" | chpasswd
 echo "[INFO] User \${NEW_USER} created successfully"
 
-echo "[INFO] Configuring GDM3 autologin..."
-mkdir -p /etc/gdm3
-cat >> /etc/gdm3/custom.conf << EOF
+if [[ "\${ENABLE_AUTOLOGIN}" == "true" ]]; then
+    echo "[INFO] Configuring GDM3 autologin for \${NEW_USER}..."
+    mkdir -p /etc/gdm3
+    cat >> /etc/gdm3/custom.conf << EOF
 [daemon]
 AutomaticLoginEnable=true
 AutomaticLogin=\${NEW_USER}
 EOF
+    echo "[INFO] GDM3 autologin enabled."
+else
+    echo "[INFO] GDM3 autologin disabled. Manual login required."
+fi
 
 echo "[INFO] Installing DKMS to avoid prompts..."
 apt install -y dkms || true

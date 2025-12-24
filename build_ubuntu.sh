@@ -99,24 +99,60 @@ check_dependencies() {
 check_prerequisites() {
     print_msg "Checking prerequisites..."
 
+    local need_kernel=false
+    local DEFAULT_OUTPUT_DIR="${UBUNTU_DIR}/output_default"
+
     if [[ ! -f "${OUTPUT_DIR}/cix/Image" ]]; then
-        print_error "Kernel Image not found at ${OUTPUT_DIR}/cix/Image"
-        print_error "Please build the kernel first using: ./build.sh"
-        exit 1
+        need_kernel=true
     fi
 
-    local kernel_debs=0
-    for pattern in "linux-headers" "linux-image" "linux-libc"; do
-        if ls "${OUTPUT_DIR}/debs/${pattern}"*.deb 1>/dev/null 2>&1; then
-            kernel_debs=$((kernel_debs + 1))
+    if [[ "${need_kernel}" == "false" ]]; then
+        local kernel_debs=0
+        for pattern in "linux-headers" "linux-image" "linux-libc"; do
+            if ls "${OUTPUT_DIR}/debs/${pattern}"*.deb 1>/dev/null 2>&1; then
+                kernel_debs=$((kernel_debs + 1))
+            fi
+        done
+        if [[ $kernel_debs -lt 3 ]]; then
+            need_kernel=true
         fi
-    done
+    fi
 
-    if [[ $kernel_debs -lt 3 ]]; then
-        print_error "Kernel deb packages not found in ${OUTPUT_DIR}/debs/"
-        print_error "Expected: linux-headers*.deb, linux-image*.deb, linux-libc*.deb"
-        print_error "Please build the kernel packages first using: ./build.sh"
-        exit 1
+    # if kernel not found, offer to use default output
+    if [[ "${need_kernel}" == "true" ]]; then
+        echo ""
+        print_warn "Kernel packages not found in ${OUTPUT_DIR}/"
+        echo ""
+
+        if [[ -f "${DEFAULT_OUTPUT_DIR}/cix/Image" ]]; then
+            echo "=============================================="
+            echo "  Default Kernel Available"
+            echo "=============================================="
+            echo ""
+            echo "A pre-built kernel (6.6.8.9-cix) is available in:"
+            echo "  ${DEFAULT_OUTPUT_DIR}/"
+            echo ""
+            echo "This kernel will be copied to ${OUTPUT_DIR}/"
+            echo ""
+            read -p "Use default kernel? (Y/n): " use_default
+
+            if [[ "${use_default}" != "n" && "${use_default}" != "N" ]]; then
+                print_msg "Copying default kernel to output directory..."
+                mkdir -p "${OUTPUT_DIR}"
+                cp -rf "${DEFAULT_OUTPUT_DIR}/cix" "${OUTPUT_DIR}/"
+                cp -rf "${DEFAULT_OUTPUT_DIR}/debs" "${OUTPUT_DIR}/"
+                print_msg "Default kernel copied successfully."
+            else
+                print_error "Kernel packages required but not found."
+                print_error "Please build the kernel first using: ./build.sh"
+                exit 1
+            fi
+        else
+            print_error "Kernel Image not found at ${OUTPUT_DIR}/cix/Image"
+            print_error "Default kernel also not found at ${DEFAULT_OUTPUT_DIR}/"
+            print_error "Please build the kernel first using: ./build.sh"
+            exit 1
+        fi
     fi
 
     print_msg "Prerequisites check a.k.a hell's gate passed!"
@@ -135,7 +171,7 @@ select_distro_version() {
     echo ""
     echo "  1) Ubuntu 24.04 LTS (Noble Numbat) - Partial support, Vulkan works"
     echo "  2) Ubuntu 25.04 (Plucky Puffin) - Better than Noble."
-    # echo "  3) DragonOS Pi64 (Raspbian 13/Trixie) - TESTING!! DO NOT INSTALL!!"
+    echo "  3) Custom image from ubuntu/images/ folder"
     echo ""
     print_warn "All options are EXPERIMENTAL. WebGL does not work yet."
     echo ""
@@ -156,105 +192,155 @@ select_distro_version() {
             DISTRO_IMG_NAME="ubuntu-25.04-preinstalled-desktop-arm64+raspi.img"
             DISTRO_CODENAME="plucky"
             ;;
-        # 3)
-        #     DISTRO_TYPE="dragonos"
-        #     DISTRO_VERSION="Pi64"
-        #     DISTRO_CODENAME="trixie"
-        #     select_dragonos_image
-        #     ;;
+        3)
+            select_custom_image
+            ;;
         *)
             print_error "Invalid choice. You escaped the ritual... this time."
             exit 1
             ;;
     esac
 
-    # Set legacy variable names for compatibility
     UBUNTU_VERSION="${DISTRO_VERSION}"
 
     print_msg "Selected ${DISTRO_TYPE} ${DISTRO_VERSION}"
 }
 
-# select_dragonos_image() {
-#     echo ""
-#     echo "=============================================="
-#     echo "  DragonOS Pi64 - Manual Download Required"
-#     echo "=============================================="
-#     echo ""
-#     print_warn "DragonOS Pi64 must be downloaded manually from:"
-#     echo ""
-#     echo "  https://cemaxecuter.com/"
-#     echo ""
-#     echo "Download the image and place it in:"
-#     echo "  ${IMAGES_DIR}/"
-#     echo ""
-#     echo "Supported formats:"
-#     echo "  - DragonOS_Pi64_*.img"
-#     echo "  - DragonOS_Pi64_*.img.gz"
-#     echo "  - DragonOS_Pi64_*.img.xz"
-#     echo "  - DragonOS_Pi64_*.tar (containing .img)"
-#     echo ""
-# 
-#     # Search for DragonOS images
-#     local found_images=()
-#     local i=1
-# 
-#     # Check for various formats
-#     for img in "${IMAGES_DIR}"/DragonOS_Pi64_*.img; do
-#         [[ -f "$img" ]] && found_images+=("$img")
-#     done
-#     for img in "${IMAGES_DIR}"/DragonOS_Pi64_*.img.gz; do
-#         [[ -f "$img" ]] && found_images+=("$img")
-#     done
-#     for img in "${IMAGES_DIR}"/DragonOS_Pi64_*.img.xz; do
-#         [[ -f "$img" ]] && found_images+=("$img")
-#     done
-#     for img in "${IMAGES_DIR}"/DragonOS_Pi64_*.tar; do
-#         [[ -f "$img" ]] && found_images+=("$img")
-#     done
-# 
-#     if [[ ${#found_images[@]} -eq 0 ]]; then
-#         print_error "No DragonOS Pi64 images found in ${IMAGES_DIR}/"
-#         print_error "Please download from https://cemaxecuter.com/ and try again."
-#         exit 1
-#     fi
-# 
-#     echo "Found DragonOS images:"
-#     echo ""
-#     for img in "${found_images[@]}"; do
-#         echo "  $i) $(basename "$img")"
-#         i=$((i + 1))
-#     done
-#     echo ""
-# 
-#     read -p "Select image [1-${#found_images[@]}]: " img_choice
-# 
-#     if [[ "$img_choice" -lt 1 || "$img_choice" -gt ${#found_images[@]} ]]; then
-#         print_error "Invalid selection."
-#         exit 1
-#     fi
-# 
-#     local selected_img="${found_images[$((img_choice - 1))]}"
-#     DISTRO_IMG_NAME="$(basename "$selected_img")"
-# 
-#     # Handle compressed formats
-#     if [[ "$selected_img" == *.gz ]]; then
-#         DISTRO_IMG_COMPRESSED="$selected_img"
-#         DISTRO_IMG_NAME="${DISTRO_IMG_NAME%.gz}"
-#         DISTRO_COMPRESSION="gz"
-#     elif [[ "$selected_img" == *.xz ]]; then
-#         DISTRO_IMG_COMPRESSED="$selected_img"
-#         DISTRO_IMG_NAME="${DISTRO_IMG_NAME%.xz}"
-#         DISTRO_COMPRESSION="xz"
-#     elif [[ "$selected_img" == *.tar ]]; then
-#         DISTRO_IMG_COMPRESSED="$selected_img"
-#         DISTRO_IMG_NAME="${DISTRO_IMG_NAME%.tar}"
-#         DISTRO_COMPRESSION="tar"
-#     else
-#         DISTRO_COMPRESSION=""
-#     fi
-# 
-#     print_msg "Selected: ${DISTRO_IMG_NAME}"
-# }
+select_custom_image() {
+    echo ""
+    echo "=============================================="
+    echo "  Custom Image Selection"
+    echo "=============================================="
+    echo ""
+    echo "Scanning ${IMAGES_DIR}/ for images..."
+    echo ""
+
+    local found_images=()
+    local i=1
+
+    while IFS= read -r -d '' img; do
+        found_images+=("$img")
+    done < <(find "${IMAGES_DIR}" -maxdepth 1 -type f -name "*.img" -print0 2>/dev/null | sort -z)
+
+    while IFS= read -r -d '' img; do
+        found_images+=("$img")
+    done < <(find "${IMAGES_DIR}" -maxdepth 1 -type f \( -name "*.img.xz" -o -name "*.img.gz" -o -name "*.img.zst" \) -print0 2>/dev/null | sort -z)
+
+    while IFS= read -r -d '' img; do
+        found_images+=("$img")
+    done < <(find "${IMAGES_DIR}" -maxdepth 1 -type f \( -name "*.tar" -o -name "*.tar.gz" -o -name "*.tar.xz" -o -name "*.tgz" \) -print0 2>/dev/null | sort -z)
+
+    while IFS= read -r -d '' img; do
+        found_images+=("$img")
+    done < <(find "${IMAGES_DIR}" -maxdepth 1 -type f -name "*.zip" -print0 2>/dev/null | sort -z)
+
+    if [[ ${#found_images[@]} -eq 0 ]]; then
+        print_error "No images found in ${IMAGES_DIR}/"
+        echo ""
+        echo "Supported formats:"
+        echo "  - Raw images: *.img"
+        echo "  - Compressed: *.img.xz, *.img.gz, *.img.zst"
+        echo "  - Archives:   *.tar, *.tar.gz, *.tar.xz, *.tgz, *.zip"
+        echo ""
+        echo "Place your image file in: ${IMAGES_DIR}/"
+        exit 1
+    fi
+
+    echo "Found images:"
+    echo ""
+    for img in "${found_images[@]}"; do
+        local basename_img
+        basename_img=$(basename "$img")
+        local size
+        size=$(du -h "$img" 2>/dev/null | cut -f1)
+        printf "  %2d) %s (%s)\n" "$i" "$basename_img" "$size"
+        i=$((i + 1))
+    done
+    echo ""
+
+    read -p "Select image [1-${#found_images[@]}]: " img_choice
+
+    if ! [[ "$img_choice" =~ ^[0-9]+$ ]] || [[ "$img_choice" -lt 1 ]] || [[ "$img_choice" -gt ${#found_images[@]} ]]; then
+        print_error "Invalid selection. The void claims another soul."
+        exit 1
+    fi
+
+    local selected_img="${found_images[$((img_choice - 1))]}"
+    local selected_basename
+    selected_basename=$(basename "$selected_img")
+
+    echo ""
+    print_warn "=============================================="
+    print_warn "  WARNING: Custom Image Selected"
+    print_warn "=============================================="
+    echo ""
+    print_warn "You selected: ${selected_basename}"
+    echo ""
+    print_warn "I don't know if it'll work. Honestly."
+    print_warn "Compatibility is NOT guaranteed."
+    print_warn "You may encounter boot failures, driver issues,"
+    print_warn "or a beautiful void of nothingness."
+    echo ""
+    read -p "Proceed anyway? (y/N): " confirm_custom
+
+    if [[ "${confirm_custom}" != "y" && "${confirm_custom}" != "Y" ]]; then
+        print_msg "Wise choice. You live to fight another day."
+        exit 0
+    fi
+
+    # for custom image unzip and place
+    CUSTOM_IMG_ORIGINAL="$selected_img"
+    CUSTOM_IMG_NEEDS_EXTRACT="false"
+
+    if [[ "$selected_basename" == *.img ]]; then
+        DISTRO_IMG_NAME="$selected_basename"
+    elif [[ "$selected_basename" == *.img.xz ]]; then
+        DISTRO_IMG_NAME="${selected_basename%.xz}"
+        CUSTOM_IMG_NEEDS_EXTRACT="true"
+        CUSTOM_IMG_COMPRESSION="xz"
+    elif [[ "$selected_basename" == *.img.gz ]]; then
+        DISTRO_IMG_NAME="${selected_basename%.gz}"
+        CUSTOM_IMG_NEEDS_EXTRACT="true"
+        CUSTOM_IMG_COMPRESSION="gz"
+    elif [[ "$selected_basename" == *.img.zst ]]; then
+        DISTRO_IMG_NAME="${selected_basename%.zst}"
+        CUSTOM_IMG_NEEDS_EXTRACT="true"
+        CUSTOM_IMG_COMPRESSION="zst"
+    elif [[ "$selected_basename" == *.tar ]] || [[ "$selected_basename" == *.tar.gz ]] || [[ "$selected_basename" == *.tar.xz ]] || [[ "$selected_basename" == *.tgz ]]; then
+        CUSTOM_IMG_NEEDS_EXTRACT="true"
+        CUSTOM_IMG_COMPRESSION="tar"
+    elif [[ "$selected_basename" == *.zip ]]; then
+        CUSTOM_IMG_NEEDS_EXTRACT="true"
+        CUSTOM_IMG_COMPRESSION="zip"
+    fi
+
+    DISTRO_TYPE="custom"
+    DISTRO_VERSION="custom"
+    DISTRO_CODENAME="unknown"
+    DISTRO_URL=""
+
+    # GRUB entry name
+    echo ""
+    echo "=============================================="
+    echo "  GRUB Boot Entry Name"
+    echo "=============================================="
+    echo ""
+    echo "Specify a name for the boot menu entry."
+    echo "This will appear in the GRUB boot menu."
+    echo ""
+    echo "Examples: 'Debian Trixie', 'Manjaro ARM', 'DragonOS'"
+    echo ""
+    read -p "Boot entry name [Custom Linux]: " custom_grub_entry
+
+    if [[ -z "${custom_grub_entry}" ]]; then
+        CUSTOM_GRUB_ENTRY="Custom Linux"
+    else
+        CUSTOM_GRUB_ENTRY="${custom_grub_entry}"
+    fi
+
+    print_msg "Boot entry will be: '0 ${CUSTOM_GRUB_ENTRY} (ACPI)'"
+    print_msg "Selected: ${selected_basename}"
+}
 
 # prepare files and devices.
 download_distro_image() {
@@ -279,32 +365,76 @@ download_distro_image() {
         xz -dk "${img_xz}"
         print_msg "Image extracted: ${DISTRO_IMG}"
 
-    # elif [[ "${DISTRO_TYPE}" == "dragonos" ]]; then
-    #     if [[ -z "${DISTRO_COMPRESSION}" ]]; then
-    #         print_msg "DragonOS image ready: ${DISTRO_IMG}"
-    #     elif [[ "${DISTRO_COMPRESSION}" == "gz" ]]; then
-    #         print_msg "Extracting DragonOS image (gzip)..."
-    #         gunzip -k "${DISTRO_IMG_COMPRESSED}"
-    #         print_msg "Image extracted: ${DISTRO_IMG}"
-    #     elif [[ "${DISTRO_COMPRESSION}" == *.xz ]]; then
-    #         print_msg "Extracting DragonOS image (xz)..."
-    #         xz -dk "${DISTRO_IMG_COMPRESSED}"
-    #         print_msg "Image extracted: ${DISTRO_IMG}"
-    #     elif [[ "${DISTRO_COMPRESSION}" == "tar" ]]; then
-    #         print_msg "Extracting DragonOS image (tar)..."
-    #         tar -xf "${DISTRO_IMG_COMPRESSED}" -C "${IMAGES_DIR}/"
-    #         # Find the extracted .img file
-    #         local extracted_img
-    #         extracted_img=$(find "${IMAGES_DIR}" -name "*.img" -newer "${DISTRO_IMG_COMPRESSED}" | head -1)
-    #         if [[ -n "$extracted_img" ]]; then
-    #             DISTRO_IMG="$extracted_img"
-    #             DISTRO_IMG_NAME="$(basename "$extracted_img")"
-    #             print_msg "Image extracted: ${DISTRO_IMG}"
-    #         else
-    #             print_error "Failed to find extracted image from tar"
-    #             exit 1
-    #         fi
-    #     fi
+    elif [[ "${DISTRO_TYPE}" == "custom" ]]; then
+        if [[ "${CUSTOM_IMG_NEEDS_EXTRACT}" == "true" ]]; then
+            print_msg "Extracting custom image..."
+
+            case "${CUSTOM_IMG_COMPRESSION}" in
+                xz)
+                    print_msg "Decompressing xz archive..."
+                    xz -dk "${CUSTOM_IMG_ORIGINAL}"
+                    ;;
+                gz)
+                    print_msg "Decompressing gzip archive..."
+                    gunzip -k "${CUSTOM_IMG_ORIGINAL}"
+                    ;;
+                zst)
+                    print_msg "Decompressing zstd archive..."
+                    if command -v zstd &>/dev/null; then
+                        zstd -dk "${CUSTOM_IMG_ORIGINAL}"
+                    else
+                        print_error "zstd not installed. Please install: apt install zstd"
+                        exit 1
+                    fi
+                    ;;
+                tar)
+                    print_msg "Extracting tar archive..."
+                    tar -xf "${CUSTOM_IMG_ORIGINAL}" -C "${IMAGES_DIR}/"
+                    local extracted_img
+                    extracted_img=$(find "${IMAGES_DIR}" -maxdepth 1 -name "*.img" -newer "${CUSTOM_IMG_ORIGINAL}" | head -1)
+                    if [[ -n "$extracted_img" ]]; then
+                        DISTRO_IMG="$extracted_img"
+                        DISTRO_IMG_NAME="$(basename "$extracted_img")"
+                        print_msg "Image extracted: ${DISTRO_IMG}"
+                    else
+                        print_error "Failed to find extracted .img file from tar archive"
+                        exit 1
+                    fi
+                    ;;
+                zip)
+                    print_msg "Extracting zip archive..."
+                    unzip -o "${CUSTOM_IMG_ORIGINAL}" -d "${IMAGES_DIR}/"
+                    local extracted_img
+                    extracted_img=$(find "${IMAGES_DIR}" -maxdepth 1 -name "*.img" -newer "${CUSTOM_IMG_ORIGINAL}" | head -1)
+                    if [[ -n "$extracted_img" ]]; then
+                        DISTRO_IMG="$extracted_img"
+                        DISTRO_IMG_NAME="$(basename "$extracted_img")"
+                        print_msg "Image extracted: ${DISTRO_IMG}"
+                    else
+                        print_error "Failed to find extracted .img file from zip archive"
+                        exit 1
+                    fi
+                    ;;
+                *)
+                    print_error "Unknown compression type: ${CUSTOM_IMG_COMPRESSION}"
+                    exit 1
+                    ;;
+            esac
+
+            if [[ "${CUSTOM_IMG_COMPRESSION}" != "tar" && "${CUSTOM_IMG_COMPRESSION}" != "zip" ]]; then
+                DISTRO_IMG="${IMAGES_DIR}/${DISTRO_IMG_NAME}"
+            fi
+
+            if [[ ! -f "${DISTRO_IMG}" ]]; then
+                print_error "Extracted image not found: ${DISTRO_IMG}"
+                exit 1
+            fi
+
+            print_msg "Custom image ready: ${DISTRO_IMG}"
+        else
+            DISTRO_IMG="${CUSTOM_IMG_ORIGINAL}"
+            print_msg "Custom image ready: ${DISTRO_IMG}"
+        fi
     fi
 }
 
@@ -391,7 +521,7 @@ INSTALL_SCRIPT
     fi
 }
 
-# User settings
+# various user settings
 collect_user_settings() {
     echo ""
     echo "=============================================="
@@ -422,7 +552,7 @@ collect_user_settings() {
         fi
     done
 
-    # DKMS option
+    # DKMS option and auto-login
     echo ""
     echo "GPU Driver Installation Options:"
     echo "  DKMS builds kernel modules for GPU support."
@@ -437,7 +567,34 @@ collect_user_settings() {
         print_msg "DKMS enabled. Preparing the sacrifice..."
     fi
 
-    # Auto-login option
+    echo ""
+    echo "NPU Driver Installation Options:"
+    echo "  NPU (Neural Processing Unit) enables AI/ML acceleration."
+    echo "  Requires DKMS for kernel module build."
+    echo ""
+    read -p "Install NPU driver? (Y/n): " npu_choice
+    if [[ "${npu_choice}" == "n" || "${npu_choice}" == "N" ]]; then
+        INSTALL_NPU="false"
+        print_msg "NPU driver disabled."
+    else
+        INSTALL_NPU="true"
+        print_msg "NPU driver enabled. The silicon awakens..."
+    fi
+
+    echo ""
+    echo "VPU Driver Installation Options:"
+    echo "  VPU (Video Processing Unit) enables hardware video encoding/decoding."
+    echo "  Requires DKMS for kernel module build."
+    echo ""
+    read -p "Install VPU driver? (Y/n): " vpu_choice
+    if [[ "${vpu_choice}" == "n" || "${vpu_choice}" == "N" ]]; then
+        INSTALL_VPU="false"
+        print_msg "VPU driver disabled."
+    else
+        INSTALL_VPU="true"
+        print_msg "VPU driver enabled. Video streams shall flow..."
+    fi
+
     echo ""
     echo "Display Manager Auto-login:"
     echo "  Enable automatic login for ${NEW_USER}?"
@@ -546,7 +703,15 @@ setup_bootloader() {
 
     GRUB_CFG="${BOOTFS_MOUNT}/GRUB/GRUB.CFG"
     if [[ -f "${GRUB_CFG}" ]]; then
+        # Update partition info
         sed -i "s|resume=PARTUUID=[^ ]* noresume root=/dev/[^ ]*|resume=PARTUUID=${PART2_PARTUUID} noresume root=/dev/${PART2_DEVNAME}|g" "${GRUB_CFG}"
+
+        # Update boot entry name for custom images
+        if [[ "${DISTRO_TYPE}" == "custom" && -n "${CUSTOM_GRUB_ENTRY}" ]]; then
+            sed -i "s|menuentry '0 Ubuntu (ACPI)'|menuentry '0 ${CUSTOM_GRUB_ENTRY} (ACPI)'|g" "${GRUB_CFG}"
+            print_msg "GRUB entry name set to: 0 ${CUSTOM_GRUB_ENTRY} (ACPI)"
+        fi
+
         print_msg "GRUB config updated"
     else
         print_warn "GRUB.CFG not found at ${GRUB_CFG}"
@@ -576,7 +741,7 @@ setup_rootfs() {
         print_msg "CIX debs copied to /opt/debs"
     fi
 
-    # Setup resolv.conf
+    # Setup resolv.conf for apt
     if [[ -L "${ROOTFS_MOUNT}/etc/resolv.conf" ]]; then
         ORIG_RESOLV_LINK=$(readlink "${ROOTFS_MOUNT}/etc/resolv.conf")
         rm -f "${ROOTFS_MOUNT}/etc/resolv.conf"
@@ -612,7 +777,7 @@ run_chroot_setup() {
     mount --bind /proc "${ROOTFS_MOUNT}/proc"
     mount --bind /sys "${ROOTFS_MOUNT}/sys"
 
-    # Create setup script with variables embedded
+    # chroot worker task set
     cat > "${ROOTFS_MOUNT}/tmp/setup.sh" << CHROOT_SCRIPT
 #!/bin/bash
 set -e
@@ -621,6 +786,8 @@ export DEBIAN_FRONTEND=noninteractive
 NEW_USER="${NEW_USER}"
 NEW_PASSWORD="${NEW_PASSWORD}"
 INSTALL_DKMS="${INSTALL_DKMS}"
+INSTALL_NPU="${INSTALL_NPU}"
+INSTALL_VPU="${INSTALL_VPU}"
 ENABLE_AUTOLOGIN="${ENABLE_AUTOLOGIN}"
 
 echo "[INFO] Updating package lists..."
@@ -643,6 +810,41 @@ if [[ "\${INSTALL_DKMS}" == "true" ]]; then
 else
     echo "[INFO] DKMS disabled, running minimal GPU installation..."
     ./install.sh --no-dkms || true
+fi
+
+# NPU Driver Installation
+if [[ "\${INSTALL_NPU}" == "true" ]]; then
+    echo "[INFO] Installing NPU drivers..."
+    cd /opt/debs
+    apt install -y python3-pip || true
+    dpkg -i cix-npu-driver_*_arm64.deb || true
+    dpkg -i cix-noe-umd_*_arm64.deb || true
+
+    echo "[INFO] Building NPU DKMS module..."
+    apt install -y dkms || true
+    dkms add -m aipu -v 5.11.0 || true
+    dkms build -m aipu -v 5.11.0 || true
+    dkms install -m aipu -v 5.11.0 --force || true
+    echo "[INFO] NPU driver installation complete."
+else
+    echo "[INFO] NPU driver installation skipped."
+fi
+
+# VPU Driver Installation
+if [[ "\${INSTALL_VPU}" == "true" ]]; then
+    echo "[INFO] Installing VPU drivers..."
+    cd /opt/debs
+    dpkg -i cix-vpu-driver_*_arm64.deb || true
+    dpkg -i cix-vpu-test_*_arm64.deb || true
+
+    echo "[INFO] Building VPU DKMS module..."
+    apt install -y dkms || true
+    dkms add -m cix-vpu-driver -v 1.0.0 || true
+    dkms build -m cix-vpu-driver -v 1.0.0 || true
+    dkms install -m cix-vpu-driver -v 1.0.0 --force || true
+    echo "[INFO] VPU driver installation complete."
+else
+    echo "[INFO] VPU driver installation skipped."
 fi
 
 echo "[INFO] Configuring system services..."
@@ -729,14 +931,42 @@ RECOMMENDED:
   - Test each driver individually and reboot to verify stability.
 
 TO INSTALL ADDITIONAL DRIVERS (at your own risk):
+  
+  # deps
+  sudo apt install dkms python3-pip # if not already installed
+  
+  # for GPU
+  cd /opt/debs/cix-go
+  sudo ./install.sh
+  
+  # for NPU
   cd /opt/debs
-  sudo dpkg -i <package_name>.deb
+  sudo dpkg -i cix-npu-driver_*_arm64.deb
+  sudo dpkg -i cix-noe-umd_*_arm64.deb
+  sudo dkms add -m  aipu -v 5.11.0  
+  sudo dkms build -m aipu -v 5.11.0 
+  sudo dkms install -m aipu -v 5.11.0 --force
+
+  # for VPU
+  sudo dpkg -i cix-vpu-driver_*_arm64.deb
+  sudo dpkg -i cix-vpu-test_*_arm64.deb
+  sudo dkms add -m cix-vpu-driver -v 1.0.0
+  sudo dkms build -m cix-vpu-driver -v 1.0.0
+  sudo dkms install -m cix-vpu-driver -v 1.0.0 --force
+
+  # for WLAN/Bluetooth
+  sudo dpkg –i cix-wlan_xxx_arm64.deb
+  sudo dpkg –i cix-bt-driver_xxx_arm64.deb
+  sudo depmod -a
+
+  # if not appearing in wifi
+  sudo sed -i 's/NAME=\"$env{ID_NET_NAME}\"/NAME=\"$env{ID_NET_SLOT}\"/' /usr/lib/udev/rules.d/80-net-setup-link.rules
+  sudo sed -i "/ACTION!=\"add|change|move\",/aENV{INTERFACE}==\"*p2p*\",  ENV{NM_UNMANAGED}=\"1\"" /usr/lib/udev/rules.d/85-nm-unmanaged.rules
 
 KNOWN ISSUES (under investigation):
   - WebGL does not work in browsers
-  - Some GPU/graphics drivers may cause display issues
-  - Certain driver combinations may prevent GNOME/desktop from loading
-  - If desktop fails to start, boot to recovery mode and remove problematic packages
+  - X11/SDDM/LightDM may fail to start the desktop environment
+  - Some distros may have dependency issues with certain driver packages
 
 For support and updates, check the project repository:
 https://github.com/crackerjacques/orangepi-build
@@ -834,11 +1064,10 @@ trap cleanup EXIT
 main() {
     echo ""
     echo "=============================================="
-    echo "  Ubuntu Bootloader Injector for Orange Pi6 V0.2"
+    echo "  Ubuntu Bootloader Injector for Orange Pi6 V0.3"
     echo "=============================================="
     echo ""
-    echo "UPDATE: GPU support is now!"
-    # echo "UPDATE: DragonOS Pi64 support."
+    echo "UPDATE: Image chooser now supports custom images!"
     echo ""
     print_important "Don't worry about all the errors popping up during the chroot operation."
     echo ""

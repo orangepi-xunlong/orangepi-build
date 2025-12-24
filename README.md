@@ -9,12 +9,12 @@ It works, but sort of. No guarantees. This is an extremely irresponsible release
 In other words, **this modded script is merely a stopgap until it is released,**  
 **or until Armbian or other third-party images become available.**
 
-## Version 0.02 Topics
+## Version 0.03 Topics
 
-- ✅️Fix audio
-- ✅️Fix unresponsive X11 applications
+- ✅️hidraw and some USB Devices activated on kernel
+- ✅️Stablity was maybe improved
 - ✅️Update to behaviour upon initial launch
-- 💫Support for booting Ubuntu(Still very unstable)
+- 💫Dual boot and image burner.
 
 **You should not install it yet unless you are brave.**
 
@@ -119,8 +119,8 @@ https://github.com/crackerjacques/orangepi-build/blob/orangepi6plus/bootloader.m
 https://github.com/crackerjacques/orangepi-build/blob/trixie-test/build_ubuntu.md
 
 <img width="1280" height="720" alt="Screenshot from 2025-12-21 10-44-09" src="https://github.com/user-attachments/assets/36ce5f34-f0d3-48a2-9624-3c5eed28ddcd" />
-
-It works, for the time being. However, it is still too unstable for everyday use.
+Apart from WebGL not working in some places, it's pretty much perfect. GPIO? No idea.  
+Presumably comfortable as long as you use the default DE or Plasma.   
 
 ## Donation
 

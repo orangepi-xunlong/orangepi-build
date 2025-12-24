@@ -43,6 +43,12 @@ enable_dualboot() {
 
     read -p "Enter the name for the boot menu entry: " os_name
 
+    # suffix for vfat
+    echo -e "${YELLOW}Enter a suffix for the Image file (e.g., 'UBUNTU', 'ARCH')${NC}"
+    echo "This will create Image-<SUFFIX> on the current ESP"
+    echo "VFAT limitation: use uppercase, no spaces, max 8 chars recommended"
+    read -p "Image suffix (leave empty to skip Image copy): " image_suffix
+
     mkdir -p /mnt/OTHER_ESP
     mount "${OTHER_PART1}" /mnt/OTHER_ESP
 
@@ -78,13 +84,40 @@ enable_dualboot() {
         }
     ' "${OTHER_GRUB_CFG}")
 
+    if [[ -z "${MENUENTRY_CONTENT}" ]]; then
+        echo "Error: Could not extract menuentry content! (entry ${entry_num} does not exist)"
+        umount /mnt/OTHER_ESP
+        rmdir /mnt/OTHER_ESP
+        umount /mnt/ESP
+        exit 1
+    fi
+
+    # activate image (+suffox)
+    if [[ -n "${image_suffix}" ]]; then
+        image_suffix=$(echo "${image_suffix}" | tr '[:lower:]' '[:upper:]' | tr -cd 'A-Z0-9-' | cut -c1-8)
+        NEW_IMAGE_NAME="IMAGE-${image_suffix}"
+
+        if [[ -f "/mnt/OTHER_ESP/Image" ]]; then
+            echo "Copying Image from other OS as ${NEW_IMAGE_NAME}..."
+            cp "/mnt/OTHER_ESP/Image" "/mnt/ESP/${NEW_IMAGE_NAME}"
+            echo "Image copied successfully."
+        elif [[ -f "/mnt/OTHER_ESP/IMAGE" ]]; then
+            echo "Copying IMAGE from other OS as ${NEW_IMAGE_NAME}..."
+            cp "/mnt/OTHER_ESP/IMAGE" "/mnt/ESP/${NEW_IMAGE_NAME}"
+            echo "Image copied successfully."
+        else
+            echo -e "${YELLOW}Warning: No Image found on other ESP, skipping copy${NC}"
+            NEW_IMAGE_NAME=""
+        fi
+    else
+        NEW_IMAGE_NAME=""
+    fi
+
     umount /mnt/OTHER_ESP
     rmdir /mnt/OTHER_ESP
 
-    if [[ -z "${MENUENTRY_CONTENT}" ]]; then
-        echo "Error: Could not extract menuentry content!"
-        umount /mnt/ESP
-        exit 1
+    if [[ -n "${NEW_IMAGE_NAME}" ]]; then
+        MENUENTRY_CONTENT=$(echo "${MENUENTRY_CONTENT}" | sed "s|linux /[Ii][Mm][Aa][Gg][Ee][^ ]*|linux /${NEW_IMAGE_NAME}|g")
     fi
 
     GRUB_CFG="/mnt/ESP/GRUB/GRUB.CFG"
@@ -122,7 +155,6 @@ enable_dualboot() {
 
     sed -i "s/^menuentry '[^']*'/menuentry '${next_num} ${os_name}'/" "${MENUENTRY_FILE}"
 
-    # Find the last closing brace and append the new entry
     awk '
     BEGIN { last_menuentry_line = 0; in_menuentry = 0 }
     /^menuentry/ { in_menuentry = 1 }

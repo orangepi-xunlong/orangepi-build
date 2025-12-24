@@ -796,6 +796,8 @@ apt update
 echo "[INFO] Installing kernel packages..."
 cd /opt/kernel_packages
 apt install -y ./*.deb || true
+# Hold kernel packages to prevent apt from replacing them with generic kernel
+apt-mark hold linux-image-* linux-headers-* linux-libc-dev || true
 
 echo "[INFO] Installing CIX firmware and environment..."
 cd /opt/debs

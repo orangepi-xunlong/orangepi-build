@@ -799,8 +799,8 @@ apt install -y ./*.deb || true
 
 echo "[INFO] Installing CIX firmware and environment..."
 cd /opt/debs
-dpkg -i cix-firmware_*_arm64.deb || true
-dpkg -i --force-overwrite cix-env_*_arm64.deb || true
+dpkg -i cix-firmware*.deb || true
+dpkg -i --force-overwrite cix-env*.deb || true
 
 echo "[INFO] Installing GPU drivers (cix-go)..."
 cd /opt/debs/cix-go
@@ -817,8 +817,8 @@ if [[ "\${INSTALL_NPU}" == "true" ]]; then
     echo "[INFO] Installing NPU drivers..."
     cd /opt/debs
     apt install -y python3-pip || true
-    dpkg -i cix-npu-driver_*_arm64.deb || true
-    dpkg -i cix-noe-umd_*_arm64.deb || true
+    dpkg -i cix-npu-driver*.deb || true
+    dpkg -i cix-noe-umd*.deb || true
 
     echo "[INFO] Building NPU DKMS module..."
     apt install -y dkms || true
@@ -834,8 +834,8 @@ fi
 if [[ "\${INSTALL_VPU}" == "true" ]]; then
     echo "[INFO] Installing VPU drivers..."
     cd /opt/debs
-    dpkg -i cix-vpu-driver_*_arm64.deb || true
-    dpkg -i cix-vpu-test_*_arm64.deb || true
+    dpkg -i cix-vpu-driver*.deb || true
+    dpkg -i cix-vpu-test*.deb || true
 
     echo "[INFO] Building VPU DKMS module..."
     apt install -y dkms || true

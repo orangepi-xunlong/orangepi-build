@@ -33,12 +33,23 @@ sudo ./build_ubuntu.sh
 launch dualboot_enbaler.sh, or hand writing with template.  
 
 ```
-# mount current system disk partion 1
+# mount current system disk partion 1(default boot disk)
 
 sudo mkdir -p /mnt/ESP
 
 sudo mount /dev/xyz1 /mnt/ESP
 
+# mount second disk
+
+sudo mkdir -p /mnt/UBUNTU_ESP
+
+sudo mount /dev/abc1 /mnt/UBUNTU_ESP
+
+# boot partition is VFAT. so choice short suffix and case-insensitive.
+sudo cp /mnt/UBUNTU_ESP/IMAGE /mnt/ESP/IMAGE-UBUNTU # diffrent naming
+```
+
+```
 #check UUID for Ubuntu Disk.
 sudo blkid
 
@@ -47,7 +58,7 @@ sudo blkid
 sudo nano /mnt/ESP/GRUB/GRUB.CONF
 
 ```
-like this
+Like this
 ```
 menuentry '0 Your Current OS (ACPI)' {
     linux /Image \
@@ -55,7 +66,7 @@ menuentry '0 Your Current OS (ACPI)' {
 }
 
 menuentry '1 Ubuntu (ACPI)' {
-    linux /Image \
+    linux /IMAGE-UBUNTU \
         console=ttyAMA2,115200 \
         efi=noruntime \
         earlycon=pl011,0x040d0000 \
@@ -67,12 +78,13 @@ menuentry '1 Ubuntu (ACPI)' {
         resume=PARTUUID=[DISK UUID] noresume root=/dev/[diskname] rootwait rw
 }
 
+# If you were to boot from the same IMAGE, 
+# the 2 OS would share the same kernel, 
+# and that would be acceptable if you were content with that.
 ```
 
+
+## Template
 The Template is stored here
 
 https://github.com/crackerjacques/orangepi-build/blob/trixie-test/ubuntu/ESP/GRUB/GRUB.CFG
-
-# Agreements
-
-Still not perfect to work...

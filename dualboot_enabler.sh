@@ -120,6 +120,35 @@ enable_dualboot() {
         MENUENTRY_CONTENT=$(echo "${MENUENTRY_CONTENT}" | sed "s|linux /[Ii][Mm][Aa][Gg][Ee][^ ]*|linux /${NEW_IMAGE_NAME}|g")
     fi
 
+    if [[ "${other_device_name}" == nvme* ]]; then
+        SUGGESTED_ROOTFS="${other_device_name}p2"
+    else
+        SUGGESTED_ROOTFS="${other_device_name}2"
+    fi
+
+    echo -e "${YELLOW}Rootfs device selection (fixes boot issues with PARTUUID only)${NC}"
+    echo "1) Use suggested: ${SUGGESTED_ROOTFS}"
+    echo "2) Enter manually"
+    echo "3) Skip (keep PARTUUID only)"
+    read -p "Choice [1-3]: " rootfs_choice
+
+    case ${rootfs_choice} in
+        1)
+            rootfs_device="${SUGGESTED_ROOTFS}"
+            ;;
+        2)
+            read -p "Enter rootfs device (e.g., sda2, nvme0n1p2): " rootfs_device
+            ;;
+        *)
+            rootfs_device=""
+            ;;
+    esac
+
+    if [[ -n "${rootfs_device}" ]]; then
+        MENUENTRY_CONTENT=$(echo "${MENUENTRY_CONTENT}" | sed "s|rootwait|noresume root=/dev/${rootfs_device} rootwait|g")
+        echo "Added: noresume root=/dev/${rootfs_device}"
+    fi
+
     GRUB_CFG="/mnt/ESP/GRUB/GRUB.CFG"
     if [[ ! -f "${GRUB_CFG}" ]]; then
         echo "GRUB.CFG not found!"

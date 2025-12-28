@@ -145,8 +145,33 @@ enable_dualboot() {
     esac
 
     if [[ -n "${rootfs_device}" ]]; then
-        MENUENTRY_CONTENT=$(echo "${MENUENTRY_CONTENT}" | sed "s|rootwait|noresume root=/dev/${rootfs_device} rootwait|g")
-        echo "Added: noresume root=/dev/${rootfs_device}"
+        ROOTFS_PARTUUID=$(blkid -s PARTUUID -o value "/dev/${rootfs_device}" 2>/dev/null || echo "")
+
+        if echo "${MENUENTRY_CONTENT}" | grep -q "root=/dev/[[:space:]]"; then
+            MENUENTRY_CONTENT=$(echo "${MENUENTRY_CONTENT}" | sed "s|root=/dev/[[:space:]]|root=/dev/${rootfs_device} |g")
+            echo "Fixed: root=/dev/${rootfs_device}"
+        elif echo "${MENUENTRY_CONTENT}" | grep -q "root=/dev/\$"; then
+            MENUENTRY_CONTENT=$(echo "${MENUENTRY_CONTENT}" | sed "s|root=/dev/\$|root=/dev/${rootfs_device}|g")
+            echo "Fixed: root=/dev/${rootfs_device}"
+        elif ! echo "${MENUENTRY_CONTENT}" | grep -q "root="; then
+            MENUENTRY_CONTENT=$(echo "${MENUENTRY_CONTENT}" | sed "s|rootwait|root=/dev/${rootfs_device} rootwait|g")
+            echo "Added: root=/dev/${rootfs_device}"
+        fi
+
+        if echo "${MENUENTRY_CONTENT}" | grep -q "resume=PARTUUID=[[:space:]]"; then
+            if [[ -n "${ROOTFS_PARTUUID}" ]]; then
+                MENUENTRY_CONTENT=$(echo "${MENUENTRY_CONTENT}" | sed "s|resume=PARTUUID=[[:space:]]|resume=PARTUUID=${ROOTFS_PARTUUID} |g")
+                echo "Fixed: resume=PARTUUID=${ROOTFS_PARTUUID}"
+            else
+                MENUENTRY_CONTENT=$(echo "${MENUENTRY_CONTENT}" | sed "s|resume=PARTUUID=[[:space:]]||g")
+                echo "Removed empty resume=PARTUUID="
+            fi
+        fi
+
+        if ! echo "${MENUENTRY_CONTENT}" | grep -q "noresume"; then
+            MENUENTRY_CONTENT=$(echo "${MENUENTRY_CONTENT}" | sed "s|rootwait|noresume rootwait|g")
+            echo "Added: noresume"
+        fi
     fi
 
     GRUB_CFG="/mnt/ESP/GRUB/GRUB.CFG"

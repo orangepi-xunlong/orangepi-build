@@ -131,6 +131,63 @@ function create_cix_image()
     #echo "boot_start: ${boot_start}Mib, boot_size: ${boot_size} bytes"
 
     cp "${SCRIPT_DIR}/debian/grub-post-silicon.cfg" "${PATH_OUT}/images/grub.cfg"
+    if [[ "${RELEASE}" == "trixie" ]]; then
+        cat <<-'GRUBCFG' >"${PATH_OUT}/images/grub.cfg"
+set debug=loader,mm
+set term=vt100
+set default=1
+set timeout=2
+
+menuentry '0 OrangePi 6 Plus (ACPI)' {
+    linux /Image \
+        console=ttyAMA2,115200 \
+        efi=noruntime \
+        earlycon=pl011,0x040d0000 \
+        arm-smmu-v3.disable_bypass=0 \
+        cma=640M \
+        acpi=force splash \
+        loglevel=4 \
+        pcie_aspm=off \
+        root=/dev/nvme0n1p2 rootwait rw
+}
+
+menuentry '1 OrangePi 6 Plus (Device Tree)' {
+    devicetree /SKY1-ORANGEPI-6-PLUS.DTB
+    linux /Image \
+        loglevel=4 \
+        console=ttyAMA2,115200 \
+        efi=noruntime \
+        earlycon=pl011,0x040d0000 \
+        arm-smmu-v3.disable_bypass=0 \
+        acpi=off \
+        root=/dev/nvme0n1p2 rootwait rw
+}
+
+menuentry '2 OrangePi 6 Plus 40pin (Device Tree)' {
+    devicetree /SKY1-ORANGEPI-6-PLUS-40PIN.DTB
+    linux /Image \
+        loglevel=4 \
+        console=ttyAMA2,115200 \
+        efi=noruntime \
+        earlycon=pl011,0x040d0000 \
+        arm-smmu-v3.disable_bypass=0 \
+        acpi=off \
+        root=/dev/nvme0n1p2 rootwait rw
+}
+
+menuentry '3 OrangePi 6 Plus 40pin pwm (Device Tree)' {
+    devicetree /SKY1-ORANGEPI-6-PLUS-40PIN-PWM.DTB
+    linux /Image \
+        loglevel=4 \
+        console=ttyAMA2,115200 \
+        efi=noruntime \
+        earlycon=pl011,0x040d0000 \
+        arm-smmu-v3.disable_bypass=0 \
+        acpi=off \
+        root=/dev/nvme0n1p2 rootwait rw
+}
+GRUBCFG
+    fi
     local root_device_guid=$("${SCRIPT_DIR}/debian/cix_tool" --flash-tool -d "${PATH_OUT}/images/partition-table.img" | grep "PARTITION1, guid:" | awk -F ":" '{print $2}')
     sed -i "s:root=/dev/nvme0n1p2:root=PARTUUID=${root_device_guid}:g" "${PATH_OUT}/images/grub.cfg"
     sed -i "s:root=/dev/sda2:root=PARTUUID=${root_device_guid}:g" "${PATH_OUT}/images/grub.cfg"

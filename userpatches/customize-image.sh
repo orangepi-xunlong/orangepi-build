@@ -67,9 +67,9 @@ Main() {
                     wget -q -O "${NPU_DEB_DIR}/cix-npu-onnxruntime_1.1.0_arm64.deb" \
                         https://github.com/orangepi-xunlong/component_cix-next/releases/download/v1.1.0/cix-npu-onnxruntime_1.1.0_arm64.deb
                 fi
-                if [ ! -f "${NPU_DEB_DIR}/cix-noe-umd_2.0.2_arm64.deb" ]; then
-                    wget -q -O "${NPU_DEB_DIR}/cix-noe-umd_2.0.2_arm64.deb" \
-                        https://github.com/orangepi-xunlong/component_cix-next/raw/main/debs/cix-noe-umd_2.0.2_arm64.deb
+                if [ ! -f "${NPU_DEB_DIR}/cix-noe-umd_2.0.4_arm64.deb" ]; then
+                    wget -q -O "${NPU_DEB_DIR}/cix-noe-umd_2.0.4_arm64.deb" \
+                        https://github.com/orangepi-xunlong/component_cix-next/raw/main/debs/cix-noe-umd_2.0.4_arm64.deb
                 fi
                 SKIP_NOE="no"
                 if python3 - <<'PYVER'

@@ -595,13 +595,17 @@ case ${BOARD} in
 		apt install -y i2c-tools
 		/usr/sbin/i2cdetect -y 1 | grep -q "60: 60"
 		if [ $? -eq 0 ]; then
-			add-apt-repository -y ppa:kyle1117/ppa
-			sed -i 's/jessie/xenial/' /etc/apt/sources.list.d/kyle1117-ppa-jessie.list
-			apt install -y -q cloudshell-lcd odroid-cloudshell cloudshell2-fan &
-			lsusb -v | awk -F"__" '/RANDOM_/ {print $2}' | head -n1 | while read ; do
-				echo "ATTRS{idVendor}==\"152d\", ATTRS{idProduct}==\"0561\", KERNEL==\"sd*\", ENV{DEVTYPE}==\"disk\", SYMLINK=\"disk/by-id/\$env{ID_BUS}-CloudShell2-${REPLY}-\$env{ID_MODEL}\"" >> /etc/udev/rules.d/99-cloudshell2.rules
-				echo "ATTRS{idVendor}==\"152d\", ATTRS{idProduct}==\"0561\", KERNEL==\"sd*\", ENV{DEVTYPE}==\"partition\", SYMLINK=\"disk/by-id/\$env{ID_BUS}-CloudShell2-${REPLY}-\$env{ID_MODEL}-part%n\"" >> /etc/udev/rules.d/99-cloudshell2.rules
-			done
+			if command -v add-apt-repository >/dev/null 2>&1; then
+				add-apt-repository -y ppa:kyle1117/ppa
+				sed -i 's/jessie/xenial/' /etc/apt/sources.list.d/kyle1117-ppa-jessie.list 2>/dev/null || true
+				apt install -y -q cloudshell-lcd odroid-cloudshell cloudshell2-fan &
+				lsusb -v | awk -F"__" '/RANDOM_/ {print $2}' | head -n1 | while read ; do
+					echo "ATTRS{idVendor}==\"152d\", ATTRS{idProduct}==\"0561\", KERNEL==\"sd*\", ENV{DEVTYPE}==\"disk\", SYMLINK=\"disk/by-id/\$env{ID_BUS}-CloudShell2-${REPLY}-\$env{ID_MODEL}\"" >> /etc/udev/rules.d/99-cloudshell2.rules
+					echo "ATTRS{idVendor}==\"152d\", ATTRS{idProduct}==\"0561\", KERNEL==\"sd*\", ENV{DEVTYPE}==\"partition\", SYMLINK=\"disk/by-id/\$env{ID_BUS}-CloudShell2-${REPLY}-\$env{ID_MODEL}-part%n\"" >> /etc/udev/rules.d/99-cloudshell2.rules
+				done
+			else
+				echo "Skipping CloudShell PPA packages: add-apt-repository not available." >&2
+			fi
 		fi
 		;;
 	helios4)
@@ -631,7 +635,11 @@ install_tvheadend ()
 #
 if [[ "$family" == "Ubuntu" ]]; then
 	apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 26F4EF8440618B66 >/dev/null 2>&1
-	add-apt-repository -y ppa:mamarley/tvheadend-git-stable >/dev/null 2>&1
+	if command -v add-apt-repository >/dev/null 2>&1; then
+		add-apt-repository -y ppa:mamarley/tvheadend-git-stable >/dev/null 2>&1
+	else
+		echo "Skipping TVHeadend PPA: add-apt-repository not available." >&2
+	fi
 	debconf-apt-progress -- apt-get update
 	debconf-apt-progress -- apt-get -y install libssl-doc libssl1.0.0 zlib1g-dev tvheadend xmltv-util
 else
@@ -795,7 +803,7 @@ if [ $? == 0 ]; then
 	install_docker
 	debconf-apt-progress -- apt-get update
 	debconf-apt-progress -- apt-get install -y apparmor-utils apt-transport-https avahi-daemon ca-certificates \
-	dbus jq network-manager socat software-properties-common
+	dbus jq network-manager socat
 	#curl -sL "https://raw.githubusercontent.com/home-assistant/supervised-installer/master/installer.sh" | \
 	#bash -s -- -m  ${machine}
 	curl -sL "https://gitee.com/leeboby/supervised-installer/raw/master/installer.sh" | \
@@ -1255,7 +1263,9 @@ install_hhvm ()
 # Install HipHop Virtual Machine
 #
 apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xB4112585D386EB94 >/dev/null 2>&1
-add-apt-repository https://dl.hhvm.com/"${family,,}" >/dev/null 2>&1
+if [ ! -f /etc/apt/sources.list.d/hhvm.list ]; then
+	echo "deb https://dl.hhvm.com/${family,,} ${distribution} main" > /etc/apt/sources.list.d/hhvm.list
+fi
 debconf-apt-progress -- apt-get update
 install_packet "hhvm" "HipHop Virtual Machine"
 }

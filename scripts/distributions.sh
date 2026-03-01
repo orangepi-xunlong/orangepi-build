@@ -742,7 +742,22 @@ install_distribution_specific()
 
 		;;
 
-	bionic|focal|hirsute|impish|jammy|noble)
+trixie)
+
+			# remove doubled uname from motd
+			[[ -f "${SDCARD}"/etc/update-motd.d/10-uname ]] && rm "${SDCARD}"/etc/update-motd.d/10-uname
+			# rc.local is not existing but one might need it
+			install_rclocal
+			# fix missing versioning
+			[[ $(grep -L "VERSION_ID=" "${SDCARD}"/etc/os-release) ]] && echo 'VERSION_ID="13"' >> "${SDCARD}"/etc/os-release
+			[[ $(grep -L "VERSION=" "${SDCARD}"/etc/os-release) ]] && echo 'VERSION="13 (trixie)"' >> "${SDCARD}"/etc/os-release
+
+			# remove security updates repository since it does not exists yet
+			sed '/security/ d' -i "${SDCARD}"/etc/apt/sources.list
+
+		;;
+
+		bionic|focal|hirsute|impish|jammy|noble)
 
 			# by using default lz4 initrd compression leads to corruption, go back to proven method
 			sed -i "s/^COMPRESS=.*/COMPRESS=gzip/" "${SDCARD}"/etc/initramfs-tools/initramfs.conf

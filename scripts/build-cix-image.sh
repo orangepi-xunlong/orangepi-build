@@ -141,6 +141,7 @@ set timeout=2
 menuentry '0 OrangePi 6 Plus (ACPI)' {
     linux /Image \
         console=ttyAMA2,115200 \
+        console=tty1 \
         efi=noruntime \
         earlycon=pl011,0x040d0000 \
         arm-smmu-v3.disable_bypass=0 \
@@ -156,6 +157,7 @@ menuentry '1 OrangePi 6 Plus (Device Tree)' {
     linux /Image \
         loglevel=4 \
         console=ttyAMA2,115200 \
+        console=tty1 \
         efi=noruntime \
         earlycon=pl011,0x040d0000 \
         arm-smmu-v3.disable_bypass=0 \
@@ -168,6 +170,7 @@ menuentry '2 OrangePi 6 Plus 40pin (Device Tree)' {
     linux /Image \
         loglevel=4 \
         console=ttyAMA2,115200 \
+        console=tty1 \
         efi=noruntime \
         earlycon=pl011,0x040d0000 \
         arm-smmu-v3.disable_bypass=0 \
@@ -180,6 +183,7 @@ menuentry '3 OrangePi 6 Plus 40pin pwm (Device Tree)' {
     linux /Image \
         loglevel=4 \
         console=ttyAMA2,115200 \
+        console=tty1 \
         efi=noruntime \
         earlycon=pl011,0x040d0000 \
         arm-smmu-v3.disable_bypass=0 \

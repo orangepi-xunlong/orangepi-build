@@ -142,11 +142,13 @@ menuentry '0 OrangePi 6 Plus (ACPI)' {
     linux /Image \
         console=ttyAMA2,115200 \
         console=tty1 \
+        console=tty0 \
+        vt.global_cursor_default=0 \
         efi=noruntime \
         earlycon=pl011,0x040d0000 \
         arm-smmu-v3.disable_bypass=0 \
         cma=640M \
-        acpi=force splash \
+        acpi=force \
         loglevel=4 \
         pcie_aspm=off \
         root=/dev/nvme0n1p2 rootwait rw
@@ -158,6 +160,8 @@ menuentry '1 OrangePi 6 Plus (Device Tree)' {
         loglevel=4 \
         console=ttyAMA2,115200 \
         console=tty1 \
+        console=tty0 \
+        vt.global_cursor_default=0 \
         efi=noruntime \
         earlycon=pl011,0x040d0000 \
         arm-smmu-v3.disable_bypass=0 \
@@ -171,6 +175,8 @@ menuentry '2 OrangePi 6 Plus 40pin (Device Tree)' {
         loglevel=4 \
         console=ttyAMA2,115200 \
         console=tty1 \
+        console=tty0 \
+        vt.global_cursor_default=0 \
         efi=noruntime \
         earlycon=pl011,0x040d0000 \
         arm-smmu-v3.disable_bypass=0 \
@@ -184,6 +190,8 @@ menuentry '3 OrangePi 6 Plus 40pin pwm (Device Tree)' {
         loglevel=4 \
         console=ttyAMA2,115200 \
         console=tty1 \
+        console=tty0 \
+        vt.global_cursor_default=0 \
         efi=noruntime \
         earlycon=pl011,0x040d0000 \
         arm-smmu-v3.disable_bypass=0 \

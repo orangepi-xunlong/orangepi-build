@@ -46,6 +46,11 @@ Main() {
 			if [ -d /etc/modules-load.d ]; then
 				printf "linlon_dp\ntrilin_dpsub\n" > /etc/modules-load.d/opi-display.conf
 			fi
+			# Belt-and-braces: ensure local console gettys are enabled
+			if command -v systemctl >/dev/null 2>&1; then
+				systemctl --no-reload enable getty@tty1.service >/dev/null 2>&1 || true
+				systemctl --no-reload enable serial-getty@ttyAMA2.service >/dev/null 2>&1 || true
+			fi
 			# Install NPU userspace packages and dev tooling for server images
 			if [ "${LINUXFAMILY}" = "cix" ] && [ "${BUILD_DESKTOP}" != "yes" ]; then
                 NPU_DEB_DIR="/root/npu-debs"

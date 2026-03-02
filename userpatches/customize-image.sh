@@ -51,6 +51,43 @@ Main() {
 				systemctl --no-reload enable getty@tty1.service >/dev/null 2>&1 || true
 				systemctl --no-reload enable serial-getty@ttyAMA2.service >/dev/null 2>&1 || true
 			fi
+			# Ensure resize tooling and service are present for first-boot expansion
+			if ! command -v resize2fs >/dev/null 2>&1; then
+				export DEBIAN_FRONTEND=noninteractive
+				apt-get update
+				apt-get -y install e2fsprogs
+			fi
+			if command -v systemctl >/dev/null 2>&1; then
+				systemctl --no-reload enable orangepi-resize-filesystem.service >/dev/null 2>&1 || true
+			fi
+			# Add console hints and auto-reboot when resize needs it
+			if [ -f /usr/lib/orangepi/orangepi-resize-filesystem ]; then
+				if ! grep -q "Resize complete; rebooting" /usr/lib/orangepi/orangepi-resize-filesystem; then
+					awk -f - /usr/lib/orangepi/orangepi-resize-filesystem > /tmp/orangepi-resize-filesystem <<'AWK'
+/^[[:space:]]*start\)/ {
+    print;
+    print "\t\tif [ -e /dev/console ]; then";
+    print "\t\t\techo \"[orangepi] Resizing root filesystem; system will reboot if required...\" > /dev/console";
+    print "\t\tfi";
+    next
+}
+/^[[:space:]]*# disable itself/ {
+    print "\t\tif [[ -f /var/run/resize2fs-reboot ]]; then";
+    print "\t\t\tif [ -e /dev/console ]; then";
+    print "\t\t\t\techo \"[orangepi] Resize complete; rebooting to finish...\" > /dev/console";
+    print "\t\t\tfi";
+    print "\t\t\tsystemctl reboot || reboot";
+    print "\t\t\texit 0";
+    print "\t\tfi";
+    print;
+    next
+}
+{ print }
+AWK
+					mv /tmp/orangepi-resize-filesystem /usr/lib/orangepi/orangepi-resize-filesystem
+					chmod 755 /usr/lib/orangepi/orangepi-resize-filesystem
+				fi
+			fi
 			# Install NPU userspace packages and dev tooling for server images
 			if [ "${LINUXFAMILY}" = "cix" ] && [ "${BUILD_DESKTOP}" != "yes" ]; then
                 NPU_DEB_DIR="/root/npu-debs"

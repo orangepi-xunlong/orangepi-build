@@ -144,6 +144,10 @@ menuentry '0 OrangePi 6 Plus (ACPI)' {
         console=tty1 \
         console=tty0 \
         vt.global_cursor_default=0 \
+        fbcon=map:0 \
+        fbcon=keep \
+        consoleblank=0 \
+        module_blacklist=linlondp,trilin_dptx,trilin_dpsub \
         efi=noruntime \
         earlycon=pl011,0x040d0000 \
         arm-smmu-v3.disable_bypass=0 \
@@ -162,6 +166,10 @@ menuentry '1 OrangePi 6 Plus (Device Tree)' {
         console=tty1 \
         console=tty0 \
         vt.global_cursor_default=0 \
+        fbcon=map:0 \
+        fbcon=keep \
+        consoleblank=0 \
+        module_blacklist=linlondp,trilin_dptx,trilin_dpsub \
         efi=noruntime \
         earlycon=pl011,0x040d0000 \
         arm-smmu-v3.disable_bypass=0 \
@@ -177,6 +185,10 @@ menuentry '2 OrangePi 6 Plus 40pin (Device Tree)' {
         console=tty1 \
         console=tty0 \
         vt.global_cursor_default=0 \
+        fbcon=map:0 \
+        fbcon=keep \
+        consoleblank=0 \
+        module_blacklist=linlondp,trilin_dptx,trilin_dpsub \
         efi=noruntime \
         earlycon=pl011,0x040d0000 \
         arm-smmu-v3.disable_bypass=0 \
@@ -192,6 +204,10 @@ menuentry '3 OrangePi 6 Plus 40pin pwm (Device Tree)' {
         console=tty1 \
         console=tty0 \
         vt.global_cursor_default=0 \
+        fbcon=map:0 \
+        fbcon=keep \
+        consoleblank=0 \
+        module_blacklist=linlondp,trilin_dptx,trilin_dpsub \
         efi=noruntime \
         earlycon=pl011,0x040d0000 \
         arm-smmu-v3.disable_bypass=0 \

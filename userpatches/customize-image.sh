@@ -52,7 +52,7 @@ Main() {
 				systemctl --no-reload enable serial-getty@ttyAMA2.service >/dev/null 2>&1 || true
 			fi
 			# Ensure resize tooling and service are present for first-boot expansion
-			if ! command -v resize2fs >/dev/null 2>&1; then
+			if [ ! -x /usr/sbin/resize2fs ]; then
 				export DEBIAN_FRONTEND=noninteractive
 				apt-get update
 				apt-get -y install e2fsprogs

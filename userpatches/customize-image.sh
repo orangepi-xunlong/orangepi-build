@@ -38,25 +38,21 @@ Main() {
 			deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
 			deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
 			EOF
-
-			# ── GPU: Mali CSF firmware symlink for panthor ──
+			# Ensure Mali CSF firmware is in the expected path for panthor
 			if [ -f /lib/firmware/arm/mali/arch10.8/mali_csffw.bin ]; then
 				ln -sf /lib/firmware/arm/mali/arch10.8/mali_csffw.bin /lib/firmware/mali_csffw.bin
 			fi
-
-			# ── Display: ensure display modules load early for framebuffer console ──
+			# Ensure display modules load early for framebuffer console
 			if [ -d /etc/modules-load.d ]; then
 				printf "linlon_dp\ntrilin_dpsub\n" > /etc/modules-load.d/opi-display.conf
 			fi
-
-			# ── Console: enable local console gettys ──
+			# Belt-and-braces: ensure local console gettys are enabled
 			if command -v systemctl >/dev/null 2>&1; then
 				systemctl --no-reload enable getty@tty1.service >/dev/null 2>&1 || true
 				systemctl --no-reload enable serial-getty@ttyAMA2.service >/dev/null 2>&1 || true
 			fi
-
-			# ── Resize: ensure resize tooling and service are present for first-boot expansion ──
-			if [ ! -x /usr/sbin/resize2fs ]; then
+			# Ensure resize tooling and service are present for first-boot expansion
+			if ! command -v resize2fs >/dev/null 2>&1; then
 				export DEBIAN_FRONTEND=noninteractive
 				apt-get update
 				apt-get -y install e2fsprogs
@@ -64,8 +60,7 @@ Main() {
 			if command -v systemctl >/dev/null 2>&1; then
 				systemctl --no-reload enable orangepi-resize-filesystem.service >/dev/null 2>&1 || true
 			fi
-
-			# ── Resize: add console hints and auto-reboot when resize needs it ──
+			# Add console hints and auto-reboot when resize needs it
 			if [ -f /usr/lib/orangepi/orangepi-resize-filesystem ]; then
 				if ! grep -q "Resize complete; rebooting" /usr/lib/orangepi/orangepi-resize-filesystem; then
 					awk -f - /usr/lib/orangepi/orangepi-resize-filesystem > /tmp/orangepi-resize-filesystem <<'AWK'
@@ -76,11 +71,24 @@ Main() {
     print "\t\tfi";
     next
 }
+/^[[:space:]]*# Start resizing/ {
+    print "\tlocal resized_partition=0";
+    print "\tif [[ -n ${lastsector:-} && $lastsector -gt $partend ]]; then";
+    print "\t\tresized_partition=1";
+    print "\tfi";
+    print;
+    next
+}
+/^[[:space:]]*if \[\[ \$s != 0 \|\| \$usedpercent -gt 70 \]\]; then/ {
+    print "\t\t\tif [[ $s != 0 || $usedpercent -gt 70 || $resized_partition -eq 1 ]]; then";
+    next
+}
 /^[[:space:]]*# disable itself/ {
     print "\t\tif [[ -f /var/run/resize2fs-reboot ]]; then";
     print "\t\t\tif [ -e /dev/console ]; then";
     print "\t\t\t\techo \"[orangepi] Resize complete; rebooting to finish...\" > /dev/console";
     print "\t\t\tfi";
+    print "\t\t\tsystemctl disable orangepi-resize-filesystem";
     print "\t\t\tsystemctl reboot || reboot";
     print "\t\t\texit 0";
     print "\t\tfi";
@@ -93,54 +101,45 @@ AWK
 					chmod 755 /usr/lib/orangepi/orangepi-resize-filesystem
 				fi
 			fi
-
-			# ── Swap: create a 4 GB swapfile for first boot ──
-			if [ ! -f /swapfile ]; then
-				dd if=/dev/zero of=/swapfile bs=1M count=4096 2>/dev/null
-				chmod 600 /swapfile
-				mkswap /swapfile >/dev/null 2>&1
-				echo "/swapfile none swap sw 0 0" >> /etc/fstab
-			fi
-
-			# ── Packages & NPU: install dev tooling + NPU userspace for CIX server images ──
+			# Install NPU userspace packages and dev tooling for server images
 			if [ "${LINUXFAMILY}" = "cix" ] && [ "${BUILD_DESKTOP}" != "yes" ]; then
-				export DEBIAN_FRONTEND=noninteractive
-				DEV_PACKAGES="build-essential pkg-config cmake git python3-dev python3-venv python3-pip python3-setuptools python3-wheel cython3 gfortran \
-					libopenblas-dev libblas-dev liblapack-dev \
-					libjpeg62-turbo-dev zlib1g-dev libpng-dev libtiff5-dev libwebp-dev libopenjp2-7-dev libfreetype6-dev liblcms2-dev \
-					libffi-dev libssl-dev libgeos-dev \
-					libglib2.0-0 libgl1 ffmpeg \
-					protobuf-compiler libprotobuf-dev \
-					clang llvm lld ninja-build \
-					libopencv-dev python3-opencv \
-					ocl-icd-libopencl1 ocl-icd-opencl-dev opencl-headers clinfo pocl-opencl-icd mesa-opencl-icd \
-					docker.io docker-compose \
-					zsh btop vim neovim ripgrep jq avahi-daemon lm-sensors libsensors-config"
-
-				apt-get update
-				apt-get -y install wget ${DEV_PACKAGES}
-
-				# ── NPU userspace: use local 2.0.4 debs from overlay (has Python 3.13 support) ──
-				NPU_DEB_DIR="/root/npu-debs"
-				mkdir -p "${NPU_DEB_DIR}"
-
-				# cix-npu-onnxruntime: download if not cached
-				if [ ! -f "${NPU_DEB_DIR}/cix-npu-onnxruntime_1.1.0_arm64.deb" ]; then
-					wget -q -O "${NPU_DEB_DIR}/cix-npu-onnxruntime_1.1.0_arm64.deb" \
-						https://github.com/orangepi-xunlong/component_cix-next/releases/download/v1.1.0/cix-npu-onnxruntime_1.1.0_arm64.deb
-				fi
-
-				# cix-noe-umd 2.0.4: copy from overlay (has cpython-313 .so in bundled wheels)
-				if [ -f /tmp/overlay/npu-debs/cix-noe-umd_2.0.4_arm64.deb ]; then
-					cp /tmp/overlay/npu-debs/cix-noe-umd_2.0.4_arm64.deb "${NPU_DEB_DIR}/"
-				fi
-
-				apt-get -y --allow-downgrades install "${NPU_DEB_DIR}"/*.deb
-
-				# ── Docker: add orangepi user to docker group ──
-				if getent group docker >/dev/null 2>&1; then
-					usermod -aG docker orangepi 2>/dev/null || true
-				fi
+                NPU_DEB_DIR="/root/npu-debs"
+                DEV_PACKAGES="build-essential pkg-config cmake git python3-dev python3-venv python3-pip python3-setuptools python3-wheel cython3 gfortran \
+                    libopenblas-dev libblas-dev liblapack-dev \
+                    libjpeg62-turbo-dev zlib1g-dev libpng-dev libtiff5-dev libwebp-dev libopenjp2-7-dev libfreetype6-dev liblcms2-dev \
+                    libffi-dev libssl-dev libgeos-dev \
+                    libglib2.0-0 libgl1 ffmpeg \
+                    protobuf-compiler libprotobuf-dev \
+                    clang llvm lld ninja-build \
+                    libopencv-dev python3-opencv \
+                    ocl-icd-libopencl1 ocl-icd-opencl-dev opencl-headers clinfo pocl-opencl-icd mesa-opencl-icd \
+                    docker.io docker-compose \
+                    zsh btop vim neovim ripgrep jq avahi-daemon lm-sensors libsensors-config"
+                mkdir -p "${NPU_DEB_DIR}"
+                apt-get update
+                apt-get -y install wget ${DEV_PACKAGES}
+                if [ ! -f "${NPU_DEB_DIR}/cix-npu-onnxruntime_1.1.0_arm64.deb" ]; then
+                    wget -q -O "${NPU_DEB_DIR}/cix-npu-onnxruntime_1.1.0_arm64.deb" \
+                        https://github.com/orangepi-xunlong/component_cix-next/releases/download/v1.1.0/cix-npu-onnxruntime_1.1.0_arm64.deb
+                fi
+                if [ ! -f "${NPU_DEB_DIR}/cix-noe-umd_2.0.4_arm64.deb" ]; then
+                    wget -q -O "${NPU_DEB_DIR}/cix-noe-umd_2.0.4_arm64.deb" \
+                        https://github.com/orangepi-xunlong/component_cix-next/raw/main/debs/cix-noe-umd_2.0.4_arm64.deb
+                fi
+                SKIP_NOE="no"
+                if python3 - <<'PYVER'
+import sys
+raise SystemExit(0 if (sys.version_info.major, sys.version_info.minor) >= (3, 13) else 1)
+PYVER
+                then
+                    SKIP_NOE="yes"
+                fi
+                if [ "${SKIP_NOE}" = "yes" ]; then
+                    echo "Skipping cix-noe-umd: Python >= 3.13" >&2
+                    apt-get -y --allow-downgrades install "${NPU_DEB_DIR}/cix-npu-onnxruntime_1.1.0_arm64.deb"
+                else
+                    apt-get -y --allow-downgrades install "${NPU_DEB_DIR}"/*.deb
+                fi
 			fi
 			;;
 		bionic)
@@ -151,5 +150,203 @@ AWK
 			;;
 	esac
 } # Main
+
+InstallOpenMediaVault() {
+	# use this routine to create a Debian based fully functional OpenMediaVault
+	# image (OMV 3 on Jessie, OMV 4 with Stretch). Use of mainline kernel highly
+	# recommended!
+	#
+	# Please note that this variant changes Orange Pi default security 
+	# policies since you end up with root password 'openmediavault' which
+	# you have to change yourself later. SSH login as root has to be enabled
+	# through OMV web UI first
+	#
+	# This routine is based on idea/code courtesy Benny Stark. For fixes,
+	# discussion and feature requests please refer to
+	# https://forum.armbian.com/index.php?/topic/2644-openmediavault-3x-customize-imagesh/
+
+	echo root:openmediavault | chpasswd
+	rm /root/.not_logged_in_yet
+	. /etc/default/cpufrequtils
+	export LANG=C LC_ALL="en_US.UTF-8"
+	export DEBIAN_FRONTEND=noninteractive
+	export APT_LISTCHANGES_FRONTEND=none
+
+	case ${RELEASE} in
+		jessie)
+			OMV_Name="erasmus"
+			OMV_EXTRAS_URL="https://github.com/OpenMediaVault-Plugin-Developers/packages/raw/master/openmediavault-omvextrasorg_latest_all3.deb"
+			;;
+		stretch)
+			OMV_Name="arrakis"
+			OMV_EXTRAS_URL="https://github.com/OpenMediaVault-Plugin-Developers/packages/raw/master/openmediavault-omvextrasorg_latest_all4.deb"
+			;;
+	esac
+
+	# Add OMV source.list and Update System
+	cat > /etc/apt/sources.list.d/openmediavault.list <<- EOF
+	deb https://openmediavault.github.io/packages/ ${OMV_Name} main
+	## Uncomment the following line to add software from the proposed repository.
+	deb https://openmediavault.github.io/packages/ ${OMV_Name}-proposed main
+	
+	## This software is not part of OpenMediaVault, but is offered by third-party
+	## developers as a service to OpenMediaVault users.
+	# deb https://openmediavault.github.io/packages/ ${OMV_Name} partner
+	EOF
+
+	# Add OMV and OMV Plugin developer keys, add Cloudshell 2 repo for XU4
+	if [ "${BOARD}" = "odroidxu4" ]; then
+		add-apt-repository -y ppa:kyle1117/ppa
+		sed -i 's/jessie/xenial/' /etc/apt/sources.list.d/kyle1117-ppa-jessie.list
+	fi
+	mount --bind /dev/null /proc/mdstat
+	apt-get update
+	apt-get --yes --force-yes --allow-unauthenticated install openmediavault-keyring
+	apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 7AA630A1EDEE7D73
+	apt-get update
+
+	# install debconf-utils, postfix and OMV
+	HOSTNAME="${BOARD}"
+	debconf-set-selections <<< "postfix postfix/mailname string ${HOSTNAME}"
+	debconf-set-selections <<< "postfix postfix/main_mailer_type string 'No configuration'"
+	apt-get --yes --force-yes --allow-unauthenticated  --fix-missing --no-install-recommends \
+		-o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install \
+		debconf-utils postfix
+	# move newaliases temporarely out of the way (see Ubuntu bug 1531299)
+	cp -p /usr/bin/newaliases /usr/bin/newaliases.bak && ln -sf /bin/true /usr/bin/newaliases
+	sed -i -e "s/^::1         localhost.*/::1         ${HOSTNAME} localhost ip6-localhost ip6-loopback/" \
+		-e "s/^127.0.0.1   localhost.*/127.0.0.1   ${HOSTNAME} localhost/" /etc/hosts
+	sed -i -e "s/^mydestination =.*/mydestination = ${HOSTNAME}, localhost.localdomain, localhost/" \
+		-e "s/^myhostname =.*/myhostname = ${HOSTNAME}/" /etc/postfix/main.cf
+	apt-get --yes --force-yes --allow-unauthenticated  --fix-missing --no-install-recommends \
+		-o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install \
+		openmediavault
+
+	# install OMV extras, enable folder2ram and tweak some settings
+	FILE=$(mktemp)
+	wget "$OMV_EXTRAS_URL" -qO $FILE && dpkg -i $FILE
+	
+	/usr/sbin/omv-update
+	# Install flashmemory plugin and netatalk by default, use nice logo for the latter,
+	# tweak some OMV settings
+	. /usr/share/openmediavault/scripts/helper-functions
+	apt-get -y -q install openmediavault-netatalk openmediavault-flashmemory
+	AFP_Options="mimic model = Macmini"
+	SMB_Options="min receivefile size = 16384\nwrite cache size = 524288\ngetwd cache = yes\nsocket options = TCP_NODELAY IPTOS_LOWDELAY"
+	xmlstarlet ed -L -u "/config/services/afp/extraoptions" -v "$(echo -e "${AFP_Options}")" /etc/openmediavault/config.xml
+	xmlstarlet ed -L -u "/config/services/smb/extraoptions" -v "$(echo -e "${SMB_Options}")" /etc/openmediavault/config.xml
+	xmlstarlet ed -L -u "/config/services/flashmemory/enable" -v "1" /etc/openmediavault/config.xml
+	xmlstarlet ed -L -u "/config/services/ssh/enable" -v "1" /etc/openmediavault/config.xml
+	xmlstarlet ed -L -u "/config/services/ssh/permitrootlogin" -v "0" /etc/openmediavault/config.xml
+	xmlstarlet ed -L -u "/config/system/time/ntp/enable" -v "1" /etc/openmediavault/config.xml
+	xmlstarlet ed -L -u "/config/system/time/timezone" -v "UTC" /etc/openmediavault/config.xml
+	xmlstarlet ed -L -u "/config/system/network/dns/hostname" -v "${HOSTNAME}" /etc/openmediavault/config.xml
+	xmlstarlet ed -L -u "/config/system/monitoring/perfstats/enable" -v "0" /etc/openmediavault/config.xml
+	echo -e "OMV_CPUFREQUTILS_GOVERNOR=${GOVERNOR}" >>/etc/default/openmediavault
+	echo -e "OMV_CPUFREQUTILS_MINSPEED=${MIN_SPEED}" >>/etc/default/openmediavault
+	echo -e "OMV_CPUFREQUTILS_MAXSPEED=${MAX_SPEED}" >>/etc/default/openmediavault
+	for i in netatalk samba flashmemory ssh ntp timezone interfaces cpufrequtils monit collectd rrdcached ; do
+		/usr/sbin/omv-mkconf $i
+	done
+	/sbin/folder2ram -enablesystemd || true
+	sed -i 's|-j /var/lib/rrdcached/journal/ ||' /etc/init.d/rrdcached
+
+	# Fix multiple sources entry on ARM with OMV4
+	sed -i '/stretch-backports/d' /etc/apt/sources.list
+
+	# rootfs resize to 7.3G max and adding omv-initsystem to firstrun -- q&d but shouldn't matter
+	echo 15500000s >/root/.rootfs_resize
+	sed -i '/systemctl\ disable\ orangepi-firstrun/i \
+	mv /usr/bin/newaliases.bak /usr/bin/newaliases \
+	export DEBIAN_FRONTEND=noninteractive \
+	sleep 3 \
+	apt-get install -f -qq python-pip python-setuptools || exit 0 \
+	pip install -U tzupdate \
+	tzupdate \
+	read TZ </etc/timezone \
+	/usr/sbin/omv-initsystem \
+	xmlstarlet ed -L -u "/config/system/time/timezone" -v "${TZ}" /etc/openmediavault/config.xml \
+	/usr/sbin/omv-mkconf timezone \
+	lsusb | egrep -q "0b95:1790|0b95:178a|0df6:0072" || sed -i "/ax88179_178a/d" /etc/modules' /usr/lib/orangepi/orangepi-firstrun
+	sed -i '/systemctl\ disable\ orangepi-firstrun/a \
+	sleep 30 && sync && reboot' /usr/lib/orangepi/orangepi-firstrun
+
+	# add USB3 Gigabit Ethernet support
+	echo -e "r8152\nax88179_178a" >>/etc/modules
+
+	case ${BOARD} in
+		odroidxu4)
+			HMP_Fix='; taskset -c -p 4-7 $i '
+			# Cloudshell stuff (fan, lcd, missing serials on 1st CS2 batch)
+			echo "H4sIAKdXHVkCA7WQXWuDMBiFr+eveOe6FcbSrEIH3WihWx0rtVbUFQqCqAkYGhJn
+			tF1x/vep+7oebDfh5DmHwJOzUxwzgeNIpRp9zWRegDPznya4VDlWTXXbpS58XJtD
+			i7ICmFBFxDmgI6AXSLgsiUop54gnBC40rkoVA9rDG0SHHaBHPQx16GN3Zs/XqxBD
+			leVMFNAz6n6zSWlEAIlhEw8p4xTyFtwBkdoJTVIJ+sz3Xa9iZEMFkXk9mQT6cGSQ
+			QL+Cr8rJJSmTouuuRzfDtluarm1aLVHksgWmvanm5sbfOmY3JEztWu5tV9bCXn4S
+			HB8RIzjoUbGvFvPw/tmr0UMr6bWSBupVrulY2xp9T1bruWnVga7DdAqYFgkuCd3j
+			vORUDQgej9HPJxmDDv+3WxblBSuYFH8oiNpHz8XvPIkU9B3JVCJ/awIAAA==" \
+			| tr -d '[:blank:]' | base64 --decode | gunzip -c >/usr/local/sbin/cloudshell2-support.sh
+			chmod 755 /usr/local/sbin/cloudshell2-support.sh
+			apt install -y i2c-tools odroid-cloudshell cloudshell2-fan
+			sed -i '/systemctl\ disable\ orangepi-firstrun/i \
+			lsusb | grep -q -i "05e3:0735" && sed -i "/exit\ 0/i echo 20 > /sys/class/block/sda/queue/max_sectors_kb" /etc/rc.local \
+			/usr/sbin/i2cdetect -y 1 | grep -q "60: 60" && /usr/local/sbin/cloudshell2-support.sh' /usr/lib/orangepi/orangepi-firstrun
+			;;
+		bananapim3|nanopifire3|nanopct3plus|nanopim3)
+			HMP_Fix='; taskset -c -p 4-7 $i '
+			;;
+		edge*|ficus|firefly-rk3399|nanopct4|nanopim4|nanopineo4|renegade-elite|roc-rk3399-pc|rockpro64)
+			HMP_Fix='; taskset -c -p 4-5 $i '
+			;;
+	esac
+	echo "* * * * * root for i in \`pgrep \"ftpd|nfsiod|smbd|afpd|cnid\"\` ; do ionice -c1 -p \$i ${HMP_Fix}; done >/dev/null 2>&1" \
+		>/etc/cron.d/make_nas_processes_faster
+	chmod 600 /etc/cron.d/make_nas_processes_faster
+
+	# add SATA port multiplier hint if appropriate
+	[ "${LINUXFAMILY}" = "sunxi" ] && \
+		echo -e "#\n# If you want to use a SATA PM add \"ahci_sunxi.enable_pmp=1\" to bootargs above" \
+		>>/boot/boot.cmd
+
+	# Filter out some log messages
+	echo ':msg, contains, "do ionice -c1" ~' >/etc/rsyslog.d/omv-orangepi.conf
+	echo ':msg, contains, "action " ~' >>/etc/rsyslog.d/omv-orangepi.conf
+	echo ':msg, contains, "netsnmp_assert" ~' >>/etc/rsyslog.d/omv-orangepi.conf
+	echo ':msg, contains, "Failed to initiate sched scan" ~' >>/etc/rsyslog.d/omv-orangepi.conf
+
+	# Fix little python bug upstream Debian 9 obviously ignores
+	if [ -f /usr/lib/python3.5/weakref.py ]; then
+		wget -O /usr/lib/python3.5/weakref.py \
+		https://raw.githubusercontent.com/python/cpython/9cd7e17640a49635d1c1f8c2989578a8fc2c1de6/Lib/weakref.py
+	fi
+
+	# clean up and force password change on first boot
+	umount /proc/mdstat
+	chage -d 0 root
+} # InstallOpenMediaVault
+
+UnattendedStorageBenchmark() {
+	# Function to create Orange Pi images ready for unattended storage performance testing.
+	# Useful to use the same OS image with a bunch of different SD cards or eMMC modules
+	# to test for performance differences without wasting too much time.
+
+	rm /root/.not_logged_in_yet
+
+	apt-get -qq install time
+
+	wget -qO /usr/local/bin/sd-card-bench.sh https://raw.githubusercontent.com/ThomasKaiser/sbc-bench/master/sd-card-bench.sh
+	chmod 755 /usr/local/bin/sd-card-bench.sh
+
+	sed -i '/^exit\ 0$/i \
+	/usr/local/bin/sd-card-bench.sh &' /etc/rc.local
+} # UnattendedStorageBenchmark
+
+InstallAdvancedDesktop()
+{
+	apt-get install -yy transmission libreoffice libreoffice-style-tango meld remmina thunderbird kazam avahi-daemon
+	[[ -f /usr/share/doc/avahi-daemon/examples/sftp-ssh.service ]] && cp /usr/share/doc/avahi-daemon/examples/sftp-ssh.service /etc/avahi/services/
+	[[ -f /usr/share/doc/avahi-daemon/examples/ssh.service ]] && cp /usr/share/doc/avahi-daemon/examples/ssh.service /etc/avahi/services/
+	apt clean
+} # InstallAdvancedDesktop
 
 Main "$@"

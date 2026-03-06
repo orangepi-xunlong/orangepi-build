@@ -119,6 +119,11 @@ do_expand_partition()
 		fi
 	fi
 
+	local resized_partition=0
+	if [[ -n ${lastsector:-} && $lastsector -gt $partend ]]; then
+		resized_partition=1
+	fi
+
 	# Start resizing
 	echo -e "\n### [resize2fs] ${ResizeLog}. Start resizing partition $rootsource now:\n" >>${Log}
 	cat /proc/partitions >>${Log}
@@ -163,7 +168,7 @@ do_expand_partition()
 				"$RESIZE2FS_BIN" "$rootsource" >>${Log} 2>&1
 				# check whether reboot is necessary for resize2fs to take effect
 				local usedpercent=$(findmnt --target / -n -o USE% -b | sed 's/[^0-9]*//g') # images before resize have 70-75%
-				if [[ $s != 0 || $usedpercent -gt 70 ]]; then
+				if [[ $s != 0 || $usedpercent -gt 70 || $resized_partition -eq 1 ]]; then
 					touch /var/run/resize2fs-reboot
 					echo -e "\n### [resize2fs] Automated reboot needed to finish the resize procedure" >>${Log}
 				fi
@@ -211,6 +216,9 @@ do_expand_btrfs()
 
 case "$1" in
 	start)
+		if [ -e /dev/console ]; then
+			echo "[orangepi] Resizing root filesystem; system will reboot if required..." > /dev/console
+		fi
 		# skip resizing if rootfs is neither ext4 not btrfs or if explicitly disabled
 		if [[ -f /root/.no_rootfs_resize ]]; then
 			systemctl disable orangepi-resize-filesystem
@@ -238,6 +246,14 @@ case "$1" in
 				;;
 		esac
 
+		if [[ -f /var/run/resize2fs-reboot ]]; then
+			if [ -e /dev/console ]; then
+				echo "[orangepi] Resize complete; rebooting to finish..." > /dev/console
+			fi
+			systemctl disable orangepi-resize-filesystem
+			systemctl reboot || reboot
+			exit 0
+		fi
 		# disable itself
 		[[ ! -f /var/run/resize2fs-reboot ]] && systemctl disable orangepi-resize-filesystem
 		exit 0

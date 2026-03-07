@@ -88,7 +88,9 @@ Main() {
     print "\t\t\tif [ -e /dev/console ]; then";
     print "\t\t\t\techo \"[orangepi] Resize complete; rebooting to finish...\" > /dev/console";
     print "\t\t\tfi";
-    print "\t\t\tsystemctl disable orangepi-resize-filesystem";
+    print "\t\t\t# Do NOT disable yet - second-stage resize2fs still needs to run";
+    print "\t\t\tmkdir -p /var/lib/orangepi";
+    print "\t\t\ttouch /var/lib/orangepi/resize_second_stage";
     print "\t\t\tsystemctl reboot || reboot";
     print "\t\t\texit 0";
     print "\t\tfi";

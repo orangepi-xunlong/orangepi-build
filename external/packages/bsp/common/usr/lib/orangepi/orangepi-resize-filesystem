@@ -250,7 +250,9 @@ case "$1" in
 			if [ -e /dev/console ]; then
 				echo "[orangepi] Resize complete; rebooting to finish..." > /dev/console
 			fi
-			systemctl disable orangepi-resize-filesystem
+			# Do NOT disable the service yet — second-stage resize2fs still needs to run
+			mkdir -p /var/lib/orangepi
+			touch /var/lib/orangepi/resize_second_stage
 			systemctl reboot || reboot
 			exit 0
 		fi

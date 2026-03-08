@@ -66,17 +66,13 @@ case "$1" in
 		/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml
 	fi
 
-	# normalise rootdev/rootfstype and randomise MACs in orangepiEnv.txt
+	# normalise rootdev/rootfstype and preserve existing MACs in orangepiEnv.txt
 	if [[ -f /boot/orangepiEnv.txt ]]; then
 		rootdev=$(sed -e "s/^.* root=//" -e "s/ .*$/" /proc/cmdline)
 		rootfstype=$(sed -n "s/^.*rootfstype=\([^ ]*\).*$/\1/p" /proc/cmdline)
 		[[ -z $rootfstype ]] && rootfstype=ext4
 		sed -i "/^rootdev=/d;/^rootfstype=/d" /boot/orangepiEnv.txt
 		printf "rootdev=%s\nrootfstype=%s\n" "$rootdev" "$rootfstype" >> /boot/orangepiEnv.txt
-		get_random_mac
-		sed  -i "s/^ethaddr=.*/ethaddr=$MACADDR/" /boot/orangepiEnv.txt
-		get_random_mac
-		sed  -i "s/^eth1addr=.*/eth1addr=$MACADDR/" /boot/orangepiEnv.txt
 	fi
 
 	# hardware workarounds per family

@@ -257,8 +257,10 @@ case "$1" in
 			if command -v systemctl >/dev/null 2>&1; then
 				systemctl --no-block reboot || systemctl reboot || true
 			fi
-			# fallback hard reboot if systemd reboot request is ignored/stuck
-			( sleep 8; /sbin/reboot -f || reboot -f || echo b > /proc/sysrq-trigger ) >/dev/null 2>&1 &
+			# IMPORTANT: do not background fallback here; systemd kills leftover cgroup procs on oneshot exit
+			sleep 8
+			sync
+			/sbin/reboot -f || reboot -f || echo b > /proc/sysrq-trigger
 			exit 0
 		fi
 		# cleanup marker (if present) and disable itself after successful resize

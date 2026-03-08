@@ -253,11 +253,19 @@ case "$1" in
 			# Do NOT disable the service yet — second-stage resize2fs still needs to run
 			mkdir -p /var/lib/orangepi
 			touch /var/lib/orangepi/resize_second_stage
-			systemctl reboot || reboot
+			sync
+			if command -v systemctl >/dev/null 2>&1; then
+				systemctl --no-block reboot || systemctl reboot || /sbin/reboot || reboot -f
+			else
+				/sbin/reboot || reboot -f
+			fi
 			exit 0
 		fi
-		# disable itself
-		[[ ! -f /var/run/resize2fs-reboot ]] && systemctl disable orangepi-resize-filesystem
+		# cleanup marker (if present) and disable itself after successful resize
+		if [[ ! -f /var/run/resize2fs-reboot ]]; then
+			rm -f /var/lib/orangepi/resize_second_stage
+			systemctl disable orangepi-resize-filesystem
+		fi
 		exit 0
 		;;
 

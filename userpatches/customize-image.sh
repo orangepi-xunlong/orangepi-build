@@ -91,10 +91,19 @@ Main() {
     print "\t\t\t# Do NOT disable yet - second-stage resize2fs still needs to run";
     print "\t\t\tmkdir -p /var/lib/orangepi";
     print "\t\t\ttouch /var/lib/orangepi/resize_second_stage";
-    print "\t\t\tsystemctl reboot || reboot";
+    print "\t\t\tsync";
+    print "\t\t\tif command -v systemctl >/dev/null 2>&1; then";
+    print "\t\t\t\tsystemctl --no-block reboot || systemctl reboot || /sbin/reboot || reboot -f";
+    print "\t\t\telse";
+    print "\t\t\t\t/sbin/reboot || reboot -f";
+    print "\t\t\tfi";
     print "\t\t\texit 0";
     print "\t\tfi";
-    print;
+    print "\t\tif [[ ! -f /var/run/resize2fs-reboot ]]; then";
+    print "\t\t\trm -f /var/lib/orangepi/resize_second_stage";
+    print "\t\t\tsystemctl disable orangepi-resize-filesystem";
+    print "\t\t\texit 0";
+    print "\t\tfi";
     next
 }
 { print }

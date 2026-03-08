@@ -255,10 +255,10 @@ case "$1" in
 			touch /var/lib/orangepi/resize_second_stage
 			sync
 			if command -v systemctl >/dev/null 2>&1; then
-				systemctl --no-block reboot || systemctl reboot || /sbin/reboot || reboot -f
-			else
-				/sbin/reboot || reboot -f
+				systemctl --no-block reboot || systemctl reboot || true
 			fi
+			# fallback hard reboot if systemd reboot request is ignored/stuck
+			( sleep 8; /sbin/reboot -f || reboot -f || echo b > /proc/sysrq-trigger ) >/dev/null 2>&1 &
 			exit 0
 		fi
 		# cleanup marker (if present) and disable itself after successful resize

@@ -21,3 +21,31 @@ Soc | Boards |
 
 ## Supported Host Systems
 - Ubuntu 22.04
+
+## GitHub Actions (Orange Pi Zero 2)
+
+Workflow `.github/workflows/orangepi-zero2-images.yml` khusus untuk **Orange Pi Zero 2** dan bisa dijalankan manual lewat **workflow_dispatch** atau otomatis saat ada **push/pull request** ke `main/master` (untuk path terkait build).
+
+Output yang tersedia:
+- Debian Bullseye (CLI image)
+- Debian Bookworm (CLI image)
+- Ubuntu Jammy (CLI image)
+- Arch Linux ARM (aarch64 rootfs artifact)
+
+Cara pakai singkat:
+1. Buka tab **Actions** -> **Build Orange Pi Zero 2 Images**.
+2. Klik **Run workflow**.
+3. (Opsional) isi input `releases` dengan `all` atau daftar rilis dipisah koma, contoh: `bookworm,jammy`.
+   - Untuk Arch Linux ARM saja, gunakan `arch`.
+4. (Opsional) ubah `artifact_retention_days` jika perlu.
+5. Download artifact hasil job setelah workflow selesai.
+
+> Catatan: build image native di source tree ini saat ini untuk distro Debian/Ubuntu. Untuk Arch, workflow menyiapkan rootfs `aarch64` dan memverifikasi checksum SHA256 dari sumber resmi sebelum upload artifact.
+
+### Perlu isi GitHub Variables?
+Tidak wajib. Workflow ini sudah punya default dan langsung jalan tanpa isi variable apa pun.
+
+Opsional kalau mau kustom:
+- `ORANGEPI_BOARD` (default: `orangepizero2`)
+- `ORANGEPI_COMPRESS` (default: `sha,img`)
+- `ARCHLINUXARM_ROOTFS_URL` (default: `https://mirror.archlinuxarm.org/os/ArchLinuxARM-aarch64-latest.tar.gz`)

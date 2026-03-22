@@ -1,0 +1,228 @@
+name: Build Orange Pi Zero 2 Images
+
+on:
+  workflow_dispatch:
+    inputs:
+      releases:
+        description: "Comma-separated targets (bullseye,bookworm,jammy,arch,all)"
+        required: false
+        default: "all"
+      artifact_retention_days:
+        description: "Artifact retention days"
+        required: false
+        default: "7"
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - '.github/workflows/orangepi-zero2-images.yml'
+      - 'build.sh'
+      - 'scripts/**'
+      - 'external/config/**'
+  pull_request:
+    branches:
+      - main
+      - master
+    paths:
+      - '.github/workflows/orangepi-zero2-images.yml'
+      - 'build.sh'
+      - 'scripts/**'
+      - 'external/config/**'
+
+concurrency:
+  group: orangepi-zero2-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: ${{ matrix.label }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: Debian Bullseye (CLI)
+            release: bullseye
+            branch: next
+          - label: Debian Bookworm (CLI)
+            release: bookworm
+            branch: next
+          - label: Ubuntu Jammy (CLI)
+            release: jammy
+            branch: next
+
+    steps:
+      - name: Resolve run settings
+        id: settings
+        shell: bash
+        run: |
+          set -euo pipefail
+          INPUT="${{ github.event.inputs.releases || 'all' }}"
+          INPUT_LOWER="$(echo "$INPUT" | tr '[:upper:]' '[:lower:]')"
+
+          RETENTION_INPUT="${{ github.event.inputs.artifact_retention_days || '7' }}"
+          if [[ "$RETENTION_INPUT" =~ ^[0-9]+$ ]] && (( RETENTION_INPUT >= 1 && RETENTION_INPUT <= 90 )); then
+            RETENTION_DAYS="$RETENTION_INPUT"
+          else
+            echo "Invalid artifact_retention_days='$RETENTION_INPUT', fallback to 7"
+            RETENTION_DAYS="7"
+          fi
+          echo "retention_days=$RETENTION_DAYS" >> "$GITHUB_OUTPUT"
+
+          if [[ "$INPUT_LOWER" == "all" ]]; then
+            echo "selected=yes" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Match full token only (comma-separated)
+          TOKENS=",${INPUT_LOWER// /},"
+          if [[ "$TOKENS" == *",${{ matrix.release }},"* ]]; then
+            echo "selected=yes" >> "$GITHUB_OUTPUT"
+          else
+            echo "selected=no" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout source
+        if: steps.settings.outputs.selected == 'yes'
+        uses: actions/checkout@v4
+
+      - name: Free disk space
+        if: steps.settings.outputs.selected == 'yes'
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          docker system prune -af || true
+          df -h
+
+      - name: Build image
+        if: steps.settings.outputs.selected == 'yes'
+        env:
+          BOARD: ${{ vars.ORANGEPI_BOARD || 'orangepizero2' }}
+          BRANCH: ${{ matrix.branch }}
+          RELEASE: ${{ matrix.release }}
+          COMPRESS_OUTPUTIMAGE: ${{ vars.ORANGEPI_COMPRESS || 'sha,img' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo --preserve-env=BOARD,BRANCH,RELEASE,COMPRESS_OUTPUTIMAGE \
+            ./build.sh \
+            BOARD="${BOARD}" \
+            BRANCH="${BRANCH}" \
+            RELEASE="${RELEASE}" \
+            BUILD_OPT=image \
+            BUILD_MINIMAL=yes \
+            BUILD_DESKTOP=no \
+            KERNEL_CONFIGURE=no \
+            COMPRESS_OUTPUTIMAGE="${COMPRESS_OUTPUTIMAGE}"
+
+      - name: Prepare artifacts
+        if: steps.settings.outputs.selected == 'yes'
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          files=(output/images/*)
+          if (( ${#files[@]} == 0 )); then
+            echo "No files in output/images" >&2
+            exit 1
+          fi
+          mkdir -p "artifacts/${{ matrix.release }}"
+          cp -av output/images/. "artifacts/${{ matrix.release }}/"
+
+      - name: Upload artifacts
+        if: steps.settings.outputs.selected == 'yes'
+        uses: actions/upload-artifact@v4
+        with:
+          name: orangepi-zero2-${{ matrix.release }}
+          path: artifacts/${{ matrix.release }}/
+          if-no-files-found: error
+          retention-days: ${{ steps.settings.outputs.retention_days }}
+
+  archlinuxarm:
+    name: Arch Linux ARM (aarch64 rootfs)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Resolve run settings
+        id: settings
+        shell: bash
+        run: |
+          set -euo pipefail
+          INPUT="${{ github.event.inputs.releases || 'all' }}"
+          INPUT_LOWER="$(echo "$INPUT" | tr '[:upper:]' '[:lower:]')"
+
+          RETENTION_INPUT="${{ github.event.inputs.artifact_retention_days || '7' }}"
+          if [[ "$RETENTION_INPUT" =~ ^[0-9]+$ ]] && (( RETENTION_INPUT >= 1 && RETENTION_INPUT <= 90 )); then
+            RETENTION_DAYS="$RETENTION_INPUT"
+          else
+            echo "Invalid artifact_retention_days='$RETENTION_INPUT', fallback to 7"
+            RETENTION_DAYS="7"
+          fi
+          echo "retention_days=$RETENTION_DAYS" >> "$GITHUB_OUTPUT"
+
+          if [[ "$INPUT_LOWER" == "all" ]]; then
+            echo "selected=yes" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          TOKENS=",${INPUT_LOWER// /},"
+          if [[ "$TOKENS" == *",arch,"* ]]; then
+            echo "selected=yes" >> "$GITHUB_OUTPUT"
+          else
+            echo "selected=no" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Download and verify Arch Linux ARM rootfs
+        if: steps.settings.outputs.selected == 'yes'
+        shell: bash
+        env:
+          ROOTFS_URL: ${{ vars.ARCHLINUXARM_ROOTFS_URL || 'https://mirror.archlinuxarm.org/os/ArchLinuxARM-aarch64-latest.tar.gz' }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/archlinuxarm
+          curl -fL --retry 5 --retry-delay 5 \
+            -o artifacts/archlinuxarm/ArchLinuxARM-aarch64-latest.tar.gz \
+            "$ROOTFS_URL"
+          curl -fL --retry 5 --retry-delay 5 \
+            -o artifacts/archlinuxarm/sha256sums.txt \
+            https://mirror.archlinuxarm.org/os/sha256sums.txt
+          (
+            cd artifacts/archlinuxarm
+            grep -E 'ArchLinuxARM-aarch64-latest.tar.gz$' sha256sums.txt > sha256sums-aarch64.txt
+            if [[ ! -s sha256sums-aarch64.txt ]]; then
+              echo "Expected checksum entry not found in sha256sums.txt" >&2
+              exit 1
+            fi
+            sha256sum -c sha256sums-aarch64.txt
+            gzip -t ArchLinuxARM-aarch64-latest.tar.gz
+          )
+
+      - name: Add usage notes
+        if: steps.settings.outputs.selected == 'yes'
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > artifacts/archlinuxarm/README.txt <<'EOF'
+          This artifact contains an Arch Linux ARM (aarch64) rootfs.
+
+          Orange Pi Zero 2 notes:
+          - Use together with bootloader/kernel compatible with Orange Pi Zero 2.
+          - In this repository, native image generation in CI remains Debian/Ubuntu-focused.
+          - Arch artifact is provided as verified rootfs download convenience.
+          EOF
+
+      - name: Upload Arch artifact
+        if: steps.settings.outputs.selected == 'yes'
+        uses: actions/upload-artifact@v4
+        with:
+          name: orangepi-zero2-archlinuxarm-rootfs
+          path: artifacts/archlinuxarm/
+          if-no-files-found: error
+          retention-days: ${{ steps.settings.outputs.retention_days }}

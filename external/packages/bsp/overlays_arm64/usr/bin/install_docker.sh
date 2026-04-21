@@ -3,9 +3,9 @@
 distributor_id=$(lsb_release -is)
 distributor_id=${distributor_id,}
 
-sudo apt-get remove -y docker docker-engine docker-ce docker.io 
+sudo apt-get remove -y docker docker-engine docker-ce docker.io
 sudo apt-get update
-sudo apt-get install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common
+sudo apt-get install -y apt-transport-https ca-certificates curl gnupg2
 
 curl -fsSL https://repo.huaweicloud.com/docker-ce/linux/${distributor_id}/gpg | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/docker.gpg
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/trusted.gpg.d/docker.gpg] https://repo.huaweicloud.com/docker-ce/linux/${distributor_id} $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list

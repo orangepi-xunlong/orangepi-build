@@ -32,6 +32,7 @@ create_chroot()
 	apt_mirror['buster']="$DEBIAN_MIRROR"
 	apt_mirror['bullseye']="$DEBIAN_MIRROR"
 	apt_mirror['bookworm']="$DEBIAN_MIRROR"
+	apt_mirror['trixie']="$DEBIAN_MIRROR"
 	apt_mirror['xenial']="$UBUNTU_MIRROR"
 	apt_mirror['bionic']="$UBUNTU_MIRROR"
 	apt_mirror['focal']="$UBUNTU_MIRROR"
@@ -43,6 +44,7 @@ create_chroot()
 	components['buster']='main,contrib'
 	components['bullseye']='main,contrib'
 	components['bookworm']='main,contrib'
+	components['trixie']='main,contrib'
 	components['sid']='main'
 	components['xenial']='main,universe,multiverse'
 	components['bionic']='main,universe,multiverse'
@@ -56,7 +58,7 @@ create_chroot()
 
 	# perhaps a temporally workaround
 	case $release in
-		buster|bullseye|focal|hirsute|sid|bookworm)
+		buster|bullseye|focal|hirsute|sid|bookworm|trixie)
 			includes=${includes}",perl-openssl-defaults,libnet-ssleay-perl"
 		;;
 	esac
@@ -116,7 +118,7 @@ create_chroot()
 	date +%s >"$target_dir/root/.update-timestamp"
 
 	case $release in
-	bullseye|focal|hirsute|sid|bookworm)
+	bullseye|focal|hirsute|sid|bookworm|trixie)
 		chroot "${target_dir}" /bin/bash -c "apt-get install python-is-python3"
 		;;
 	esac
@@ -138,6 +140,7 @@ chroot_prepare_distccd()
 	gcc_version['buster']='8.3'
 	gcc_version['bullseye']='9.2'
 	gcc_version['bookworm']='10.2'
+	gcc_version['trixie']='14.2'
 	gcc_version['xenial']='5.4'
 	gcc_version['bionic']='5.4'
 	gcc_version['focal']='9.2'
@@ -179,7 +182,7 @@ chroot_build_packages()
 		target_arch="${ARCH}"
 	else
 		# only make packages for recent releases. There are no changes on older
-		target_release="stretch bionic buster bullseye bookworm focal hirsute jammy noble sid"
+		target_release="stretch bionic buster bullseye bookworm trixie focal hirsute jammy noble sid"
 		target_arch="armhf arm64"
 	fi
 
@@ -373,24 +376,26 @@ create_build_script ()
 chroot_installpackages_local()
 {
 	local conf=$EXTER/config/aptly-temp.conf
+	local conf_tmp="/tmp/aptly-temp-$$.conf"
+	# Inject architecture so aptly recognizes new releases
+	sed "s/\"architectures\": \[\]/\"architectures\": [\"${ARCH}\"]/" "${conf}" > "${conf_tmp}"
 	rm -rf /tmp/aptly-temp/
-	mkdir -p /tmp/aptly-temp/
-	aptly -config="${conf}" repo create temp >> "${DEST}"/${LOG_SUBPATH}/install.log
+	aptly -config="${conf_tmp}" repo create temp >> "${DEST}"/${LOG_SUBPATH}/install.log
 	# NOTE: this works recursively
 	if [[ $EXTERNAL_NEW == prebuilt ]]; then
-		aptly -config="${conf}" repo add temp "${DEB_ORANGEPI}/extra/${RELEASE}-desktop/" >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
-		aptly -config="${conf}" repo add temp "${DEB_ORANGEPI}/extra/${RELEASE}-utils/" >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
+		aptly -config="${conf_tmp}" repo add temp "${DEB_ORANGEPI}/extra/${RELEASE}-desktop/" >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
+		aptly -config="${conf_tmp}" repo add temp "${DEB_ORANGEPI}/extra/${RELEASE}-utils/" >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
 	else
-		aptly -config="${conf}" repo add temp "${DEB_STORAGE}/extra/${RELEASE}-desktop/" >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
-		aptly -config="${conf}" repo add temp "${DEB_STORAGE}/extra/${RELEASE}-utils/" >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
+		aptly -config="${conf_tmp}" repo add temp "${DEB_STORAGE}/extra/${RELEASE}-desktop/" >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
+		aptly -config="${conf_tmp}" repo add temp "${DEB_STORAGE}/extra/${RELEASE}-utils/" >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
 	fi
 	
 	# -gpg-key="925644A6"
 	[[ ! -d /root/.gnupg ]] && mkdir -p /root/.gnupg
-	aptly -keyring="$EXTER/packages/extras-buildpkgs/buildpkg-public.gpg" -secret-keyring="$EXTER/packages/extras-buildpkgs/buildpkg.gpg" -batch=true -config="${conf}" \
-		 -gpg-key="925644A6" -passphrase="testkey1234" -component=temp -distribution="${RELEASE}" publish repo temp >> "${DEST}"/${LOG_SUBPATH}/install.log
-	#aptly -config="${conf}" -listen=":8189" serve &
-	aptly -config="${conf}" -listen=":8189" serve >> "${DEST}"/debug/install.log 2>&1 &
+	aptly -keyring="$EXTER/packages/extras-buildpkgs/buildpkg-public.gpg" -secret-keyring="$EXTER/packages/extras-buildpkgs/buildpkg.gpg" -batch=true -config="${conf_tmp}" \
+		 -gpg-key="925644A6" -passphrase="testkey1234" -component=temp -distribution="${RELEASE}" publish repo temp -architectures="${ARCH}" >> "${DEST}"/${LOG_SUBPATH}/install.log
+	#aptly -config="${conf_tmp}" -listen=":8189" serve &
+	aptly -config="${conf_tmp}" -listen=":8189" serve >> "${DEST}"/debug/install.log 2>&1 &
 	local aptly_pid=$!
 	cp $EXTER/packages/extras-buildpkgs/buildpkg.key "${SDCARD}"/tmp/buildpkg.key
 	cat <<-'EOF' > "${SDCARD}"/etc/apt/preferences.d/90-orangepi-temp.pref

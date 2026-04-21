@@ -1,0 +1,52 @@
+## overwrite stock lightdm greeter configuration
+#if [ -d /etc/orangepi/lightdm ]; then cp -R /etc/orangepi/lightdm /etc/; fi
+#if [ -f /etc/lightdm/slick-greeter.conf ]; then sed -i 's/orangepi-lightdm\/orangepi-default.png/warty-final-ubuntu.png/g' /etc/lightdm/slick-greeter.conf; fi
+#
+#if [ -f /etc/lightdm/lightdm.conf.d/11-orangepi.conf ]; then sed -i "s/user-session.*/user-session=gnome-wayland/" /etc/lightdm/lightdm.conf.d/11-orangepi.conf; fi
+#
+## Disable Pulseaudio timer scheduling which does not work with sndhdmi driver
+#if [ -f /etc/pulse/default.pa ]; then sed "s/load-module module-udev-detect$/& tsched=0/g" -i  /etc/pulse/default.pa; fi
+
+# set wallpapper to armbian
+keys=/etc/dconf/db/local.d/00-bg
+profile=/etc/dconf/profile/user
+
+install -Dv /dev/null $keys
+install -Dv /dev/null $profile
+
+# set default shortcuts
+echo "
+[org/gnome/shell]
+favorite-apps = ['org.gnome.Nautilus.desktop', 'org.gnome.Terminal.desktop', 'chromium.desktop', 'org.gnome.Totem.desktop', 'gparted.desktop', 'org.gnome.Settings.desktop']
+
+[org/gnome/settings-daemon/plugins/power]
+sleep-inactive-ac-timeout='0'
+sleep-inactive-ac-type='nothing'
+sleep-inactive-battery-timeout='0'
+sleep-inactive-battery-type='nothing'
+power-button-action='interactive'
+
+[org/gnome/desktop/session]
+idle-delay=uint32 0
+
+[org/gnome/desktop/background]
+picture-uri='file:///usr/share/backgrounds/orangepi/orangepi-default.png'
+picture-options='zoom'
+primary-color='#456789'
+secondary-color='#FFFFFF'
+
+[org/gnome/desktop/screensaver]
+picture-uri='file:///usr/share/backgrounds/orangepi/orangepi-default.png'
+picture-options='zoom'
+primary-color='#456789'
+secondary-color='#FFFFFF'" >> $keys
+
+echo "user-db:user
+system-db:local" >> $profile
+
+dconf update
+
+#compile schemas
+if [ -d /usr/share/glib-2.0/schemas ]; then
+	glib-compile-schemas /usr/share/glib-2.0/schemas
+fi

@@ -97,7 +97,7 @@ display_alert "Current rootfs size" "$rootfs_size MiB" "info"
 
 imagesize=$(($rootfs_size + $OFFSET))
 
-sdsize=$(bc -l <<< "scale=0; ((($imagesize * 1.35) / 1 + 0) / 4 + 1) * 4")
+sdsize=$(bc -l <<< "scale=0; ((($imagesize * 1.5) / 1 + 0) / 4 + 1) * 4")
 
 if [[ $USE_OVERLAYFS -eq 1 ]]; then
 	display_alert "Overlayfs size" "${OVERLAYFS_SIZE}MB" "info"
@@ -176,7 +176,7 @@ pkill dhclient 2>/dev/null
 LANG=C echo -e "\n\nChecking again for open files:" >> $logfile
 lsof / | awk 'NR==1 || $4~/[0-9][uw]/' | grep -v "^COMMAND" >> $logfile
 
-TODO=$(rsync -ahvrltDn --delete --stats --exclude-from=$EX_LIST / "${TempDir}"/rootfs | grep "Number of files:"|awk '{print $4}' | tr -d '.,')
+TODO=$(rsync -ahvrltDHn --delete --stats --exclude-from=$EX_LIST / "${TempDir}"/rootfs | grep "Number of files:"|awk '{print $4}' | tr -d '.,')
 echo -e "\nCopying ${TODO} files to $rootdevice. \c" >> $logfile
 #display_alert "Copying ${TODO} files to" "/"
 
@@ -192,7 +192,7 @@ echo no >"${nsi_conn_done}"
 
  # Launch rsync in background
 { \
-rsync -avrltD --delete --exclude-from=$EX_LIST / "${TempDir}"/rootfs | \
+rsync -avrltDH --delete --exclude-from=$EX_LIST / "${TempDir}"/rootfs | \
 nl | awk '{ printf "%.0f\n", 100*$1/"'"$TODO"'" }' \
 > "${nsi_conn_progress}" ;
  # save exit code from rsync
@@ -244,7 +244,7 @@ echo ""
 
 #rsync --info=progress2 -arltD --delete --exclude-from=$EX_LIST / "${TempDir}"/rootfs
 
-rsync -avrltD --delete --exclude-from=$EX_LIST / "${TempDir}"/rootfs >/dev/null 2>&1
+rsync -avrltDH --delete --exclude-from=$EX_LIST / "${TempDir}"/rootfs >/dev/null 2>&1
 
 display_alert "Re-enabling" "orangepi-resize-filesystem"
 chroot ${TempDir}/rootfs/ /bin/bash -c "systemctl --quiet enable orangepi-resize-filesystem" 2>&1 > /dev/null

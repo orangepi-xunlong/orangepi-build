@@ -1583,17 +1583,6 @@ function jobs ()
 			if ! is_package_manager_running; then
 				if ! dpkg -l | grep -q "overlayroot"; then
 					debconf-apt-progress -- apt-get update
-					if [[ "$DISTROID" =~ "bookworm"|"bullseye" ]]; then
-						cat <<-'EOF' > /usr/share/initramfs-tools/hooks/custom
-						cp /bin/grep "${DESTDIR}"/bin
-						cp /bin/mount "${DESTDIR}"/bin
-						cp /lib/aarch64-linux-gnu/libmount.so.1 "${DESTDIR}"/lib
-						cp /lib/aarch64-linux-gnu/libpcre.so.3 "${DESTDIR}"/lib 2>/dev/null || true
-						EOF
-						chmod +x /usr/share/initramfs-tools/hooks/custom
-						export PATH=$PATH:/usr/sbin
-						update-initramfs -u > /dev/null 2>&1
-					fi
 					apt -y install overlayroot > /dev/null 2>&1
 					[[ ! $? == 0 ]] && apt remove --purge -y overlayroot >/dev/null 2>&1 && return
 				fi

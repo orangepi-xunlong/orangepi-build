@@ -192,7 +192,7 @@ create_sources_list()
 	deb https://${DEBIAN_MIRROR} ${release}-updates main contrib non-free
 	#deb-src https://${DEBIAN_MIRROR} ${release}-updates main contrib non-free
 
-	deb https://${DEBIAN_MIRROR} ${release}-backports main contrib non-free
+	# bullseye-backports not available on mirrors, skip: deb https://${DEBIAN_MIRROR} ${release}-backports main contrib non-free
 	#deb-src https://${DEBIAN_MIRROR} ${release}-backports main contrib non-free
 
 	deb https://${DEBIAN_SECURTY} ${release}-security main contrib non-free
@@ -200,7 +200,7 @@ create_sources_list()
 	EOF
 	;;
 
-	bookworm)
+	bookworm|trixie)
 	cat <<- EOF > "${basedir}"/etc/apt/sources.list
 	deb http://${DEBIAN_MIRROR} $release main contrib non-free non-free-firmware
 	#deb-src http://${DEBIAN_MIRROR} $release main contrib non-free non-free-firmware
@@ -888,13 +888,13 @@ function distro_menu ()
 				[[ -z "${DISTRIB_TYPE_LEGACY}" ]] && DISTRIB_TYPE="buster bionic focal"
 			elif [[ "${BRANCH}" == "current" ]]; then
 				DISTRIB_TYPE="${DISTRIB_TYPE_CURRENT}"
-				[[ -z "${DISTRIB_TYPE_CURRENT}" ]] && DISTRIB_TYPE="bullseye bookworm focal jammy noble"
+				[[ -z "${DISTRIB_TYPE_CURRENT}" ]] && DISTRIB_TYPE="bullseye bookworm trixie focal jammy noble"
 			elif [[ "${BRANCH}" == "next" ]]; then
 				if [[ -n "${DISTRIB_TYPE_NEXT}" ]]; then
 					DISTRIB_TYPE="${DISTRIB_TYPE_NEXT}"
 				else
 					DISTRIB_TYPE="${DISTRIB_TYPE_CURRENT}"
-					[[ -z "${DISTRIB_TYPE_CURRENT}" ]] && DISTRIB_TYPE="bullseye bookworm focal jammy noble"
+					[[ -z "${DISTRIB_TYPE_CURRENT}" ]] && DISTRIB_TYPE="bullseye bookworm trixie focal jammy noble"
 				fi
 			fi
 
@@ -955,7 +955,7 @@ addtorepo()
 # parameter "delete" remove incoming directory if publishing is succesful
 # function: cycle trough distributions
 
-	local distributions=("stretch" "bionic" "buster" "bullseye" "bookworm" "focal" "hirsute" "jammy" "noble" "sid")
+	local distributions=("stretch" "bionic" "buster" "bullseye" "bookworm" "trixie" "focal" "hirsute" "jammy" "noble" "sid")
 	#local distributions=($(grep -rw config/distributions/*/ -e 'supported' | cut -d"/" -f3))
 	local errors=0
 
@@ -1085,7 +1085,7 @@ repo-manipulate()
 # "update" search for new files in output/debs* to add them to repository
 # "purge" leave only last 5 versions
 
-	local DISTROS=("stretch" "bionic" "buster" "bullseye" "bookworm" "focal" "hirsute" "jammy" "noble" "sid")
+	local DISTROS=("stretch" "bionic" "buster" "bullseye" "bookworm" "trixie" "focal" "hirsute" "jammy" "noble" "sid")
 	#local DISTROS=($(grep -rw config/distributions/*/ -e 'supported' | cut -d"/" -f3))
 
 	case $@ in
@@ -1460,7 +1460,7 @@ prepare_host()
   fi
 
 	# Add support for Ubuntu 20.04, 21.04 and Mint 20.x
-	if [[ $HOSTRELEASE =~ ^(focal|hirsute|jammy|noble|noble|ulyana|ulyssa|bullseye|bookworm|uma)$ ]]; then
+	if [[ $HOSTRELEASE =~ ^(focal|hirsute|jammy|noble|noble|ulyana|ulyssa|bullseye|bookworm|trixie|uma)$ ]]; then
 		hostdeps+=" python2 python3"
 		ln -fs /usr/bin/python2.7 /usr/bin/python2
 		ln -fs /usr/bin/python2.7 /usr/bin/python
@@ -1956,13 +1956,15 @@ install_docker() {
 	[[ $install_docker != yes ]] && return
 
 	display_alert "Installing" "docker" "info"
-	chroot "${SDCARD}" /bin/bash -c "apt-get install -y -qq apt-transport-https ca-certificates curl gnupg2 software-properties-common >/dev/null 2>&1"
+	# software-properties-common removed from Debian 13+
+	sp_common=" software-properties-common"; [[ $RELEASE == trixie ]] && sp_common=""
+	chroot "${SDCARD}" /bin/bash -c "apt-get install -y -qq apt-transport-https ca-certificates curl gnupg2${sp_common} >/dev/null 2>&1"
 
 	case ${RELEASE} in
-		buster|bullseye|bookworm)
+		buster|bullseye|bookworm|trixie)
 		distributor_id="debian"
 		;;
-		xenial|bionic|focal|jammy|noble)
+		xenial|bionic|focal|jammy|noble|plucky|resolute)
 		distributor_id="ubuntu"
 		;;
 	esac

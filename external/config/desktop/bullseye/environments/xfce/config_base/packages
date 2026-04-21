@@ -34,7 +34,6 @@ fonts-nanum
 fonts-opensymbol
 fonts-stix
 fonts-symbola
-fonts-ubuntu-font-family-console
 foomatic-db-compressed-ppds
 gdebi
 ghostscript-x
@@ -102,7 +101,6 @@ system-config-printer
 terminator
 thunar-volman
 tree
-ttf-ubuntu-font-family
 update-inetd
 viewnior
 x11-apps

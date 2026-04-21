@@ -180,7 +180,10 @@ install_ppa_prerequisites() {
 
 	# Myy : TODO Try to find a way to install this package only when
 	# we encounter a PPA.
-	run_on_sdcard "DEBIAN_FRONTEND=noninteractive apt-get install -yqq software-properties-common"
+	# software-properties-common removed from Debian 13+
+	if [[ $RELEASE != trixie ]]; then
+		run_on_sdcard "DEBIAN_FRONTEND=noninteractive apt-get install -yqq software-properties-common"
+	fi
 
 }
 

@@ -651,6 +651,14 @@ PREPARE_IMAGE_SIZE
 	check_loop_device "$LOOP"
 
 	losetup -P $LOOP ${SDCARD}.raw
+	
+	# 在Docker容器中,需要显式触发分区表扫描
+	if [[ $(systemd-detect-virt) == 'docker' ]]; then
+		display_alert "Scanning partition table" "$LOOP" "info"
+		partprobe "$LOOP" 2>/dev/null || true
+		# 等待设备节点创建
+		sleep 1
+	fi
 
 	# loop device was grabbed here, unlock
 	flock -u $FD

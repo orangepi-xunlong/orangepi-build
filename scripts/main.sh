@@ -50,8 +50,18 @@ if [[ $BUILD_ALL != "yes" ]]; then
 	# override stty size
 	[[ -n $COLUMNS ]] && stty cols $COLUMNS
 	[[ -n $LINES ]] && stty rows $LINES
-	TTY_X=$(($(stty size | awk '{print $2}')-6)) 			# determine terminal width
-	TTY_Y=$(($(stty size | awk '{print $1}')-6)) 			# determine terminal height
+	# Check if stty is available (may fail in non-interactive Docker)
+	if stty size > /dev/null 2>&1; then
+		TTY_X=$(($(stty size | awk '{print $2}')-6)) 			# determine terminal width
+		TTY_Y=$(($(stty size | awk '{print $1}')-6)) 			# determine terminal height
+	else
+		# Fallback to environment variables or defaults for Docker/non-interactive environments
+		TTY_X=${COLUMNS:-120}
+		TTY_Y=${LINES:-30}
+	fi
+	# Ensure TTY values are reasonable (whiptail needs positive values)
+	[[ $TTY_X -lt 40 ]] && TTY_X=80
+	[[ $TTY_Y -lt 10 ]] && TTY_Y=24
 fi
 
 # We'll use this title on all menus

@@ -1,0 +1,27 @@
+# Git 相关文件
+.git
+.gitignore
+
+# IDE 配置文件
+.idea
+.vscode
+*.swp
+*.swo
+
+# 输出目录（避免复制到容器中）
+output/
+
+# 缓存文件
+*.cache
+__pycache__/
+
+# 文档文件
+README.md
+LICENSE
+
+# 其他不需要的文件
+.DS_Store
+Thumbs.db
+
+orangepi-output/
+docker-build.sh

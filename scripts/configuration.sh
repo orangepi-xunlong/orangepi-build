@@ -183,6 +183,14 @@ show_menu() {
 	#echo "Provided menuname : $provided_menuname"
 	#echo "Provided options : " "${@:4}"
 	#echo "TTY X: $TTY_X Y: $TTY_Y"
+	
+	# Validate TTY values before calling whiptail
+	if [[ -z "$TTY_X" || -z "$TTY_Y" || "$TTY_X" -lt 40 || "$TTY_Y" -lt 10 ]]; then
+		echo "Warning: Invalid TTY dimensions (X=$TTY_X, Y=$TTY_Y), using defaults" >&2
+		TTY_X=80
+		TTY_Y=24
+	fi
+	
 	whiptail --title "${provided_title}" --backtitle "${provided_backtitle}" --notags \
                           --menu "${provided_menuname}" "${TTY_Y}" "${TTY_X}" $((TTY_Y - 8))  \
 			  "${@:4}" \
@@ -201,6 +209,13 @@ show_select_menu() {
 	#                  --checklist "${provided_menuname}" "${TTY_Y}" "${TTY_X}" $((TTY_Y - 8))  \
 	#		  "${@:4}" \
 	#		  3>&1 1>&2 2>&3
+
+	# Validate TTY values before calling whiptail
+	if [[ -z "$TTY_X" || -z "$TTY_Y" || "$TTY_X" -lt 40 || "$TTY_Y" -lt 10 ]]; then
+		echo "Warning: Invalid TTY dimensions (X=$TTY_X, Y=$TTY_Y), using defaults" >&2
+		TTY_X=80
+		TTY_Y=24
+	fi
 
 	whiptail --title "${provided_title}" --backtitle "${provided_backtitle}" \
 	                  --checklist "${provided_menuname}" "${TTY_Y}" "${TTY_X}" $((TTY_Y - 8))  \

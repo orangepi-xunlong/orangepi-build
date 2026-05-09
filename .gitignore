@@ -59,3 +59,12 @@ external/cache/sources/arm-trusted-firmware-2.2-hi3403
 external/cache/sources/arm-trusted-firmware-sunxi-mainline
 external/cache/debs/arm64/balenaEtcher-1.7.9+5945ab1f-arm64.AppImage
 external/cache/debs/arm64/balena-etcher-electron_1.7.9+5945ab1f_arm64.deb
+
+# output folder
+orangepi-output/
+
+# macosx
+.DS_Store
+
+# idea
+.idea/

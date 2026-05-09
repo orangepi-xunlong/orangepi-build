@@ -105,7 +105,39 @@ check_loop_device()
 			display_alert "Creating device node" "$device"
 			mknod -m0660 "${device}" b "0x$(stat -c '%t' "/tmp/$device")" "0x$(stat -c '%T' "/tmp/$device")"
 		else
-			exit_with_error "Device node $device does not exist"
+			# 在Docker中等待设备节点创建
+			if [[ $(systemd-detect-virt) == 'docker' ]]; then
+				display_alert "Waiting for device node" "$device" "info"
+				local retries=5
+				while [[ $retries -gt 0 ]]; do
+					sleep 1
+					[[ -b $device ]] && break
+					retries=$((retries - 1))
+					display_alert "Retrying..." "$retries attempts left" "info"
+				done
+				
+				# 如果仍然不存在，尝试手动创建（Docker 容器中 udev 可能未运行）
+				if [[ ! -b $device ]]; then
+					display_alert "Device node not created by udev, creating manually" "$device" "wrn"
+					local base_device=$(echo "$device" | sed 's/p[0-9]*$//')
+					local part_num=$(echo "$device" | grep -o 'p[0-9]*$' | sed 's/p//')
+					
+					# 从 /proc/partitions 获取设备号
+					if grep -q "$(basename $device)" /proc/partitions 2>/dev/null; then
+						local major=$(awk -v dev="$(basename $device)" '$4==dev{print $1}' /proc/partitions)
+						local minor=$(awk -v dev="$(basename $device)" '$4==dev{print $2}' /proc/partitions)
+						
+						if [[ -n $major && -n $minor ]]; then
+							display_alert "Creating device node manually" "$device (major=$major, minor=$minor)" "info"
+							mknod -m0660 "$device" b $major $minor 2>/dev/null || true
+						fi
+					fi
+				fi
+			fi
+			
+			if [[ ! -b $device ]]; then
+				exit_with_error "Device node $device does not exist"
+			fi
 		fi
 	fi
 

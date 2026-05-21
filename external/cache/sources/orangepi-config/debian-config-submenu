@@ -32,10 +32,16 @@ while true; do
 	# check update status of BSP packages
 	local mark=$(apt-mark showhold | egrep "linux|orangepi")
 
-	# check if eMMC/SD is on the system
-	if [[ $(sed -n 's/^DEVNAME=//p' /sys/dev/block/$(mountpoint -d /)/uevent 2> /dev/null) == mmcblk* \
-	&& -f /usr/sbin/nand-sata-install ]]; then
-		LIST+=( "Install" "Install to/update boot loader" )
+	# show installer if nand-sata-install exists and a non-root target disk is present
+	if [[ -f /usr/sbin/nand-sata-install ]]; then
+		local root_dev
+		local target_devs
+		root_dev=$(sed -n 's/^DEVNAME=//p' /sys/dev/block/$(mountpoint -d /)/uevent 2> /dev/null)
+		target_devs=$(lsblk -dn -o NAME,TYPE | awk '$2=="disk" {print $1}' | grep -E '^(nvme|sd|mmcblk)' || true)
+		target_devs=$(echo "$target_devs" | grep -v "^${root_dev}$" || true)
+		if [[ -n "$target_devs" ]]; then
+			LIST+=( "Install" "Install to/update boot loader" )
+		fi
 	fi
 
 	# orangepi specific function

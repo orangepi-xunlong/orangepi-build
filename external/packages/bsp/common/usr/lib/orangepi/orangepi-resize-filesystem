@@ -11,6 +11,14 @@
 . /lib/lsb/init-functions
 . /usr/lib/orangepi/orangepi-common
 
+RESIZE2FS_BIN="/usr/sbin/resize2fs"
+if [ ! -x "$RESIZE2FS_BIN" ]; then
+	RESIZE2FS_BIN="$(command -v resize2fs 2>/dev/null || true)"
+fi
+if [ -z "$RESIZE2FS_BIN" ]; then
+	RESIZE2FS_BIN=""
+fi
+
 do_expand_partition()
 {
 	# check if growroot (from cloud-initramfs-growroot package) is installed.
@@ -111,6 +119,11 @@ do_expand_partition()
 		fi
 	fi
 
+	local resized_partition=0
+	if [[ -n ${lastsector:-} && $lastsector -gt $partend ]]; then
+		resized_partition=1
+	fi
+
 	# Start resizing
 	echo -e "\n### [resize2fs] ${ResizeLog}. Start resizing partition $rootsource now:\n" >>${Log}
 	cat /proc/partitions >>${Log}
@@ -149,12 +162,16 @@ do_expand_partition()
 	
 	case $1 in
 		ext4)
-			resize2fs $rootsource >>${Log} 2>&1
-			# check whether reboot is necessary for resize2fs to take effect
-			local usedpercent=$(findmnt --target / -n -o USE% -b | sed 's/[^0-9]*//g') # images before resize have 70-75%
-			if [[ $s != 0 || $usedpercent -gt 70 ]]; then
-				touch /var/run/resize2fs-reboot
-				echo -e "\n### [resize2fs] Automated reboot needed to finish the resize procedure" >>${Log}
+			if [ -z "$RESIZE2FS_BIN" ]; then
+				echo -e "\n### [resize2fs] resize2fs not found; skipping filesystem resize" >>${Log}
+			else
+				"$RESIZE2FS_BIN" "$rootsource" >>${Log} 2>&1
+				# check whether reboot is necessary for resize2fs to take effect
+				local usedpercent=$(findmnt --target / -n -o USE% -b | sed 's/[^0-9]*//g') # images before resize have 70-75%
+				if [[ $s != 0 || $usedpercent -gt 70 || $resized_partition -eq 1 ]]; then
+					touch /var/run/resize2fs-reboot
+					echo -e "\n### [resize2fs] Automated reboot needed to finish the resize procedure" >>${Log}
+				fi
 			fi
 			;;
 		btrfs)
@@ -183,8 +200,12 @@ do_resize_crypt()
 do_expand_ext4()
 {
 	echo -e "\n### [resize2fs] Start resizing ext4 partition $1 now\n" >> ${Log}
-	echo "Running 'resize2fs ${rootpart}' now..."
-	resize2fs ${rootpart} >> ${Log} 2>&1
+	if [ -z "$RESIZE2FS_BIN" ]; then
+		echo -e "\n### [resize2fs] resize2fs not found; skipping filesystem resize" >>${Log}
+		return 0
+	fi
+	echo "Running '${RESIZE2FS_BIN} ${rootpart}' now..."
+	"$RESIZE2FS_BIN" ${rootpart} >> ${Log} 2>&1
 }
 
 do_expand_btrfs()
@@ -195,6 +216,9 @@ do_expand_btrfs()
 
 case "$1" in
 	start)
+		if [ -e /dev/console ]; then
+			echo "[orangepi] Resizing root filesystem; system will reboot if required..." > /dev/console
+		fi
 		# skip resizing if rootfs is neither ext4 not btrfs or if explicitly disabled
 		if [[ -f /root/.no_rootfs_resize ]]; then
 			systemctl disable orangepi-resize-filesystem
@@ -222,8 +246,28 @@ case "$1" in
 				;;
 		esac
 
-		# disable itself
-		[[ ! -f /var/run/resize2fs-reboot ]] && systemctl disable orangepi-resize-filesystem
+		if [[ -f /var/run/resize2fs-reboot ]]; then
+			if [ -e /dev/console ]; then
+				echo "[orangepi] Resize complete; rebooting to finish..." > /dev/console
+			fi
+			# Do NOT disable the service yet — second-stage resize2fs still needs to run
+			mkdir -p /var/lib/orangepi
+			touch /var/lib/orangepi/resize_second_stage
+			sync
+			if command -v systemctl >/dev/null 2>&1; then
+				systemctl --no-block reboot || systemctl reboot || true
+			fi
+			# IMPORTANT: do not background fallback here; systemd kills leftover cgroup procs on oneshot exit
+			sleep 8
+			sync
+			/sbin/reboot -f || reboot -f || echo b > /proc/sysrq-trigger
+			exit 0
+		fi
+		# cleanup marker (if present) and disable itself after successful resize
+		if [[ ! -f /var/run/resize2fs-reboot ]]; then
+			rm -f /var/lib/orangepi/resize_second_stage
+			systemctl disable orangepi-resize-filesystem
+		fi
 		exit 0
 		;;
 

@@ -1,0 +1,29 @@
+# overwrite stock lightdm greeter configuration
+if [ -d /etc/orangepi/lightdm ]; then cp -R /etc/orangepi/lightdm /etc/; fi
+#if [ -f /etc/lightdm/slick-greeter.conf ]; then sed -i 's/orangepi03-Dre0x-Minum-dark-blurred-3840x2160.jpg/WhiteSur-light.png/g' /etc/lightdm/slick-greeter.conf; fi
+
+# Adjust menu
+#if [ -f /etc/xdg/menus/xfce-applications.menu ]; then
+#sed -i -n '/<Menuname>Settings<\/Menuname>/{p;:a;N;/<Filename>xfce4-session-logout.desktop<\/Filename>/!ba;s/.*\n/\
+#\t<Separator\/>\n\t<Merge type="all"\/>\n        <Separator\/>\n        <Filename>orangepi-donate.desktop<\/Filename>\
+#\n        <Filename>orangepi-support.desktop<\/Filename>\n/};p' /etc/xdg/menus/xfce-applications.menu
+#fi
+
+# Change theme
+#if [ -f /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml ]; then
+#sed -i '/"ThemeName"/c\ <property name="ThemeName" type="string" value="Arc-Lighter"/>' /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
+#fi
+
+# Change icon
+#if [ -f /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml ]; then
+#sed -i '/"IconThemeName"/c\ <property name="IconThemeName" type="string" value="Papirus-Light"/>' /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
+#fi
+
+# Hide few items
+if [ -f /usr/share/applications/display-im6.q16.desktop ]; then mv /usr/share/applications/display-im6.q16.desktop /usr/share/applications/display-im6.q16.desktop.hidden; fi
+if [ -f /usr/share/applications/display-im6.desktop ]]; then  mv /usr/share/applications/display-im6.desktop /usr/share/applications/display-im6.desktop.hidden; fi
+if [ -f /usr/share/applications/vim.desktop ]]; then  mv /usr/share/applications/vim.desktop /usr/share/applications/vim.desktop.hidden; fi
+if [ -f /usr/share/applications/libreoffice-startcenter.desktop ]]; then mv /usr/share/applications/libreoffice-startcenter.desktop /usr/share/applications/libreoffice-startcenter.desktop.hidden; fi
+
+# Disable Pulseaudio timer scheduling which does not work with sndhdmi driver
+if [ -f /etc/pulse/default.pa ]; then sed "s/load-module module-udev-detect$/& tsched=0/g" -i  /etc/pulse/default.pa; fi

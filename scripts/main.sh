@@ -237,24 +237,28 @@ LINUXFAMILY="${BOARDFAMILY}"
 # if BUILD_OPT, KERNEL_CONFIGURE, BOARD, BRANCH or RELEASE are not set, display selection menu
 if [[ -z $BUILD_OPT ]]; then
 
-	if [[ $BOARDFAMILY != "cix" ]]; then
-		options+=("u-boot"	 "U-boot package")
-	fi
-	options+=("kernel"	 "Kernel package")
-	options+=("rootfs"	 "Rootfs and all deb packages")
-	options+=("image"	 "Full OS image for flashing")
-
-	if [[ $BOARDFAMILY != "cix" ]]; then
-		menustr="Compile image | rootfs | kernel | u-boot"
+	if [[ ! -t 0 || ! -t 1 ]]; then
+		BUILD_OPT="image"
 	else
-		menustr="Compile image | rootfs | kernel"
-	fi
-	BUILD_OPT=$(whiptail --title "${titlestr}" --backtitle "${backtitle}" --notags \
-			  --menu "${menustr}" "${TTY_Y}" "${TTY_X}" $((TTY_Y - 8))  \
-			  --cancel-button Exit --ok-button Select "${options[@]}" \
-			  3>&1 1>&2 2>&3)
+		if [[ $BOARDFAMILY != "cix" ]]; then
+			options+=("u-boot"	 "U-boot package")
+		fi
+		options+=("kernel"	 "Kernel package")
+		options+=("rootfs"	 "Rootfs and all deb packages")
+		options+=("image"	 "Full OS image for flashing")
 
-	unset options
+		if [[ $BOARDFAMILY != "cix" ]]; then
+			menustr="Compile image | rootfs | kernel | u-boot"
+		else
+			menustr="Compile image | rootfs | kernel"
+		fi
+		BUILD_OPT=$(whiptail --title "${titlestr}" --backtitle "${backtitle}" --notags \
+				  --menu "${menustr}" "${TTY_Y}" "${TTY_X}" $((TTY_Y - 8))  \
+				  --cancel-button Exit --ok-button Select "${options[@]}" \
+				  3>&1 1>&2 2>&3)
+
+		unset options
+	fi
 	[[ -z $BUILD_OPT ]] && exit_with_error "No option selected"
 	[[ $BUILD_OPT == rootfs ]] && ROOT_FS_CREATE_ONLY="yes"
 fi

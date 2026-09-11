@@ -71,4 +71,22 @@ if [[ $version == "ros2" && $release =~ jammy ]]; then
 
 fi
 
+if [[ $version == "ros2" && $release =~ resolute ]]; then
+
+	sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
+	echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] ${mirror_url}/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list
+	sudo apt update
+	sudo apt install -y ros-lyrical-desktop
+	sudo apt install -y ros-dev-tools
+	
+	sudo sh -c 'echo "source /opt/ros/lyrical/setup.bash" >> /root/.bashrc'
+	echo "source /opt/ros/lyrical/setup.bash" >> /home/orangepi/.bashrc
+	
+	source /opt/ros/lyrical/setup.bash
+	ros2 -h
+	
+	exit
+
+fi
+
 echo "Unsupported System!"

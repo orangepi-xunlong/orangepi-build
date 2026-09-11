@@ -10,8 +10,8 @@
 #cp "${EXTER}"/packages/blobs/desktop/desktop-icons/*.png "${destination}"/usr/share/icons/orangepi
 
 # install wallpapers
-#mkdir -p "${destination}"/usr/share/backgrounds/orangepi/
-#cp "${EXTER}"/packages/blobs/desktop/desktop-wallpapers/*.png "${destination}"/usr/share/backgrounds/orangepi
+mkdir -p "${destination}"/usr/share/backgrounds/orangepi/
+cp "${EXTER}"/packages/blobs/desktop/desktop-wallpapers/*.png "${destination}"/usr/share/backgrounds/orangepi
 
 # install wallpapers
 #mkdir -p "${destination}"/usr/share/backgrounds/orangepi-lightdm/

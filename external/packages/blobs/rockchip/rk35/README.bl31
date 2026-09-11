@@ -1,0 +1,84 @@
+Mainline TF-A BL31 for RK3588
+=============================
+
+This directory holds a mainline ARM Trusted Firmware bl31.elf taken into the
+tree, used in place of the Rockchip binary blob shipped by rkbin.
+
+Why it exists
+-------------
+rockchip64_common.inc picks `BL31_PATH` for the rk3588 family:
+
+  BRANCH == next  ->  $EXTER/packages/blobs/rockchip/rk35/
+                      rk3588_bl31_tfa_v2.13.0.elf      <- this one
+  otherwise       ->  $RKBIN_DIR/rk35/rk3588_bl31_v1.56.elf
+                      (Rockchip's blob, TF-A v2.3 based, closed)
+
+So the 6.18 / next branch uses mainline TF-A and legacy/current are untouched.
+Nothing else needs to be toggled: u-boot's FIT packaging reads the load
+addresses out of whatever ELF is handed to it via BL31=, so no u-boot change
+was needed when the BL31 base moved from 0x60000 to 0x40000.
+
+Provenance
+----------
+source      https://github.com/ARM-software/arm-trusted-firmware
+tag         v2.13.0        (upstream, unpatched)
+built with  make CROSS_COMPILE=aarch64-none-linux-gnu- PLAT=rk3588 bl31
+toolchain   toolchains/gcc-arm-11.2-2022.02-x86_64-aarch64-none-linux-gnu
+            (gcc 11.2.1, ld 2.37)
+built on    2026-09-17
+md5         337a8b0abbd97623d194c6b488593b71
+size        273456 bytes
+
+rk3588 has no Cortex-M0, so M0_CROSS_COMPILE is not needed (check
+plat/rockchip/rk3588/platform.mk). No ATF patches are applied - the upstream
+rk3588 platform is used as-is.
+
+ELF layout (measured on this build - see "Checking a fresh build" below)
+------------------------------------------------------------------------
+entry 0x40000
+
+  paddr        FileSiz     (what decode_bl31.py writes to bl31_0x*.bin)
+  0x00040000   0x01e000    <- largest, so this becomes atf-1
+  0x0005e000   0x00233e
+  0xff100000   0x002000
+
+Compare with rkbin's rk3588_bl31_v1.56.elf, which has three segments with
+0x00060000 (0x246cc) largest - also its entry, so the same rule held there.
+Note that only FileSiz feeds the sort, not MemSiz (the 0x5e000 segment has a
+large BSS: MemSiz 0x07c000).
+
+How it reaches the board
+------------------------
+`BL31=` is consumed at u-boot BUILD time only, so this file needs to exist on
+the build host; it is never installed into the image.
+
+arch/arm/mach-rockchip/decode_bl31.py converts the ELF into
+bl31_0x<paddr>.bin files (one per PT_LOAD segment) and fit_nodes.sh generates
+u-boot.its from those filenames - so the load addresses are taken from the ELF
+itself and no u-boot change is required when the BL31 base differs from
+Rockchip's.
+
+NOTE: fit_nodes.sh sorts bl31_0x*.bin by FILE SIZE, and the SPL jumps to the
+`firmware` node = atf-1 = the largest segment. For this ELF the 0x40000 segment
+is the largest, which is correct. If a future TF-A tag ever produces a larger
+0xff100000 segment, atf-1 would be wrong and the board would hang with no
+output - re-check the layout whenever this file is refreshed.
+
+Checking a fresh build
+----------------------
+  readelf -h  build/rk3588/release/bl31/bl31.elf | grep Entry   # expect 0x40000
+  readelf -lW build/rk3588/release/bl31/bl31.elf | grep LOAD    # 2 segments
+
+then after a u-boot build, in u-boot/v2017.09-rk3588/:
+
+  ls -l bl31_0x*.bin | sort --key=5 -nr   # exactly 2 files, 0x00040000 first
+  grep -A6 'atf-1 {' u-boot.its           # load = <0x00040000>
+
+Serial console (ttyS2 @ 1500000) is the only proof it actually runs: rkbin's
+BL31 prints no banner, mainline TF-A prints
+  NOTICE:  BL31: v2.13.0(release):v2.13.0
+
+Refreshing
+----------
+Re-run the build command above, overwrite the .elf here, and update the date
+and md5 fields at the top of this file.

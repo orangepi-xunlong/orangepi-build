@@ -1,6 +1,5 @@
 alsa-ucm-conf
 anacron
-apt-xapian-index
 at-spi2-core
 bluetooth
 cifs-utils
@@ -26,7 +25,7 @@ fonts-ubuntu-console
 fonts-wqy-zenhei
 foomatic-db-compressed-ppds
 gdebi
-gnome-bluetooth
+gnome-bluetooth-sendto
 gnome-calculator
 gnome-control-center
 gnome-desktop3-data
@@ -68,6 +67,7 @@ libwayland-dev
 lm-sensors
 locales
 mesa-utils
+mesa-vulkan-drivers
 nautilus
 netwox
 nfs-common
@@ -77,7 +77,7 @@ pkgconf
 pkgconf-bin
 pkg-config
 profile-sync-daemon
-python3.11-venv
+python3-venv
 python3-pip
 rpcbind
 smplayer

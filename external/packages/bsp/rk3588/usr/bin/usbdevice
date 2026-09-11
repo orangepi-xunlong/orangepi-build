@@ -437,7 +437,7 @@ usb_init()
 	echo 0x0200 > bcdUSB
 
 	mkdir -p $USB_GADGET_STRINGS_DIR
-	SERIAL=$(grep Serial /proc/cpuinfo | cut -d':' -f2)
+	SERIAL=$(awk '/^Serial[[:space:]]*:/ { print $3; exit }' /proc/cpuinfo)
 	echo ${SERIAL:-0123456789ABCDEF} > $USB_GADGET_STRINGS_DIR/serialnumber
 	echo $USB_GROUP  > $USB_GADGET_STRINGS_DIR/manufacturer
 	echo "rk3xxx"  > $USB_GADGET_STRINGS_DIR/product
@@ -488,6 +488,11 @@ usb_prepare()
 		mountpoint -q $CONFIGFS_DIR || \
 			mount -t configfs none $CONFIGFS_DIR
 
+		# Mainline kernels build configfs gadget support as a module.
+		if [ ! -d "$CONFIGFS_DIR/usb_gadget" ]; then
+			modprobe libcomposite || return 1
+		fi
+
 		mkdir -p $USB_GADGET_DIR
 		cd $USB_GADGET_DIR
 
@@ -495,8 +500,18 @@ usb_prepare()
 		usb_run_stage usb init
 	fi
 
-	USB_STATE=$(cat /sys/class/android_usb/android0/state)
 	USB_UDC=$(ls /sys/class/udc/ | head -n 1)
+	if [ -r /sys/class/android_usb/android0/state ]; then
+		USB_STATE=$(cat /sys/class/android_usb/android0/state)
+	elif [ -n "$USB_UDC" ] && [ -r "/sys/class/udc/$USB_UDC/state" ]; then
+		case "$(cat "/sys/class/udc/$USB_UDC/state")" in
+			configured) USB_STATE=CONFIGURED ;;
+			"not attached") USB_STATE=DISCONNECTED ;;
+			*) USB_STATE=CONNECTED ;;
+		esac
+	else
+		USB_STATE=DISCONNECTED
+	fi
 
 	# Parse started USB functions
 	OLD_FUNCS=$(usb_get_started)

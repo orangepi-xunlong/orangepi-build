@@ -10,8 +10,11 @@
 #cp "${EXTER}"/packages/blobs/desktop/desktop-icons/*.png "${destination}"/usr/share/icons/orangepi
 #
 ## install wallpapers
-#mkdir -p "${destination}"/usr/share/backgrounds/orangepi/
-#cp "${EXTER}"/packages/blobs/desktop/desktop-wallpapers/*.png "${destination}"/usr/share/backgrounds/orangepi
+# debian/postinst points org.gnome.desktop.background at
+# /usr/share/backgrounds/orangepi/orangepi-default.png, so this directory has
+# to exist or the desktop comes up with no wallpaper at all.
+mkdir -p "${destination}"/usr/share/backgrounds/orangepi/
+cp "${EXTER}"/packages/blobs/desktop/desktop-wallpapers/*.png "${destination}"/usr/share/backgrounds/orangepi
 #
 ## install wallpapers
 #mkdir -p "${destination}"/usr/share/backgrounds/orangepi-lightdm/

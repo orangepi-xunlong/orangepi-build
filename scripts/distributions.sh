@@ -551,12 +551,17 @@ FAMILY_TWEAKS
 		# add serial console to secure tty list
 		[ -z "$(grep -w '^${array[0]}' "${SDCARD}"/etc/securetty 2> /dev/null)" ] && \
 		echo "${array[0]}" >>  "${SDCARD}"/etc/securetty
+		# Serial login must work even when Plymouth never exits without a display.
+		# Ordering dependencies cannot be removed with a drop-in; copy the full unit.
+		mkdir -p "${SDCARD}/etc/systemd/system"
+		cp "${SDCARD}"/lib/systemd/system/serial-getty@.service \
+			"${SDCARD}/etc/systemd/system/serial-getty@${array[0]}.service"
+		sed -i '/^After=/s/\bplymouth-quit-wait\.service\b//g' \
+			"${SDCARD}/etc/systemd/system/serial-getty@${array[0]}.service"
 		if [[ ${array[1]} != "115200" && -n ${array[1]} ]]; then
-			# make a copy, fix speed and enable
-			cp "${SDCARD}"/lib/systemd/system/serial-getty@.service \
-			"${SDCARD}/lib/systemd/system/serial-getty@${array[0]}.service"
+			# adjust the serial console speed
 			sed -i "s/--keep-baud 115200/--keep-baud ${array[1]},115200/" \
-			"${SDCARD}/lib/systemd/system/serial-getty@${array[0]}.service"
+			"${SDCARD}/etc/systemd/system/serial-getty@${array[0]}.service"
 		fi
 		chroot "${SDCARD}" /bin/bash -c "systemctl daemon-reload" >> "${DEST}"/${LOG_SUBPATH}/install.log 2>&1
 		chroot "${SDCARD}" /bin/bash -c "systemctl --no-reload enable serial-getty@${array[0]}.service" \

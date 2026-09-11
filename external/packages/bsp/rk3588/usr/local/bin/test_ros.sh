@@ -27,3 +27,11 @@ if [[ -f /opt/ros/humble/setup.bash ]]; then
 	ros2 run demo_nodes_py listener
 
 fi
+
+if [[ -f /opt/ros/lyrical/setup.bash ]]; then
+
+	source /opt/ros/lyrical/setup.bash
+	ros2 run demo_nodes_cpp talker &
+	ros2 run demo_nodes_py listener
+
+fi

@@ -98,6 +98,12 @@ prepare_board() {
 			BOARDFAMILY=rk3399
 			;;
 		orangepi5|orangepicm5|orangepicm5-tablet|orangepi5b|orangepi5plus|orangepiaimax|orangepi5pro|orangepi5max|orangepi5ultra|orangepitab|orangepi900)
+			if [[ $BRANCH == next ]]; then
+				amixer -c rockchipes8388 cset name='Output 1 Playback Volume' 32
+				amixer -c rockchipes8388 cset name='Capture Digital Volume' 192
+				amixer -c rockchipes8388 cset name='Mic PGA Volume' 8
+			fi
+
 			[[ $BOARD =~ orangepi5|orangepi5b ]] && echo host > /sys/kernel/debug/usb/fc000000.usb/mode
 			if [[ $BOARD =~ orangepicm5 ]]; then
 				while true; do

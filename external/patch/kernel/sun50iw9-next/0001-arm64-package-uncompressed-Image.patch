@@ -1,0 +1,33 @@
+Subject: [PATCH] arm64: package the uncompressed Image
+
+The builder compiles the kernel with an explicit target, so for arm64
+KERNEL_IMAGE_TYPE=Image and arch/arm64/boot/Image is what gets built.
+scripts/package/builddeb, however, copies "$(make image_name)", and
+image_name expands to $(notdir $(KBUILD_IMAGE)), i.e. Image.gz, which was
+never produced. Packaging then dies with
+
+  cp: cannot stat 'arch/arm64/boot/Image.gz': No such file or directory
+  make[4]: *** [scripts/Makefile.package:90: intdeb-pkg] Error 1
+
+so no linux-image-*.deb is produced and the image build stops at the
+"Installation of linux-image-... failed" step.
+
+Point KBUILD_IMAGE at the uncompressed Image for the non-EFI case, which is
+what the sunxi boot scripts load anyway (boot-sun50iw9-next.cmd does
+"load ${devtype} ${devnum} ${kernel_addr_r} ${prefix}Image").
+
+This is the same change the vendor already carries unused in
+external/patch/misc/general-packaging-5.6.y.patch, reduced to the single
+hunk that matters here; that file also rewrites builddeb/mkdebian for
+kernel 5.6.y and does not apply to the 6.1.y tree used by sun50iw9/next.
+
+--- a/arch/arm64/Makefile
++++ b/arch/arm64/Makefile
+@@ -150,7 +150,7 @@ boot		:= arch/arm64/boot
+ 
+ ifeq ($(CONFIG_EFI_ZBOOT),)
+-KBUILD_IMAGE	:= $(boot)/Image.gz
++KBUILD_IMAGE	:= $(boot)/Image
+ else
+ KBUILD_IMAGE	:= $(boot)/vmlinuz.efi
+ endif

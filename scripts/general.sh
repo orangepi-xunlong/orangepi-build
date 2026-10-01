@@ -1583,6 +1583,7 @@ prepare_host()
 			*)
 			local toolchains=(
 				"ky-toolchain-linux-glibc-x86_64-v1.0.1.tar.xz"
+				"arm-gnu-toolchain-12.3.rel1-x86_64-aarch64-none-linux-gnu.tar.xz"
 				"gcc-linaro-aarch64-none-elf-4.8-2013.11_linux.tar.xz"
 				"gcc-linaro-arm-none-eabi-4.8-2014.04_linux.tar.xz"
 				"gcc-linaro-arm-linux-gnueabihf-4.8-2014.04_linux.tar.xz"
@@ -1592,9 +1593,7 @@ prepare_host()
 				"gcc-linaro-7.4.1-2019.02-x86_64_arm-linux-gnueabi.tar.xz"
 				"gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu.tar.xz"
 				"gcc-arm-9.2-2019.12-x86_64-arm-none-linux-gnueabihf.tar.xz"
-				"gcc-arm-9.2-2019.12-x86_64-aarch64-none-linux-gnu.tar.xz"
 				"gcc-arm-11.2-2022.02-x86_64-arm-none-linux-gnueabihf.tar.xz"
-				"gcc-arm-11.2-2022.02-x86_64-aarch64-none-linux-gnu.tar.xz"
 				)
 			;;
 		esac

@@ -896,6 +896,13 @@ function distro_menu ()
 					DISTRIB_TYPE="${DISTRIB_TYPE_CURRENT}"
 					[[ -z "${DISTRIB_TYPE_CURRENT}" ]] && DISTRIB_TYPE="bullseye bookworm trixie focal jammy noble"
 				fi
+			elif [[ "${BRANCH}" == "mainline" ]]; then
+				if [[ -n "${DISTRIB_TYPE_MAINLINE}" ]]; then
+					DISTRIB_TYPE="${DISTRIB_TYPE_MAINLINE}"
+				else
+					DISTRIB_TYPE="${DISTRIB_TYPE_CURRENT}"
+					[[ -z "${DISTRIB_TYPE_CURRENT}" ]] && DISTRIB_TYPE="bullseye bookworm trixie focal jammy noble"
+				fi
 			fi
 
 			if [[ "${DISTRIB_TYPE}" =~ "${distro_codename}" ]]; then
@@ -1430,11 +1437,13 @@ prepare_host()
 
 	local hostdeps="acl aptly aria2 bc binfmt-support bison btrfs-progs       \
 	build-essential  ca-certificates ccache cpio cryptsetup curl              \
-	debian-archive-keyring debian-keyring debootstrap device-tree-compiler    \
-	dialog dirmngr dosfstools dwarves f2fs-tools fakeroot flex gawk           \
-	gcc-arm-linux-gnueabihf gdisk gpg imagemagick jq kmod libbison-dev \
-	libc6-dev-armhf-cross libelf-dev libfdt-dev libfile-fcntllock-perl        \
-	libfl-dev liblz4-tool libncurses-dev libpython2.7-dev libssl-dev          \
+	debian-archive-keyring debian-keyring debootstrap debhelper              \
+	device-tree-compiler dialog dirmngr dosfstools dwarves f2fs-tools         \
+	fakeroot flex gawk                                                        \
+	gcc-arm-linux-gnueabihf gdisk gpg imagemagick jq kmod libbison-dev        \
+	libc6-dev-armhf-cross libdw-dev libelf-dev libfdt-dev                     \
+	libfile-fcntllock-perl                                                    \
+	libfl-dev libgnutls28-dev libncurses-dev libssl-dev lz4                   \
 	libusb-1.0-0-dev linux-base locales lzop ncurses-base ncurses-term        \
 	nfs-kernel-server ntpdate p7zip-full parted patchutils pigz pixz          \
 	pkg-config pv python3-dev python3-distutils qemu-user-static rsync swig   \
@@ -1459,13 +1468,19 @@ prepare_host()
 
   fi
 
-	# Add support for Ubuntu 20.04, 21.04 and Mint 20.x
-	if [[ $HOSTRELEASE =~ ^(focal|hirsute|jammy|noble|noble|ulyana|ulyssa|bullseye|bookworm|trixie|uma)$ ]]; then
+	# Python 2 support
+	#
+	# Python 2 is gone from current Debian and Ubuntu releases. Hardcoding
+	# release names here appended "python libpython-dev" to any host we did not
+	# know about, and those names no longer resolve. Since one unresolvable name
+	# makes the whole apt-get invocation fail, the build host ended up without
+	# any build dependencies at all. Ask the host package index instead.
+	if apt-cache show python2 >/dev/null 2>&1; then
 		hostdeps+=" python2 python3"
-		ln -fs /usr/bin/python2.7 /usr/bin/python2
-		ln -fs /usr/bin/python2.7 /usr/bin/python
-	else
-		hostdeps+=" python libpython-dev"
+		if [[ -x /usr/bin/python2.7 ]]; then
+			ln -fs /usr/bin/python2.7 /usr/bin/python2
+			ln -fs /usr/bin/python2.7 /usr/bin/python
+		fi
 	fi
 
 	display_alert "Build host OS release" "${HOSTRELEASE:-(unknown)}" "info"
@@ -1528,6 +1543,25 @@ prepare_host()
 	display_alert "Installing build dependencies"
 	# don't prompt for apt cacher selection
 	sudo echo "apt-cacher-ng    apt-cacher-ng/tunnelenable      boolean false" | sudo debconf-set-selections
+
+	# A single unresolvable package name makes the whole apt-get invocation fail,
+	# which leaves the build host without any build dependencies at all. Filter
+	# the list against the host package index and report what was dropped.
+	# A candidate version is required: virtual packages (e.g. liblz4-tool on
+	# current Debian, where lz4 provides it) have none and cannot be installed.
+	# LC_ALL=C keeps the "Candidate:" label stable across localisations.
+	local hostdeps_available=() hostdeps_unavailable=()
+	for pkg in $hostdeps; do
+		if LC_ALL=C apt-cache policy "$pkg" 2>/dev/null | grep -qE '^ +Candidate: [^(]'; then
+			hostdeps_available+=("$pkg")
+		else
+			hostdeps_unavailable+=("$pkg")
+		fi
+	done
+	if [[ ${#hostdeps_unavailable[@]} -gt 0 ]]; then
+		display_alert "Skipping host dependencies unavailable on ${HOSTRELEASE:-(unknown)}" "${hostdeps_unavailable[*]}" "wrn"
+	fi
+	hostdeps="${hostdeps_available[*]}"
 
 	LOG_OUTPUT_FILE="${DEST}"/${LOG_SUBPATH}/hostdeps.log
 	install_pkg_deb "autoupdate $hostdeps"

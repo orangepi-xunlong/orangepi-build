@@ -1,0 +1,27 @@
+.PHONY: build build-detached check
+
+BOARD ?=
+BRANCH ?=
+RELEASE ?=
+BUILD_OPT ?= image
+BUILD_MINIMAL ?= no
+BUILD_DESKTOP ?= no
+KERNEL_CONFIGURE ?= no
+COMPRESS_OUTPUTIMAGE ?= no
+
+check:
+	@if [ -z "$(BOARD)" ] || [ -z "$(BRANCH)" ] || [ -z "$(RELEASE)" ]; then \
+		echo "Missing required variables. Example:"; \
+		echo "  make build BOARD=orangepi6plus BRANCH=next RELEASE=trixie"; \
+		exit 1; \
+	fi
+
+build: check
+	sudo -n ./build.sh BOARD=$(BOARD) BRANCH=$(BRANCH) RELEASE=$(RELEASE) BUILD_OPT=$(BUILD_OPT) \
+		BUILD_MINIMAL=$(BUILD_MINIMAL) BUILD_DESKTOP=$(BUILD_DESKTOP) KERNEL_CONFIGURE=$(KERNEL_CONFIGURE) \
+		COMPRESS_OUTPUTIMAGE=$(COMPRESS_OUTPUTIMAGE)
+
+build-detached: check
+	BOARD=$(BOARD) BRANCH=$(BRANCH) RELEASE=$(RELEASE) BUILD_OPT=$(BUILD_OPT) \
+		BUILD_MINIMAL=$(BUILD_MINIMAL) BUILD_DESKTOP=$(BUILD_DESKTOP) KERNEL_CONFIGURE=$(KERNEL_CONFIGURE) \
+		COMPRESS_OUTPUTIMAGE=$(COMPRESS_OUTPUTIMAGE) ./scripts/rebuild.sh

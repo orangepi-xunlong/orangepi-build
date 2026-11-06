@@ -1,0 +1,35 @@
+#!/bin/bash
+set -euo pipefail
+
+: "${BOARD:?Set BOARD}"
+: "${BRANCH:?Set BRANCH}"
+: "${RELEASE:?Set RELEASE}"
+
+BUILD_OPT=${BUILD_OPT:-image}
+BUILD_MINIMAL=${BUILD_MINIMAL:-no}
+BUILD_DESKTOP=${BUILD_DESKTOP:-no}
+KERNEL_CONFIGURE=${KERNEL_CONFIGURE:-no}
+COMPRESS_OUTPUTIMAGE=${COMPRESS_OUTPUTIMAGE:-no}
+
+LOG_DIR=${LOG_DIR:-output}
+TS=$(date +%Y%m%d-%H%M%S)
+LOG=${LOG_DIR}/build-${BOARD}-${RELEASE}-${TS}.log
+PID=${LOG_DIR}/build-${BOARD}-${RELEASE}-${TS}.pid
+
+mkdir -p "${LOG_DIR}"
+
+nohup sudo -n ./build.sh \
+  BOARD=${BOARD} \
+  BRANCH=${BRANCH} \
+  RELEASE=${RELEASE} \
+  BUILD_OPT=${BUILD_OPT} \
+  BUILD_MINIMAL=${BUILD_MINIMAL} \
+  BUILD_DESKTOP=${BUILD_DESKTOP} \
+  KERNEL_CONFIGURE=${KERNEL_CONFIGURE} \
+  COMPRESS_OUTPUTIMAGE=${COMPRESS_OUTPUTIMAGE} \
+  > "${LOG}" 2>&1 &
+
+echo $! > "${PID}"
+
+echo "Log: ${LOG}"
+echo "PID: ${PID}"

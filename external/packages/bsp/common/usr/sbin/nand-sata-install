@@ -685,7 +685,7 @@ main()
 	[[ -n $diskcheck ]] && options+=(1 'Boot from SD   - system on SATA, USB or NVMe')
 	[[ -n $nandcheck || -n $emmccheck ]] && options+=(2 "Boot from $ichip - system on $ichip")
 	[[ ( -n $nandcheck || -n $emmccheck ) && -n $diskcheck ]] && options+=(3 "Boot from $ichip - system on SATA, USB or NVMe")
-	[[ -n $spicheck ]] && options+=(4 'Boot from SPI  - system on SATA, USB or NVMe')
+	[[ -n $spicheck || $BOARD == orangepio1 ]] && options+=(4 'Boot from SPI  - system on SATA, USB or NVMe')
 
 	# U-boot install/update options
 	[[ -n ${root_partition_device} ]] && options+=(5 'Install/Update the bootloader on SD/eMMC')

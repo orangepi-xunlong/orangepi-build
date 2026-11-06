@@ -481,6 +481,18 @@ prepare_board() {
 				/usr/bin/hciattach_opi -n -s 1500000 /dev/ttyS1 aic) &
 			;;
 
+		orangepio1)
+			echo 389 > /sys/class/gpio/export
+			echo out > /sys/class/gpio/gpio389/direction
+			echo 0 > /sys/class/gpio/gpio389/value
+			echo 1 > /sys/class/gpio/gpio389/value
+
+			brcm_patchram_plus -d --enable_hci --no2bytes --tosleep 200000 --baudrate 3000000 --patchram /lib/firmware/SYN43711A0.hcd /dev/ttyS4 &
+			insmod /opt/sophon/libsophon-0.4.11/data/bmtpu.ko
+			chmod 666 /dev/soph* /dev/ion
+
+			;;
+
 	esac
 
 	case ${BOARDFAMILY} in

@@ -857,6 +857,8 @@ create_image()
 			--exclude='./sys/*' . | pv -p -b -r -s $(du -sb $SDCARD/ | cut -f1) -N "rootfs.tgz" | gzip -c > $destimg/${version}-rootfs.tgz
 	fi
 
+	[[ ${BOARDFAMILY} == "sophon-bm1688" ]] && write_uboot $SDCARD
+
 	# stage: rsync /boot
 	display_alert "Copying files to" "/boot"
 	echo -e "\nCopying files to [/boot]" >>"${DEST}"/${LOG_SUBPATH}/install.log
@@ -889,7 +891,7 @@ PRE_UPDATE_INITRAMFS
 	display_alert "Mount point" "$(echo -e "$freespace" | grep $MOUNT | head -1 | awk '{print $5}')" "info"
 
 	# stage: write u-boot
-	write_uboot $LOOP
+	[[ ${BOARDFAMILY} != "sophon-bm1688" ]] && write_uboot $LOOP
 
 	# fix wrong / permissions
 	chmod 755 $MOUNT

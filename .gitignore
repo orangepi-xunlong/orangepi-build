@@ -44,6 +44,7 @@ external/cache/sources/rkbin-tools
 external/cache/sources/ffmpeg_kodi*
 external/cache/sources/hi3403-tools
 external/cache/sources/t527_packages
+external/cache/sources/bm1688_packages
 external/cache/sources/ascend-driver
 external/cache/sources/orangepi-test
 external/cache/sources/component_cix*

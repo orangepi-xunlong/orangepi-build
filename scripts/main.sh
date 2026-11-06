@@ -198,6 +198,7 @@ if [[ -z $BOARD ]]; then
 	options+=("orangepi4-lts"                 "Rockchip  RK3399 hexa core 4GB RAM GBE eMMC USB3 USB-C WiFi/BT")
 	#options+=("aipcliteb"		"Allwinner T736 octa core 2-4GB RAM GBE WiFi/BT NVMe")
 	options+=("orangepi4pro"		"Allwinner A733 octa core 4-16GB RAM GBE USB3 WiFi/BT NVMe eMMC")
+	options+=("orangepio1"                  "Sophon    BM1688 octa core 8-16GB RAM GBE USB3 WiFi/BT")
 	options+=("orangepi800"                 "Rockchip  RK3399 hexa core 4GB RAM GBE eMMC USB3 USB-C WiFi/BT VGA")
 	options+=("orangepi5"                 "Rockchip  RK3588S octa core 4-16GB RAM GBE USB3 USB-C NVMe")
 	options+=("orangepicm5"                 "Rockchip  RK3588S octa core 4-16GB RAM GBE USB3 USB-C")
@@ -538,6 +539,14 @@ if [[ ${IGNORE_UPDATES} != yes ]]; then
 		[[ ${BUILD_OPT} == image ]] && fetch_from_repo "https://gitee.com/orangepi-xunlong/sun60iw2_packages.git" "${EXTER}/cache/sources/sun60iw2_packages" "branch:sun60iw2_packages"
 		else
 		[[ ${BUILD_OPT} == image ]] && fetch_from_repo "https://github.com/orangepi-xunlong/rk-rootfs-build.git" "${EXTER}/cache/sources/sun60iw2_packages" "branch:sun60iw2_packages"
+		fi
+	fi
+
+	if [[ ${BOARDFAMILY} == "sophon-bm1688" && $RELEASE =~ jammy ]]; then
+		if [[ ${GITEE_SERVER} == yes ]]; then
+		[[ ${BUILD_OPT} == image ]] && fetch_from_repo "https://gitee.com/orangepi-xunlong/bm1688_packages.git" "${EXTER}/cache/sources/bm1688_packages" "branch:bm1688_packages"
+		else
+		[[ ${BUILD_OPT} == image ]] && fetch_from_repo "https://github.com/orangepi-xunlong/rk-rootfs-build.git" "${EXTER}/cache/sources/bm1688_packages" "branch:bm1688_packages"
 		fi
 	fi
 

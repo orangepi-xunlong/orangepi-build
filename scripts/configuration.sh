@@ -65,6 +65,9 @@ case $REGIONAL_MIRROR in
 		[[ -z $GITHUB_MIRROR ]] && GITHUB_MIRROR=gitclone
 		[[ -z $DOWNLOAD_MIRROR ]] && DOWNLOAD_MIRROR=china
 		;;
+	russia)
+		[[ -z $DOWNLOAD_MIRROR ]] && DOWNLOAD_MIRROR=ru
+		;;
 	*)
 		;;
 esac
@@ -605,6 +608,13 @@ if [[ $DOWNLOAD_MIRROR == "bfsu" ]] ; then
 	DEBIAN_MIRROR='mirrors.bfsu.edu.cn/debian'
 	DEBIAN_SECURTY='mirrors.bfsu.edu.cn/debian-security'
 	UBUNTU_MIRROR='mirrors.bfsu.edu.cn/ubuntu-ports/'
+fi
+
+if [[ $DOWNLOAD_MIRROR == "ru" ]] ; then
+	# Yandex serves both ubuntu-ports and ubuntu for every architecture and
+	# release (including noble-security), so it covers the ports as well as
+	# the amd64 case below. Debian is left on the default deb.debian.org CDN.
+	UBUNTU_MIRROR='mirror.yandex.ru/ubuntu-ports/'
 fi
 
 if [[ "${ARCH}" == "amd64" ]]; then

@@ -1,0 +1,52 @@
+diff --git a/scripts/dtc/pylibfdt/libfdt.i_shipped b/scripts/dtc/pylibfdt/libfdt.i_shipped
+index 56cc5d48..08d83e4c 100644
+--- a/scripts/dtc/pylibfdt/libfdt.i_shipped
++++ b/scripts/dtc/pylibfdt/libfdt.i_shipped
+@@ -1033,11 +1033,16 @@ typedef uint32_t fdt32_t;
+ 	PyObject *buff;
+ 
+ 	if ($1) {
+-		resultobj = PyString_FromString(
+-			fdt_string(fdt1, fdt32_to_cpu($1->nameoff)));
++        %#if PY_VERSION_HEX >= 0x03000000
++            resultobj = PyUnicode_FromString(
++                fdt_string(fdt1, fdt32_to_cpu($1->nameoff)));
++        %#else
++            resultobj = PyString_FromString(
++                fdt_string(fdt1, fdt32_to_cpu($1->nameoff)));
++        %#endif
+ 		buff = PyByteArray_FromStringAndSize(
+ 			(const char *)($1 + 1), fdt32_to_cpu($1->len));
+-		resultobj = SWIG_Python_AppendOutput(resultobj, buff);
++		resultobj = SWIG_Python_AppendOutput(resultobj, buff, 0);
+ 	}
+ }
+ 
+@@ -1070,13 +1075,17 @@ typedef uint32_t fdt32_t;
+ 
+ /* typemaps used for fdt_next_node() */
+ %typemap(in, numinputs=1) int *depth (int depth) {
++   %#if PY_VERSION_HEX >= 0x03000000
++   depth = (int) PyLong_AsLong($input);
++   %#else
+    depth = (int) PyInt_AsLong($input);
++   %#endif
+    $1 = &depth;
+ }
+ 
+ %typemap(argout) int *depth {
+         PyObject *val = Py_BuildValue("i", *arg$argnum);
+-        resultobj = SWIG_Python_AppendOutput(resultobj, val);
++        resultobj = SWIG_Python_AppendOutput(resultobj, val, 0);
+ }
+ 
+ %apply int *depth { int *depth };
+@@ -1092,7 +1101,7 @@ typedef uint32_t fdt32_t;
+            if (PyTuple_GET_SIZE(resultobj) == 0)
+               resultobj = val;
+            else
+-              resultobj = SWIG_Python_AppendOutput(resultobj, val);
++              resultobj = SWIG_Python_AppendOutput(resultobj, val, 0);
+         }
+ }
+ 

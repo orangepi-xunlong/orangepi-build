@@ -88,7 +88,6 @@ RUN apt-get update \
        python2 \
        python3 \
        python3-dev \
-       python3-distutils \
        python3-pkg-resources \
        python3-setuptools \
        qemu \

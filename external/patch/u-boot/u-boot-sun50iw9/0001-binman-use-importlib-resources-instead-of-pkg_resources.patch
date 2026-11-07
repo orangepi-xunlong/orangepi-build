@@ -1,0 +1,33 @@
+diff --git a/tools/binman/control.py b/tools/binman/control.py
+index 2f002792..d0e30f32 100644
+--- a/tools/binman/control.py
++++ b/tools/binman/control.py
+@@ -13,7 +13,6 @@ except ImportError:  # pragma: no cover
+     # for Python 3.6
+     import importlib_resources
+ import os
+-import pkg_resources
+ import re
+ 
+ import sys
+@@ -96,7 +95,8 @@ def _ReadMissingBlobHelp():
+             msg = ''
+         return tag, msg
+ 
+-    my_data = pkg_resources.resource_string(__name__, 'missing-blob-help')
++    my_data = (importlib.resources.files(__package__ or 'binman') /
++               'missing-blob-help').read_bytes()
+     re_tag = re.compile('^([-a-z0-9]+):$')
+     result = {}
+     tag = None
+@@ -151,7 +151,9 @@ def GetEntryModules(include_testing=True):
+     Returns:
+         Set of paths to entry class filenames
+     """
+-    glob_list = pkg_resources.resource_listdir(__name__, 'etype')
++    glob_list = [p.name for p in
++                (importlib.resources.files(__package__ or 'binman') /
++                 'etype').iterdir()]
+     glob_list = [fname for fname in glob_list if fname.endswith('.py')]
+     return set([os.path.splitext(os.path.basename(item))[0]
+                 for item in glob_list

@@ -76,9 +76,16 @@ compile_atf()
 	echo -e "\n\t==  atf  ==\n" >> "${DEST}"/${LOG_SUBPATH}/compilation.log
 	# ENABLE_BACKTRACE="0" has been added to workaround a regression in ATF.
 	# Check: https://github.com/armbian/build/issues/1157
+	#
+	# Keep CROSS_COMPILE a plain tool prefix and hand the ccache wrapper to CC
+	# instead. Since v2.13 TF-A derives the linker and archiver from the C
+	# compiler by parsing its command line, and "CROSS_COMPILE=ccache <prefix>"
+	# leaves it with just "ccache" for LD/AR, which aborts the build with
+	# "lib/libfdt/libfdt.mk:16: *** invalid syntax in conditional. Stop."
 	eval CCACHE_BASEDIR="$(pwd)" env PATH="${toolchain}:${toolchain2}:${PATH}" \
 		'make ENABLE_BACKTRACE="0" $target_make $CTHREADS \
-		CROSS_COMPILE="$CCACHE $ATF_COMPILER"' 2>> "${DEST}"/${LOG_SUBPATH}/compilation.log \
+		CROSS_COMPILE="$ATF_COMPILER" \
+		CC="$CCACHE ${ATF_COMPILER}gcc"' 2>> "${DEST}"/${LOG_SUBPATH}/compilation.log \
 		${PROGRESS_LOG_TO_FILE:+' | tee -a $DEST/${LOG_SUBPATH}/compilation.log'} \
 		${OUTPUT_DIALOG:+' | dialog --backtitle "$backtitle" --progressbox "Compiling ATF..." $TTY_Y $TTY_X'} \
 		${OUTPUT_VERYSILENT:+' >/dev/null 2>/dev/null'}
